@@ -1,6 +1,6 @@
 {
   "name": "janus-validator-monorepo",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -14,6 +14,9 @@
     "clean": "npm run clean --workspaces && rm -rf packages/*/tsconfig.tsbuildinfo && find packages/*/src -name '*.d.ts' -delete && find packages/*/src -name '*.d.ts.map' -delete && find packages/*/src -name '*.js' -delete && find packages/*/src -name '*.js.map' -delete",
     "lint": "eslint 'packages/*/src/**/*.ts' 'packages/*/tests/**/*.ts'",
     "lint:fix": "eslint 'packages/*/src/**/*.ts' 'packages/*/tests/**/*.ts' --fix",
+    "version:patch": "npm version patch --workspaces --no-git-tag-version && npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --workspaces --no-git-tag-version && npm version minor --no-git-tag-version",
+    "version:major": "npm version major --workspaces --no-git-tag-version && npm version major --no-git-tag-version",
     "publish:all": "npm run build && npm publish --workspaces --access public",
     "publish:core": "npm run build:core && npm publish -w @janus-validator/core --access public",
     "publish:dsl": "npm run build:dsl && npm publish -w @janus-validator/dsl --access public",
