@@ -1,6 +1,6 @@
 {
   "name": "janus-validator-monorepo",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -17,10 +17,10 @@
     "version:patch": "npm version patch --workspaces --no-git-tag-version && npm version patch --no-git-tag-version",
     "version:minor": "npm version minor --workspaces --no-git-tag-version && npm version minor --no-git-tag-version",
     "version:major": "npm version major --workspaces --no-git-tag-version && npm version major --no-git-tag-version",
-    "publish:all": "npm run build && npm publish --workspaces --access public",
-    "publish:core": "npm run build:core && npm publish -w @janus-validator/core --access public",
-    "publish:dsl": "npm run build:dsl && npm publish -w @janus-validator/dsl --access public",
-    "publish:avro": "npm run build:avro && npm publish -w @janus-validator/avro --access public"
+    "publish:all": "npm run clean && npm run build && npm publish --workspaces --access public",
+    "publish:core": "npm run clean && npm run build:core && npm publish -w @janus-validator/core --access public",
+    "publish:dsl": "npm run clean && npm run build && npm publish -w @janus-validator/dsl --access public",
+    "publish:avro": "npm run clean && npm run build && npm publish -w @janus-validator/avro --access public"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.0.0",
