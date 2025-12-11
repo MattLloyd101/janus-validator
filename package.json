@@ -11,7 +11,7 @@
     "build:dsl": "tsc -b packages/dsl",
     "build:avro": "tsc -b packages/avro",
     "test": "npm run test --workspaces",
-    "clean": "npm run clean --workspaces && rm -rf packages/*/tsconfig.tsbuildinfo",
+    "clean": "npm run clean --workspaces && rm -rf packages/*/tsconfig.tsbuildinfo && find packages/*/src -name '*.d.ts' -delete && find packages/*/src -name '*.d.ts.map' -delete && find packages/*/src -name '*.js' -delete && find packages/*/src -name '*.js.map' -delete",
     "lint": "eslint 'packages/*/src/**/*.ts' 'packages/*/tests/**/*.ts'",
     "lint:fix": "eslint 'packages/*/src/**/*.ts' 'packages/*/tests/**/*.ts' --fix",
     "publish:all": "npm run build && npm publish --workspaces --access public",
