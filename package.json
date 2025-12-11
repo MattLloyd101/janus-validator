@@ -1,5 +1,6 @@
 {
   "name": "janus-validator-monorepo",
+  "version": "0.1.0",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -12,7 +13,11 @@
     "test": "npm run test --workspaces",
     "clean": "npm run clean --workspaces && rm -rf packages/*/tsconfig.tsbuildinfo",
     "lint": "eslint 'packages/*/src/**/*.ts' 'packages/*/tests/**/*.ts'",
-    "lint:fix": "eslint 'packages/*/src/**/*.ts' 'packages/*/tests/**/*.ts' --fix"
+    "lint:fix": "eslint 'packages/*/src/**/*.ts' 'packages/*/tests/**/*.ts' --fix",
+    "publish:all": "npm run build && npm publish --workspaces --access public",
+    "publish:core": "npm run build:core && npm publish -w @janus-validator/core --access public",
+    "publish:dsl": "npm run build:dsl && npm publish -w @janus-validator/dsl --access public",
+    "publish:avro": "npm run build:avro && npm publish -w @janus-validator/avro --access public"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.0.0",
