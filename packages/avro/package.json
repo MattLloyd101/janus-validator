@@ -1,0 +1,51 @@
+{
+  "name": "@janus-validator/avro",
+  "version": "0.1.0",
+  "description": "Avro schema import/export for Janus Validator",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "avro",
+    "validator",
+    "schema",
+    "typescript",
+    "janus"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "@janus-validator/core": "^0.1.0"
+  },
+  "devDependencies": {
+    "@janus-validator/core": "^0.1.0",
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.11.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}
+

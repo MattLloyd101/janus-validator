@@ -1,0 +1,19 @@
+/**
+ * @janus-validator/dsl - Concise DSL for Janus Validator
+ * 
+ * Provides short aliases for all validators and combinators.
+ * 
+ * @example
+ * ```typescript
+ * import { B, S, I, N, L, R, O, Bytes, Or, Seq, optional, oneOrMore } from '@janus-validator/dsl';
+ * 
+ * const user = O({
+ *   name: S(1, 50),
+ *   age: I(0, 150),
+ *   active: B(),
+ * });
+ * ```
+ */
+
+export * from './com/techlloyd/janus/index';
+

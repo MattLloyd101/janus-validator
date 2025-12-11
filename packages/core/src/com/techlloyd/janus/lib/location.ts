@@ -1,0 +1,157 @@
+/**
+ * Location validators - addresses, postal codes, coordinates
+ */
+
+import { S, N, R, O, Or, digits, upper, alphanumeric, letters, chars } from '../DSL';
+import { UnicodeString } from '../combinators/UnicodeString';
+
+// ============================================================================
+// Postal/ZIP Codes
+// ============================================================================
+
+/**
+ * US ZIP code: 5 digits
+ */
+export const USZip5 = () => S(digits(5));
+
+/**
+ * US ZIP+4 code: 5 digits + dash + 4 digits
+ */
+export const USZipPlus4 = () => S(digits(5), '-', digits(4));
+
+/**
+ * US ZIP code (5 digits or 5+4)
+ */
+export const USZipCode = () => Or(USZip5(), USZipPlus4());
+
+/**
+ * UK postcode
+ */
+export const UKPostcode = () => R(/^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i);
+
+/**
+ * Canadian postal code: A1A 1A1
+ */
+export const CanadianPostalCode = () => R(/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i);
+
+/**
+ * German postal code (PLZ): 5 digits
+ */
+export const GermanPLZ = () => S(digits(5));
+
+/**
+ * Generic postal code (alphanumeric, 3-10 chars)
+ */
+export const PostalCode = () => S(alphanumeric(3, 10));
+
+// ============================================================================
+// Geographic coordinates
+// ============================================================================
+
+/**
+ * Latitude (-90 to 90)
+ */
+export const Latitude = () => N(-90, 90);
+
+/**
+ * Longitude (-180 to 180)
+ */
+export const Longitude = () => N(-180, 180);
+
+/**
+ * Geographic coordinates
+ */
+export const Coordinates = () => O({
+  latitude: Latitude(),
+  longitude: Longitude(),
+});
+
+/**
+ * Coordinates with altitude
+ */
+export const Coordinates3D = () => O({
+  latitude: Latitude(),
+  longitude: Longitude(),
+  altitude: N(-500, 100000), // meters, Dead Sea to space
+});
+
+// ============================================================================
+// Country/State codes
+// ============================================================================
+
+/**
+ * ISO 3166-1 alpha-2 country code (US, GB, DE, etc.)
+ */
+export const CountryCodeAlpha2 = () => S(upper(2));
+
+/**
+ * ISO 3166-1 alpha-3 country code (USA, GBR, DEU, etc.)
+ */
+export const CountryCodeAlpha3 = () => S(upper(3));
+
+/**
+ * US state code (2 letters) - validated against actual state codes
+ */
+export const USStateCode = () => R(/^(A[KLRZ]|C[AOT]|D[CE]|FL|GA|HI|I[ADLN]|K[SY]|LA|M[ADEINOST]|N[CDEHJMVY]|O[HKR]|PA|RI|S[CD]|T[NX]|UT|V[AT]|W[AIVY])$/);
+
+// ============================================================================
+// Address schemas
+// ============================================================================
+
+/**
+ * US street address
+ */
+export const USAddress = () => O({
+  street1: UnicodeString(1, 100),
+  street2: UnicodeString(0, 100),
+  city: S(letters(1, 100)),
+  state: USStateCode(),
+  zipCode: USZipCode(),
+});
+
+/**
+ * UK address
+ */
+export const UKAddress = () => O({
+  street1: UnicodeString(1, 100),
+  street2: UnicodeString(0, 100),
+  city: S(letters(1, 100)),
+  county: S(letters(0, 50)),
+  postcode: UKPostcode(),
+});
+
+/**
+ * Generic international address
+ */
+export const InternationalAddress = () => O({
+  street1: UnicodeString(1, 200),
+  street2: UnicodeString(0, 200),
+  city: UnicodeString(1, 100),
+  region: UnicodeString(0, 100),
+  postalCode: PostalCode(),
+  country: CountryCodeAlpha2(),
+});
+
+/**
+ * Shipping address with recipient
+ */
+export const ShippingAddress = () => O({
+  recipientName: UnicodeString(1, 100),
+  company: UnicodeString(0, 100),
+  street1: UnicodeString(1, 200),
+  street2: UnicodeString(0, 200),
+  city: UnicodeString(1, 100),
+  region: UnicodeString(0, 100),
+  postalCode: S(alphanumeric(1, 20)),
+  country: CountryCodeAlpha2(),
+  phone: S(chars('0-9 +()-', 0, 20)),
+});
+
+/**
+ * Place with coordinates
+ */
+export const GeoLocation = () => O({
+  name: UnicodeString(1, 200),
+  address: UnicodeString(0, 500),
+  coordinates: Coordinates(),
+});
