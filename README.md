@@ -33,11 +33,7 @@ npm install @janus-validator/core @janus-validator/dsl @janus-validator/avro
 ## Quick Start
 
 ```typescript
-// Option 1: Import from dedicated DSL package
 import { O, U, I, B, R, Or, Typed } from '@janus-validator/dsl';
-
-// Option 2: Import from core
-import { O, U, I, B, R, Or, Typed } from '@janus-validator/core/DSL';
 
 import { Generator } from '@janus-validator/core';
 
