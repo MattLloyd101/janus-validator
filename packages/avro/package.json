@@ -1,6 +1,6 @@
 {
   "name": "@janus-validator/avro",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Avro schema import/export for Janus Validator",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,8 +16,7 @@
     "clean": "rm -rf dist",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "prepublishOnly": "npm run clean && npm run build"
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "avro",

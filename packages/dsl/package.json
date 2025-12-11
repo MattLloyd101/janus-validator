@@ -1,6 +1,6 @@
 {
   "name": "@janus-validator/dsl",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Concise DSL for Janus Validator - short aliases for all combinators",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,8 +15,7 @@
     "watch": "tsc --watch",
     "clean": "rm -rf dist",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "prepublishOnly": "npm run clean && npm run build"
+    "test:watch": "jest --watch"
   },
   "keywords": [
     "validator",
