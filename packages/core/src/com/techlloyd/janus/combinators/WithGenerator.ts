@@ -50,7 +50,7 @@ export function withGenerator<T>(
   generate: GeneratorFn<T>
 ): Validator<T> {
   return {
-    validate: validator.validate,
+    validate: (value: unknown) => validator.validate(value),
     domain: {
       type: DomainType.CUSTOM_GENERATOR_DOMAIN,
       innerDomain: validator.domain,

@@ -2,7 +2,12 @@
  * Identifier validators - UUIDs, slugs, IDs
  */
 
-import { S, I, R, O, Or, digits, hex, alphanumeric, lower, chars, caseInsensitive } from '../DSL';
+import { Regex } from '../combinators/Regex';
+import { String as S, digits, hex, alphanumeric, lower, chars } from '../combinators/String';
+import { Integer } from '../combinators/Integer';
+import { Struct } from '../combinators/Struct';
+import { Alternation } from '../combinators/Alternation';
+import { caseInsensitive } from '../combinators/CaseInsensitive';
 
 // ============================================================================
 // UUIDs
@@ -43,7 +48,7 @@ export const UUIDSimple = () => S(
 /**
  * URL slug (lowercase letters, numbers, hyphens)
  */
-export const Slug = () => R(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+export const Slug = () => Regex(/^[a-z0-9]+(-[a-z0-9]+)*$/);
 
 /**
  * URL-safe base64 ID
@@ -67,7 +72,7 @@ export const ShortID = () => S(alphanumeric(6, 12));
 /**
  * Positive integer ID
  */
-export const IntegerID = () => I(1, Number.MAX_SAFE_INTEGER);
+export const IntegerID = () => Integer(1, Number.MAX_SAFE_INTEGER);
 
 /**
  * MongoDB ObjectId (24 hex chars)
@@ -108,7 +113,7 @@ export const SemVer = () => S(...versionParts());
  * Semantic version with optional prerelease and/or build metadata
  * Composed from version parts with optional suffixes
  */
-export const SemVerFull = () => Or(
+export const SemVerFull = () => Alternation.of(
   S(...versionParts()),                                           // X.Y.Z
   S(...versionParts(), '-', alphanumeric(1, 20)),                 // X.Y.Z-prerelease
   S(...versionParts(), '+', alphanumeric(1, 20)),                 // X.Y.Z+build
@@ -166,12 +171,12 @@ export const HexColor8 = () => caseInsensitive(S('#', hex(8)));
 /**
  * Hex color code (#RGB or #RRGGBB)
  */
-export const HexColor = () => Or(HexColor3(), HexColor6());
+export const HexColor = () => Alternation.of(HexColor3(), HexColor6());
 
 /**
  * Hex color with alpha (#RGB, #RGBA, #RRGGBB, #RRGGBBAA)
  */
-export const HexColorAlpha = () => Or(HexColor3(), HexColor4(), HexColor6(), HexColor8());
+export const HexColorAlpha = () => Alternation.of(HexColor3(), HexColor4(), HexColor6(), HexColor8());
 
 /**
  * Language code (ISO 639-1, e.g., en, fr, de)
@@ -181,7 +186,7 @@ export const LanguageCode = () => S(lower(2));
 /**
  * Locale code (e.g., en-US, fr-FR)
  */
-export const LocaleCode = () => R(/^[a-z]{2}(-[A-Z]{2})?$/);
+export const LocaleCode = () => Regex(/^[a-z]{2}(-[A-Z]{2})?$/);
 
 // ============================================================================
 // Identifiable entities
@@ -190,18 +195,18 @@ export const LocaleCode = () => R(/^[a-z]{2}(-[A-Z]{2})?$/);
 /**
  * Entity with ID
  */
-export const WithID = <T extends object>(schema: T) => O({
-  id: Or(UUIDv4(), IntegerID()),
+export const WithID = <T extends object>(schema: T) => Struct({
+  id: Alternation.of(UUIDv4(), IntegerID()),
   ...schema,
 });
 
 /**
  * Entity with timestamps
  */
-export const WithTimestamps = <T extends object>(schema: T) => O({
+export const WithTimestamps = <T extends object>(schema: T) => Struct({
   ...schema,
-  createdAt: Or(ISOTimestamp(), I(0, Number.MAX_SAFE_INTEGER)),
-  updatedAt: Or(ISOTimestamp(), I(0, Number.MAX_SAFE_INTEGER)),
+  createdAt: Alternation.of(ISOTimestamp(), Integer(0, Number.MAX_SAFE_INTEGER)),
+  updatedAt: Alternation.of(ISOTimestamp(), Integer(0, Number.MAX_SAFE_INTEGER)),
 });
 
 /**

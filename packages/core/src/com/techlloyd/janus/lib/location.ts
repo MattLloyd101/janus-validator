@@ -2,7 +2,11 @@
  * Location validators - addresses, postal codes, coordinates
  */
 
-import { S, N, R, O, Or, digits, upper, alphanumeric, letters, chars } from '../DSL';
+import { Regex } from '../combinators/Regex';
+import { String as S, digits, upper, alphanumeric, letters, chars } from '../combinators/String';
+import { Number as Num } from '../combinators/Number';
+import { Struct } from '../combinators/Struct';
+import { Alternation } from '../combinators/Alternation';
 import { UnicodeString } from '../combinators/UnicodeString';
 
 // ============================================================================
@@ -22,17 +26,17 @@ export const USZipPlus4 = () => S(digits(5), '-', digits(4));
 /**
  * US ZIP code (5 digits or 5+4)
  */
-export const USZipCode = () => Or(USZip5(), USZipPlus4());
+export const USZipCode = () => Alternation.of(USZip5(), USZipPlus4());
 
 /**
  * UK postcode
  */
-export const UKPostcode = () => R(/^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i);
+export const UKPostcode = () => Regex(/^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i);
 
 /**
  * Canadian postal code: A1A 1A1
  */
-export const CanadianPostalCode = () => R(/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i);
+export const CanadianPostalCode = () => Regex(/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i);
 
 /**
  * German postal code (PLZ): 5 digits
@@ -51,17 +55,17 @@ export const PostalCode = () => S(alphanumeric(3, 10));
 /**
  * Latitude (-90 to 90)
  */
-export const Latitude = () => N(-90, 90);
+export const Latitude = () => Num(-90, 90);
 
 /**
  * Longitude (-180 to 180)
  */
-export const Longitude = () => N(-180, 180);
+export const Longitude = () => Num(-180, 180);
 
 /**
  * Geographic coordinates
  */
-export const Coordinates = () => O({
+export const Coordinates = () => Struct({
   latitude: Latitude(),
   longitude: Longitude(),
 });
@@ -69,10 +73,10 @@ export const Coordinates = () => O({
 /**
  * Coordinates with altitude
  */
-export const Coordinates3D = () => O({
+export const Coordinates3D = () => Struct({
   latitude: Latitude(),
   longitude: Longitude(),
-  altitude: N(-500, 100000), // meters, Dead Sea to space
+  altitude: Num(-500, 100000), // meters, Dead Sea to space
 });
 
 // ============================================================================
@@ -92,7 +96,7 @@ export const CountryCodeAlpha3 = () => S(upper(3));
 /**
  * US state code (2 letters) - validated against actual state codes
  */
-export const USStateCode = () => R(/^(A[KLRZ]|C[AOT]|D[CE]|FL|GA|HI|I[ADLN]|K[SY]|LA|M[ADEINOST]|N[CDEHJMVY]|O[HKR]|PA|RI|S[CD]|T[NX]|UT|V[AT]|W[AIVY])$/);
+export const USStateCode = () => Regex(/^(A[KLRZ]|C[AOT]|D[CE]|FL|GA|HI|I[ADLN]|K[SY]|LA|M[ADEINOST]|N[CDEHJMVY]|O[HKR]|PA|RI|S[CD]|T[NX]|UT|V[AT]|W[AIVY])$/);
 
 // ============================================================================
 // Address schemas
@@ -101,7 +105,7 @@ export const USStateCode = () => R(/^(A[KLRZ]|C[AOT]|D[CE]|FL|GA|HI|I[ADLN]|K[SY
 /**
  * US street address
  */
-export const USAddress = () => O({
+export const USAddress = () => Struct({
   street1: UnicodeString(1, 100),
   street2: UnicodeString(0, 100),
   city: S(letters(1, 100)),
@@ -112,7 +116,7 @@ export const USAddress = () => O({
 /**
  * UK address
  */
-export const UKAddress = () => O({
+export const UKAddress = () => Struct({
   street1: UnicodeString(1, 100),
   street2: UnicodeString(0, 100),
   city: S(letters(1, 100)),
@@ -123,7 +127,7 @@ export const UKAddress = () => O({
 /**
  * Generic international address
  */
-export const InternationalAddress = () => O({
+export const InternationalAddress = () => Struct({
   street1: UnicodeString(1, 200),
   street2: UnicodeString(0, 200),
   city: UnicodeString(1, 100),
@@ -135,7 +139,7 @@ export const InternationalAddress = () => O({
 /**
  * Shipping address with recipient
  */
-export const ShippingAddress = () => O({
+export const ShippingAddress = () => Struct({
   recipientName: UnicodeString(1, 100),
   company: UnicodeString(0, 100),
   street1: UnicodeString(1, 200),
@@ -150,7 +154,7 @@ export const ShippingAddress = () => O({
 /**
  * Place with coordinates
  */
-export const GeoLocation = () => O({
+export const GeoLocation = () => Struct({
   name: UnicodeString(1, 200),
   address: UnicodeString(0, 500),
   coordinates: Coordinates(),

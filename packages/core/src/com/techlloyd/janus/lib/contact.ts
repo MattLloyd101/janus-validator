@@ -2,7 +2,10 @@
  * Contact information validators - email, phone numbers
  */
 
-import { S, R, O, Or, digits, letters } from '../DSL';
+import { Regex } from '../combinators/Regex';
+import { String as S, digits, letters } from '../combinators/String';
+import { Struct } from '../combinators/Struct';
+import { Alternation } from '../combinators/Alternation';
 import { UnicodeString } from '../combinators/UnicodeString';
 import { withGenerator } from '../combinators/WithGenerator';
 
@@ -19,19 +22,19 @@ const CORPORATE_DOMAINS = [
 /**
  * Basic email format
  */
-export const Email = () => R(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
+export const Email = () => Regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
 
 /**
  * Strict email with common TLDs only
  */
-export const StrictEmail = () => R(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|io|co|uk|de|fr|jp|au|ca)$/);
+export const StrictEmail = () => Regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|io|co|uk|de|fr|jp|au|ca)$/);
 
 /**
  * Corporate email (no free email providers)
  * Note: This is a simplified check - uses negative lookahead to exclude common free providers
  */
 export const CorporateEmail = () => withGenerator(
-  R(/^[a-zA-Z0-9._%+-]+@(?!gmail|yahoo|hotmail|outlook|aol)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+  Regex(/^[a-zA-Z0-9._%+-]+@(?!gmail|yahoo|hotmail|outlook|aol)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
   (rng) => {
     const chars = 'abcdefghijklmnopqrstuvwxyz';
     const name = Array.from({ length: 5 + Math.floor(rng.random() * 5) }, () =>
@@ -54,22 +57,22 @@ export const USPhoneFormatted = () => S('(', digits(3), ') ', digits(3), '-', di
 /**
  * US phone number: various formats
  */
-export const USPhone = () => R(/^(\(\d{3}\)\s?|\d{3}[-.]?)\d{3}[-.]?\d{4}$/);
+export const USPhone = () => Regex(/^(\(\d{3}\)\s?|\d{3}[-.]?)\d{3}[-.]?\d{4}$/);
 
 /**
  * International phone with country code: +X XXX XXX XXXX
  */
-export const InternationalPhone = () => R(/^\+\d{1,3}[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}$/);
+export const InternationalPhone = () => Regex(/^\+\d{1,3}[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}$/);
 
 /**
  * E.164 format: +XXXXXXXXXXX (up to 15 digits)
  */
-export const E164Phone = () => R(/^\+[1-9]\d{1,14}$/);
+export const E164Phone = () => Regex(/^\+[1-9]\d{1,14}$/);
 
 /**
  * UK phone number
  */
-export const UKPhone = () => R(/^(\+44\s?|0)(\d{2,4}\s?\d{3,4}\s?\d{3,4}|\d{10})$/);
+export const UKPhone = () => Regex(/^(\+44\s?|0)(\d{2,4}\s?\d{3,4}\s?\d{3,4}|\d{10})$/);
 
 // ============================================================================
 // Social Media
@@ -78,17 +81,17 @@ export const UKPhone = () => R(/^(\+44\s?|0)(\d{2,4}\s?\d{3,4}\s?\d{3,4}|\d{10})
 /**
  * Twitter/X handle: @username (1-15 alphanumeric + underscore)
  */
-export const TwitterHandle = () => R(/^@?[a-zA-Z0-9_]{1,15}$/);
+export const TwitterHandle = () => Regex(/^@?[a-zA-Z0-9_]{1,15}$/);
 
 /**
  * Instagram handle
  */
-export const InstagramHandle = () => R(/^@?[a-zA-Z0-9_.]{1,30}$/);
+export const InstagramHandle = () => Regex(/^@?[a-zA-Z0-9_.]{1,30}$/);
 
 /**
  * LinkedIn profile URL
  */
-export const LinkedInURL = () => R(/^https?:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?$/);
+export const LinkedInURL = () => Regex(/^https?:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?$/);
 
 // ============================================================================
 // Contact form schemas
@@ -97,7 +100,7 @@ export const LinkedInURL = () => R(/^https?:\/\/(www\.)?linkedin\.com\/in\/[a-zA
 /**
  * Basic contact form
  */
-export const ContactForm = () => O({
+export const ContactForm = () => Struct({
   name: UnicodeString(1, 100),
   email: Email(),
   message: UnicodeString(10, 5000),
@@ -106,9 +109,9 @@ export const ContactForm = () => O({
 /**
  * Full contact information
  */
-export const FullContact = () => O({
+export const FullContact = () => Struct({
   firstName: S(letters(1, 50)),
   lastName: S(letters(1, 50)),
   email: Email(),
-  phone: Or(USPhone(), InternationalPhone()),
+  phone: Alternation.of(USPhone(), InternationalPhone()),
 });

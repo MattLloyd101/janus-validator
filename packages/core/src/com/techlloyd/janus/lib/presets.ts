@@ -4,7 +4,9 @@
  * These presets override default generation to provide realistic test data.
  */
 
-import { S, R, N, digits, upper, letters } from '../DSL';
+import { Regex } from '../combinators/Regex';
+import { String as S, digits, upper, letters } from '../combinators/String';
+import { Number as Num } from '../combinators/Number';
 import { UnicodeString } from '../combinators/UnicodeString';
 import { fromValues, templateGenerator, combineGenerators } from '../combinators/WithGenerator';
 
@@ -64,7 +66,7 @@ const USERNAME_NOUNS = [
  * Username with realistic gaming-style names
  */
 export const RealisticUsername = () => templateGenerator(
-  R(/^[a-zA-Z][a-zA-Z0-9_]{2,19}$/),
+  Regex(/^[a-zA-Z][a-zA-Z0-9_]{2,19}$/),
   (pick, rng) => {
     const adj = pick(USERNAME_ADJECTIVES);
     const noun = pick(USERNAME_NOUNS);
@@ -91,7 +93,7 @@ const CORPORATE_DOMAINS = [
  * Realistic personal email addresses
  */
 export const RealisticEmail = () => templateGenerator(
-  R(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+  Regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
   (pick, rng) => {
     const first = pick(FIRST_NAMES).toLowerCase();
     const last = pick(LAST_NAMES).toLowerCase();
@@ -111,7 +113,7 @@ export const RealisticEmail = () => templateGenerator(
  * Realistic corporate email addresses
  */
 export const CorporateEmailPreset = () => templateGenerator(
-  R(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+  Regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
   (pick) => {
     const first = pick(FIRST_NAMES).toLowerCase();
     const last = pick(LAST_NAMES).toLowerCase();
@@ -175,7 +177,7 @@ export const RealisticState = () => fromValues(
  * Realistic US ZIP code
  */
 export const RealisticZipCode = () => templateGenerator(
-  R(/^\d{5}(-\d{4})?$/),
+  Regex(/^\d{5}(-\d{4})?$/),
   (pick, rng) => {
     const zip = String(Math.floor(rng.random() * 90000) + 10000);
     // 30% chance of ZIP+4
@@ -195,7 +197,7 @@ export const RealisticZipCode = () => templateGenerator(
  * Realistic US phone number
  */
 export const RealisticUSPhone = () => templateGenerator(
-  R(/^(\(\d{3}\)\s?|\d{3}[-.]?)\d{3}[-.]?\d{4}$/),
+  Regex(/^(\(\d{3}\)\s?|\d{3}[-.]?)\d{3}[-.]?\d{4}$/),
   (pick, rng) => {
     const area = Math.floor(rng.random() * 800) + 200; // 200-999
     const exchange = Math.floor(rng.random() * 800) + 200;
@@ -303,7 +305,7 @@ export const FutureDate = () => templateGenerator(
  * Realistic price (weighted toward common price points)
  */
 export const RealisticPrice = () => combineGenerators(
-  N(0, 10000),
+  Num(0, 10000),
   [
     (rng) => Math.floor(rng.random() * 20) + 0.99, // $0.99 - $19.99
     (rng) => Math.floor(rng.random() * 50) + 19.99, // $19.99 - $69.99

@@ -31,11 +31,10 @@
  * ```
  */
 
-import { Validator } from './Validator';
-import { withExample } from './combinators/WithExample';
-import { Boolean as BooleanValidator } from './combinators/Boolean';
-import { UnicodeString as UnicodeStringValidator } from './combinators/UnicodeString';
 import {
+  Validator,
+  Boolean as BooleanValidator,
+  UnicodeString as UnicodeStringValidator,
   String as StringValidator,
   digits as digitsValidator,
   lower as lowerValidator,
@@ -45,24 +44,29 @@ import {
   hex as hexValidator,
   hexUpper as hexUpperValidator,
   chars as charsValidator,
-} from './combinators/String';
-import { Integer as IntegerValidator } from './combinators/Integer';
-import { Number as NumberValidator } from './combinators/Number';
-import { Regex as RegexValidator } from './combinators/Regex';
-import { Struct as StructValidator, StructSchema } from './combinators/Struct';
-import { Constant as ConstantValidator } from './combinators/Constant';
-import { Alternation as AlternationValidator } from './combinators/Alternation';
-import { Sequence as SequenceValidator } from './combinators/Sequence';
-import { Quantifier as QuantifierValidator } from './combinators/Quantifier';
-import { Null as NullValidator } from './combinators/Null';
-import { Undefined as UndefinedValidator } from './combinators/Undefined';
-import { Infinity as InfinityValidator, NegativeInfinity as NegativeInfinityValidator } from './combinators/Infinity';
-import { NaN as NaNValidator } from './combinators/NaN';
-import { Bytes as BytesValidator } from './combinators/Bytes';
-import { Long as LongValidator } from './combinators/Long';
-import { createCaptureGroup as createCaptureGroupBase, ValidationContext } from './combinators/Capture';
-import { Typed as TypedValidator, As as AsValidator } from './combinators/Typed';
-import { caseInsensitive as caseInsensitiveValidator } from './combinators/CaseInsensitive';
+  Integer as IntegerValidator,
+  Number as NumberValidator,
+  Regex as RegexValidator,
+  Struct as StructValidator,
+  StructSchema,
+  Constant as ConstantValidator,
+  Alternation as AlternationValidator,
+  Sequence as SequenceValidator,
+  Quantifier as QuantifierValidator,
+  Null as NullValidator,
+  Undefined as UndefinedValidator,
+  Infinity as InfinityValidator,
+  NegativeInfinity as NegativeInfinityValidator,
+  NaN as NaNValidator,
+  Bytes as BytesValidator,
+  Long as LongValidator,
+  createCaptureGroup as createCaptureGroupBase,
+  ValidationContext,
+  Typed as TypedValidator,
+  As as AsValidator,
+  caseInsensitive as caseInsensitiveValidator,
+  withExample,
+} from '@janus-validator/core';
 
 // ============================================================================
 // Auto-wrapping utilities

@@ -9,10 +9,6 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./DSL": {
-      "types": "./dist/com/techlloyd/janus/DSL.d.ts",
-      "default": "./dist/com/techlloyd/janus/DSL.js"
-    },
     "./lib": {
       "types": "./dist/com/techlloyd/janus/lib/index.d.ts",
       "default": "./dist/com/techlloyd/janus/lib/index.js"

@@ -5,6 +5,7 @@ module.exports = {
   roots: ['<rootDir>/tests'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@janus-validator/core$': '<rootDir>/../core/src/index.ts',
   },
   testMatch: ['**/*.test.ts'],
   transform: {

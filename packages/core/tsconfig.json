@@ -20,7 +20,7 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../dsl/src/com/techlloyd/janus/DSL.ts"],
   "exclude": ["node_modules", "dist"]
 }
 

@@ -18,4 +18,4 @@
  * ```
  */
 
-export * from '@janus-validator/core/DSL';
+export * from '@/com/techlloyd/janus/DSL';
