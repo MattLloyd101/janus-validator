@@ -1,4 +1,4 @@
-import { Validator } from '../../Validator';
+import { Validator, BaseValidator } from '../../Validator';
 import { ValidationResult } from '../../ValidationResult';
 import { RegexDomain, DomainType } from '../../Domain';
 import { RNG } from '../../RNG';
@@ -33,31 +33,25 @@ export interface RegexValidator extends Validator<string> {
 /**
  * Base implementation of RegexValidator that provides common functionality
  */
-export abstract class BaseRegexValidator implements RegexValidator {
+export abstract class BaseRegexValidator extends BaseValidator<string> implements RegexValidator {
   abstract match(input: string, position: number): MatchResult;
   abstract generate(rng: RNG): string;
-  abstract get domain(): RegexDomain;
+  abstract readonly domain: RegexDomain;
 
   /**
    * Validate that the input is a string that fully matches this pattern
    */
   validate(value: unknown): ValidationResult<string> {
     if (typeof value !== 'string') {
-      return {
-        valid: false,
-        error: `Expected string, got ${typeof value}`,
-      };
+      return this.error(`Expected string, got ${typeof value}`);
     }
 
     const result = this.match(value, 0);
     if (result.matched && result.consumed === value.length) {
-      return { valid: true, value };
+      return this.success(value);
     }
 
-    return {
-      valid: false,
-      error: `String "${value}" does not match pattern`,
-    };
+    return this.error(`String "${value}" does not match pattern`);
   }
 
   /**
@@ -71,4 +65,3 @@ export abstract class BaseRegexValidator implements RegexValidator {
     };
   }
 }
-

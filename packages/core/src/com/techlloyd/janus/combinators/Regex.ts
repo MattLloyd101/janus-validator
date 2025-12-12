@@ -1,5 +1,8 @@
-import { ValidationResult, RegexDomain, DomainType } from '../index';
-import { RegexValidator } from './regex/RegexValidator';
+import { BaseValidator } from '../Validator';
+import { ValidationResult } from '../ValidationResult';
+import { RegexDomain, DomainType } from '../Domain';
+import { RNG } from '../RNG';
+import { RegexValidator, MatchResult } from './regex/RegexValidator';
 import { parseRegex } from './regex/RegexParser';
 
 /**
@@ -39,49 +42,39 @@ export function Regex(pattern: RegExp | string, flags?: string): RegexValidator 
 /**
  * Wrapper class that combines a parsed RegexValidator with the original RegExp
  */
-class RegexWrapper implements RegexValidator {
-  private readonly _domain: RegexDomain;
+class RegexWrapper extends BaseValidator<string> implements RegexValidator {
+  public readonly domain: RegexDomain;
 
   constructor(
     private readonly validator: RegexValidator,
     private readonly regex: RegExp
   ) {
-    this._domain = {
+    super();
+    this.domain = {
       type: DomainType.REGEX_DOMAIN,
       pattern: regex,
       source: regex.source,
     };
   }
 
-  get domain(): RegexDomain {
-    return this._domain;
-  }
-
   validate(value: unknown): ValidationResult<string> {
     if (typeof value !== 'string') {
-      return {
-        valid: false,
-        error: `Expected string, got ${typeof value}`,
-      };
+      return this.error(`Expected string, got ${typeof value}`);
     }
 
     // Use the original regex for validation (handles flags correctly)
     if (!this.regex.test(value)) {
-      return {
-        valid: false,
-        error: `String "${value}" does not match pattern ${this.regex.source}`,
-      };
+      return this.error(`String "${value}" does not match pattern ${this.regex.source}`);
     }
 
-    return { valid: true, value };
+    return this.success(value);
   }
 
-  match(input: string, position: number) {
+  match(input: string, position: number): MatchResult {
     return this.validator.match(input, position);
   }
 
-  generate(rng: import('../RNG').RNG): string {
+  generate(rng: RNG): string {
     return this.validator.generate(rng);
   }
 }
-

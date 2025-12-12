@@ -1,4 +1,6 @@
-import { Validator, ValidationResult, Domain, DomainType } from '../index';
+import { Validator, BaseValidator } from '../Validator';
+import { ValidationResult } from '../ValidationResult';
+import { Domain, DomainType } from '../Domain';
 
 /**
  * Schema definition for Struct validator - maps property names to validators
@@ -17,20 +19,20 @@ export type InferStructType<S extends StructSchema> = {
 /**
  * Domain for struct validators
  */
-export interface StructDomain extends Domain<object> {
+export interface StructDomain<T = object> extends Domain<T> {
   type: DomainType.STRUCT_DOMAIN;
   schema: { [key: string]: Domain<any> };
   strict: boolean;
 }
 
 /**
- * Creates a validator for objects with a specified schema.
+ * Validator for objects with a specified schema.
  * 
  * Each property in the schema is validated against its corresponding validator.
  * In strict mode, extra properties not in the schema will cause validation to fail.
  * 
- * @param schema Object mapping property names to validators
- * @param strict If true, reject objects with extra properties (default: false)
+ * On failure, returns a recursive ValidationResult with per-field results,
+ * showing which fields passed and which failed (with examples at each level).
  * 
  * @example
  * ```typescript
@@ -49,78 +51,99 @@ export interface StructDomain extends Domain<object> {
  * strictUser.validate({ name: 'Alice', extra: 123 }); // invalid (extra property)
  * ```
  */
+export class StructValidator<S extends StructSchema> extends BaseValidator<InferStructType<S>> {
+  public readonly domain: StructDomain<InferStructType<S>>;
+  private readonly schemaKeys: string[];
+
+  constructor(
+    public readonly schema: S,
+    public readonly strict: boolean = false
+  ) {
+    super();
+    this.schemaKeys = Object.keys(schema);
+    this.domain = {
+      type: DomainType.STRUCT_DOMAIN,
+      schema: Object.fromEntries(
+        this.schemaKeys.map(key => [key, schema[key].domain])
+      ),
+      strict,
+    };
+  }
+
+  validate(input: unknown): ValidationResult<InferStructType<S>> {
+    // Check if input is an object
+    if (input === null || typeof input !== 'object' || Array.isArray(input)) {
+      return this.error(
+        `Expected object, got ${input === null ? 'null' : Array.isArray(input) ? 'array' : typeof input}`
+      );
+    }
+
+    const inputObj = input as Record<string, unknown>;
+    const inputKeys = Object.keys(inputObj);
+    const results: { [key: string]: ValidationResult<any> } = {};
+    const validatedObj: Record<string, any> = {};
+    let hasErrors = false;
+
+    // In strict mode, check for extra properties
+    if (this.strict) {
+      const extraKeys = inputKeys.filter(key => !this.schemaKeys.includes(key));
+      for (const key of extraKeys) {
+        results[key] = { valid: false, error: 'Unexpected property' };
+        hasErrors = true;
+      }
+    }
+
+    // Validate each property in the schema
+    for (const key of this.schemaKeys) {
+      if (!(key in inputObj)) {
+        // For missing property, validate undefined to get an error with example
+        const fieldValidator = this.schema[key];
+        results[key] = fieldValidator.validate(undefined);
+        if (results[key].valid) {
+          // Field accepts undefined
+          validatedObj[key] = results[key].value;
+        } else {
+          // Replace error message with "Missing required property"
+          results[key] = { ...results[key], error: 'Missing required property' };
+          hasErrors = true;
+        }
+        continue;
+      }
+
+      const fieldValidator = this.schema[key];
+      const result = fieldValidator.validate(inputObj[key]);
+      results[key] = result;
+
+      if (!result.valid) {
+        hasErrors = true;
+      } else {
+        validatedObj[key] = result.value;
+      }
+    }
+
+    if (hasErrors) {
+      return this.objectError(results);
+    }
+
+    // In non-strict mode, preserve extra properties
+    if (!this.strict) {
+      for (const key of inputKeys) {
+        if (!this.schemaKeys.includes(key)) {
+          validatedObj[key] = inputObj[key];
+        }
+      }
+    }
+
+    return this.success(validatedObj as InferStructType<S>);
+  }
+}
+
+/**
+ * Creates a validator for objects with a specified schema.
+ */
 export function Struct<S extends StructSchema>(
   schema: S,
   strict: boolean = false
-): Validator<InferStructType<S>> {
-  const schemaKeys = Object.keys(schema);
-  
-  return {
-    validate: (input: unknown): ValidationResult<InferStructType<S>> => {
-      // Check if input is an object
-      if (input === null || typeof input !== 'object' || Array.isArray(input)) {
-        return {
-          valid: false,
-          error: `Expected object, got ${input === null ? 'null' : Array.isArray(input) ? 'array' : typeof input}`,
-        };
-      }
-
-      const inputObj = input as Record<string, unknown>;
-      const inputKeys = Object.keys(inputObj);
-
-      // In strict mode, check for extra properties
-      if (strict) {
-        const extraKeys = inputKeys.filter(key => !schemaKeys.includes(key));
-        if (extraKeys.length > 0) {
-          return {
-            valid: false,
-            error: `Unexpected properties: ${extraKeys.join(', ')}`,
-          };
-        }
-      }
-
-      // Validate each property in the schema
-      const validatedObj: Record<string, any> = {};
-
-      for (const key of schemaKeys) {
-        if (!(key in inputObj)) {
-          return {
-            valid: false,
-            error: `Missing required property: ${key}`,
-          };
-        }
-
-        const validator = schema[key];
-        const result = validator.validate(inputObj[key]);
-
-        if (!result.valid) {
-          return {
-            valid: false,
-            error: `Property '${key}': ${result.error}`,
-          };
-        }
-
-        validatedObj[key] = result.value;
-      }
-
-      // In non-strict mode, preserve extra properties
-      if (!strict) {
-        for (const key of inputKeys) {
-          if (!schemaKeys.includes(key)) {
-            validatedObj[key] = inputObj[key];
-          }
-        }
-      }
-
-      return { valid: true, value: validatedObj as InferStructType<S> };
-    },
-    domain: {
-      type: DomainType.STRUCT_DOMAIN,
-      schema: Object.fromEntries(
-        schemaKeys.map(key => [key, schema[key].domain])
-      ),
-      strict,
-    } as StructDomain,
-  };
+): StructValidator<S> {
+  return new StructValidator(schema, strict);
 }
-

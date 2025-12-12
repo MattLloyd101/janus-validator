@@ -1,4 +1,4 @@
-import { Validator } from '../Validator';
+import { Validator, BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
 import { SequenceDomain, DomainType } from '../Domain';
 import { TupleOfValidators } from '../Types';
@@ -8,6 +8,9 @@ import { TupleOfValidators } from '../Types';
  * 
  * Each element in the input array is validated against the corresponding validator
  * at the same index. The array must have exactly as many elements as there are validators.
+ * 
+ * On failure, returns a recursive ValidationResult with per-element results,
+ * showing which elements passed and which failed (with examples at each level).
  * 
  * The tuple type is automatically inferred from the validators:
  * 
@@ -25,54 +28,52 @@ import { TupleOfValidators } from '../Types';
  * }
  * ```
  */
-export class Sequence<T extends any[] = any[]> implements Validator<T> {
+export class Sequence<T extends any[] = any[]> extends BaseValidator<T> {
   public readonly validators: Validator<any>[];
-  protected readonly _domain: SequenceDomain<any>;
+  public readonly domain: SequenceDomain<any>;
 
   constructor(...validators: Validator<any>[]) {
+    super();
     this.validators = validators;
-    this._domain = {
+    this.domain = {
       type: DomainType.SEQUENCE_DOMAIN,
       parts: validators.map(v => v.domain),
     };
   }
 
-  get domain(): SequenceDomain<any> {
-    return this._domain;
-  }
-
   /**
-   * Validate an array by checking each element against its corresponding validator
+   * Validate an array by checking each element against its corresponding validator.
+   * Returns recursive ValidationResult with per-element results.
    */
   validate(value: unknown): ValidationResult<T> {
     if (!Array.isArray(value)) {
-      return {
-        valid: false,
-        error: `Expected array, got ${typeof value}`,
-      };
+      return this.error(`Expected array, got ${typeof value}`);
     }
 
     if (value.length !== this.validators.length) {
-      return {
-        valid: false,
-        error: `Expected array of length ${this.validators.length}, got ${value.length}`,
-      };
+      return this.error(`Expected array of length ${this.validators.length}, got ${value.length}`);
     }
 
     const validatedValues: any[] = [];
+    const results: ValidationResult<any>[] = [];
+    let hasErrors = false;
 
     for (let i = 0; i < this.validators.length; i++) {
       const result = this.validators[i].validate(value[i]);
+      results.push(result);
+      
       if (!result.valid) {
-        return {
-          valid: false,
-          error: `Element at index ${i}: ${result.error}`,
-        };
+        hasErrors = true;
+      } else {
+        validatedValues.push(result.value);
       }
-      validatedValues.push(result.value);
     }
 
-    return { valid: true, value: validatedValues as T };
+    if (hasErrors) {
+      return this.arrayError(results);
+    }
+
+    return this.success(validatedValues as T);
   }
 
   /**
@@ -90,4 +91,3 @@ export class Sequence<T extends any[] = any[]> implements Validator<T> {
     return new Sequence<TupleOfValidators<Vs> & any[]>(...validators);
   }
 }
-

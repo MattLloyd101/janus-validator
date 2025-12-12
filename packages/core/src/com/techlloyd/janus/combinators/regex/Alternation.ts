@@ -1,8 +1,8 @@
 import { RegexDomain, DomainType } from '../../Domain';
 import { RNG } from '../../RNG';
+import { ValidationResult } from '../../ValidationResult';
 import { MatchResult, RegexValidator } from './RegexValidator';
 import { Alternation as GenericAlternation } from '../Alternation';
-import { ValidationResult } from '../../ValidationResult';
 
 /**
  * Regex-specific Alternation combinator that extends the generic Alternation<string>
@@ -31,7 +31,7 @@ export class RegexAlternation extends GenericAlternation<string, RegexDomain> im
     }).join('|');
     
     // Override the domain with RegexDomain
-    (this as any)._domain = {
+    (this as any).domain = {
       type: DomainType.REGEX_DOMAIN,
       pattern: new RegExp(source),
       source,
@@ -43,21 +43,15 @@ export class RegexAlternation extends GenericAlternation<string, RegexDomain> im
    */
   validate(value: unknown): ValidationResult<string> {
     if (typeof value !== 'string') {
-      return {
-        valid: false,
-        error: `Expected string, got ${typeof value}`,
-      };
+      return this.error(`Expected string, got ${typeof value}`);
     }
 
     const result = this.match(value, 0);
     if (result.matched && result.consumed === value.length) {
-      return { valid: true, value };
+      return this.success(value);
     }
 
-    return {
-      valid: false,
-      error: `String "${value}" does not match pattern`,
-    };
+    return this.error(`String "${value}" does not match pattern`);
   }
 
   /**
@@ -113,4 +107,3 @@ export class RegexAlternation extends GenericAlternation<string, RegexDomain> im
 
 // Export alias for backwards compatibility
 export { RegexAlternation as Alternation };
-

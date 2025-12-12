@@ -1,4 +1,4 @@
-import { Validator } from '../Validator';
+import { Validator, BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
 import { Domain, AlternationDomain, DomainType } from '../Domain';
 import { UnionOfValidators } from '../Types';
@@ -24,20 +24,17 @@ import { UnionOfValidators } from '../Types';
  * intValidator.validate(50);  // invalid
  * ```
  */
-export class Alternation<T, D extends Domain<T> = AlternationDomain<T>> implements Validator<T> {
+export class Alternation<T, D extends Domain<T> = AlternationDomain<T>> extends BaseValidator<T> {
   public readonly validators: Validator<any>[];
-  protected readonly _domain: D;
+  public readonly domain: D;
 
   constructor(...validators: Validator<any>[]) {
+    super();
     this.validators = validators;
-    this._domain = {
+    this.domain = {
       type: DomainType.ALTERNATION_DOMAIN,
       alternatives: validators.map(v => v.domain),
     } as unknown as D;
-  }
-
-  get domain(): D {
-    return this._domain;
   }
 
   /**
@@ -56,10 +53,7 @@ export class Alternation<T, D extends Domain<T> = AlternationDomain<T>> implemen
       }
     }
 
-    return {
-      valid: false,
-      error: `Value did not match any alternative: ${errors.join('; ')}`,
-    };
+    return this.error(`Value did not match any alternative: ${errors.join('; ')}`);
   }
 
   /**
@@ -83,4 +77,3 @@ export class Alternation<T, D extends Domain<T> = AlternationDomain<T>> implemen
     return new Alternation<UnionOfValidators<Vs>>(...validators);
   }
 }
-

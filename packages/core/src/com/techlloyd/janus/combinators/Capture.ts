@@ -1,4 +1,6 @@
-import { Validator, ValidationResult, Domain, DomainType } from '../index';
+import { Validator, BaseValidator } from '../Validator';
+import { ValidationResult } from '../ValidationResult';
+import { Domain, DomainType } from '../Domain';
 
 /**
  * Context for storing captured values during validation.
@@ -111,7 +113,7 @@ export class Capture<T> implements Validator<T> {
  * });
  * ```
  */
-export class Ref<T> implements Validator<T> {
+export class Ref<T> extends BaseValidator<T> {
   public readonly domain: RefDomain<T>;
 
   constructor(
@@ -119,6 +121,7 @@ export class Ref<T> implements Validator<T> {
     public readonly name: string,
     private readonly comparator: (a: unknown, b: T) => boolean = (a, b) => a === b
   ) {
+    super();
     this.domain = {
       type: DomainType.REF_DOMAIN,
       name,
@@ -127,23 +130,26 @@ export class Ref<T> implements Validator<T> {
 
   validate(input: unknown): ValidationResult<T> {
     if (!this.context.has(this.name)) {
-      return {
-        valid: false,
-        error: `Reference '${this.name}' has not been captured yet`,
-      };
+      return this.error(`Reference '${this.name}' has not been captured yet`);
     }
 
     const captured = this.context.get<T>(this.name)!;
     
     if (this.comparator(input, captured)) {
-      return { valid: true, value: input as T };
+      return this.success(input as T);
     }
 
-    return {
-      valid: false,
-      error: `Value does not match captured '${this.name}'`,
-    };
+    return this.error(`Value does not match captured '${this.name}'`);
   }
+}
+
+/**
+ * Result of createCaptureGroup - provides linked capture/ref functions and shared context.
+ */
+export interface CaptureGroup {
+  capture: <T>(name: string, validator: Validator<T>) => Capture<T>;
+  ref: <T>(name: string, comparator?: (a: unknown, b: T) => boolean) => Ref<T>;
+  context: ValidationContext;
 }
 
 /**
@@ -168,11 +174,7 @@ export class Ref<T> implements Validator<T> {
  * context.clear();
  * ```
  */
-export function createCaptureGroup(): {
-  capture: <T>(name: string, validator: Validator<T>) => Capture<T>;
-  ref: <T>(name: string, comparator?: (a: unknown, b: T) => boolean) => Ref<T>;
-  context: ValidationContext;
-} {
+export function createCaptureGroup(): CaptureGroup {
   const context = new ValidationContext();
   
   return {
@@ -181,4 +183,3 @@ export function createCaptureGroup(): {
     context,
   };
 }
-

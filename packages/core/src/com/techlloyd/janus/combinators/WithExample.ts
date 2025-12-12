@@ -44,6 +44,7 @@ export function withExample<T>(
           return {
             valid: false,
             error: result.error,
+            results: result.results,
             example,
           };
         } catch {

@@ -39,7 +39,7 @@ describe('Sequence (Generic Combinator)', () => {
       const result = sequence.validate([50, 'abc']); // 50 is out of range
       expect(result.valid).toBe(false);
       if (!result.valid) {
-        expect(result.error).toContain('index 0');
+        expect(result.error).toContain('[0]');
       }
     });
 
@@ -49,7 +49,7 @@ describe('Sequence (Generic Combinator)', () => {
       const result = sequence.validate([50, 'toolongstring']);
       expect(result.valid).toBe(false);
       if (!result.valid) {
-        expect(result.error).toContain('index 1');
+        expect(result.error).toContain('[1]');
       }
     });
 

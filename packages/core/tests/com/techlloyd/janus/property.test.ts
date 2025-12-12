@@ -1,4 +1,4 @@
-import { Generator, RNG } from '@/com/techlloyd/janus/index';
+import { Generator, RNG, Validator } from '@/com/techlloyd/janus/index';
 import {
   Boolean,
   UnicodeString,
@@ -150,7 +150,7 @@ describe('Property: Generated values always pass validation', () => {
     });
 
     it('Constant', () => {
-      const validators = [
+      const validators: Validator<any>[] = [
         Constant(42),
         Constant('hello'),
         Constant(true),
@@ -166,7 +166,7 @@ describe('Property: Generated values always pass validation', () => {
 
   describe('Composite validators', () => {
     it('Struct', () => {
-      const validators = [
+      const validators: Validator<any>[] = [
         Struct({ name: UnicodeString(1, 50), age: Integer(0, 150) }),
         Struct({ x: Integer(), y: Integer() }),
         Struct({ nested: Struct({ value: Boolean() }) }),
@@ -185,7 +185,7 @@ describe('Property: Generated values always pass validation', () => {
       const boolOrNull = Alternation.of(Boolean(), Null());
       const abc = Alternation.of(Constant('a'), Constant('b'), Constant('c'));
       
-      const validators = [stringOrNumber, boolOrNull, abc];
+      const validators: Validator<any>[] = [stringOrNumber, boolOrNull, abc];
       for (const validator of validators) {
         for (let i = 0; i < 100; i++) {
           const value = generator.generate(validator);
@@ -195,7 +195,7 @@ describe('Property: Generated values always pass validation', () => {
     });
 
     it('Sequence', () => {
-      const validators = [
+      const validators: Validator<any>[] = [
         Sequence.of(UnicodeString(), Integer(), Boolean()),
         Sequence.of(Integer(), Integer()),
       ];
@@ -208,7 +208,7 @@ describe('Property: Generated values always pass validation', () => {
     });
 
     it('Quantifier', () => {
-      const validators = [
+      const validators: Validator<any>[] = [
         Quantifier.zeroOrMore(Integer(0, 10)),
         Quantifier.oneOrMore(UnicodeString(1, 5)),
         Quantifier.optional(Boolean()),

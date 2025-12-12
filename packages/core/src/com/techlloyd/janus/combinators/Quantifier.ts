@@ -1,17 +1,15 @@
-import { Validator } from '../Validator';
+import { Validator, BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
 import { QuantifierDomain, DomainType } from '../Domain';
-
-/**
- * Default maximum repetitions for unbounded quantifiers when generating
- */
-const DEFAULT_MAX_UNBOUNDED = 10;
 
 /**
  * Generic Quantifier combinator that validates arrays of values.
  * 
  * Validates that an array has between `min` and `max` elements,
  * where each element passes the inner validator.
+ * 
+ * On failure, returns a recursive ValidationResult with per-element results,
+ * showing which elements passed and which failed (with examples at each level).
  * 
  * @example
  * ```typescript
@@ -23,16 +21,16 @@ const DEFAULT_MAX_UNBOUNDED = 10;
  * validator.validate([10, 200, 30]);   // invalid (200 out of range)
  * ```
  */
-export class Quantifier<T> implements Validator<T[]> {
-  public readonly _domain: QuantifierDomain<T>;
+export class Quantifier<T> extends BaseValidator<T[]> {
+  public readonly domain: QuantifierDomain<T>;
 
   constructor(
     public readonly validator: Validator<T>,
     public readonly min: number,
-    public readonly max: number,
-    public readonly maxUnbounded: number = DEFAULT_MAX_UNBOUNDED
+    public readonly max: number
   ) {
-    this._domain = {
+    super();
+    this.domain = {
       type: DomainType.QUANTIFIER_DOMAIN,
       inner: validator.domain,
       min,
@@ -40,49 +38,43 @@ export class Quantifier<T> implements Validator<T[]> {
     };
   }
 
-  get domain(): QuantifierDomain<T> {
-    return this._domain;
-  }
-
   /**
-   * Validate an array, checking length and each element
+   * Validate an array, checking length and each element.
+   * Returns recursive ValidationResult with per-element results.
    */
   validate(value: unknown): ValidationResult<T[]> {
     if (!Array.isArray(value)) {
-      return {
-        valid: false,
-        error: `Expected array, got ${typeof value}`,
-      };
+      return this.error(`Expected array, got ${typeof value}`);
     }
 
     if (value.length < this.min) {
-      return {
-        valid: false,
-        error: `Expected at least ${this.min} elements, got ${value.length}`,
-      };
+      return this.error(`Expected at least ${this.min} elements, got ${value.length}`);
     }
 
     if (value.length > this.max) {
-      return {
-        valid: false,
-        error: `Expected at most ${this.max} elements, got ${value.length}`,
-      };
+      return this.error(`Expected at most ${this.max} elements, got ${value.length}`);
     }
 
     const validatedValues: T[] = [];
+    const results: ValidationResult<T>[] = [];
+    let hasErrors = false;
 
     for (let i = 0; i < value.length; i++) {
       const result = this.validator.validate(value[i]);
+      results.push(result);
+      
       if (!result.valid) {
-        return {
-          valid: false,
-          error: `Element at index ${i}: ${result.error}`,
-        };
+        hasErrors = true;
+      } else {
+        validatedValues.push(result.value);
       }
-      validatedValues.push(result.value);
     }
 
-    return { valid: true, value: validatedValues };
+    if (hasErrors) {
+      return this.arrayError(results);
+    }
+
+    return this.success(validatedValues);
   }
 
   /**
@@ -112,4 +104,3 @@ export class Quantifier<T> implements Validator<T[]> {
     return new Quantifier(validator, min, max);
   }
 }
-

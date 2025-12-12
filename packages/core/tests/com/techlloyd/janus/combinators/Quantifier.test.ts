@@ -40,7 +40,7 @@ describe('Quantifier (Generic Combinator)', () => {
       const result = quantifier.validate([10, 200, 30]);
       expect(result.valid).toBe(false);
       if (!result.valid) {
-        expect(result.error).toContain('index 1');
+        expect(result.error).toContain('[1]');
       }
     });
 

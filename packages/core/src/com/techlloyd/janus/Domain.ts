@@ -20,11 +20,13 @@ export enum DomainType {
 }
 
 /**
- * Domain describes the set of valid values for a validator
+ * Domain describes the set of valid values for a validator.
+ * The _brand property carries type information for inference without runtime cost.
  */
-// eslint-disable-next-line unused-imports/no-unused-vars
-export interface Domain<T> {
+export interface Domain<out T> {
   type: DomainType;
+  /** @internal - Phantom brand for type inference, not used at runtime */
+  readonly __brand?: { readonly _output: T };
 }
 
 /**

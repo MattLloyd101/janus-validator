@@ -41,7 +41,9 @@ describe('Struct', () => {
       const result = validator.validate({ name: 'Alice', age: 200 });
       expect(result.valid).toBe(false);
       if (!result.valid) {
-        expect(result.error).toContain("Property 'age'");
+        expect(result.error).toContain('age');
+        // Structured errors preserve the property path
+        expect(result.results).toHaveProperty('age');
       }
     });
 
@@ -61,8 +63,10 @@ describe('Struct', () => {
       const result = validator.validate({ name: 'Alice', extra: 123 });
       expect(result.valid).toBe(false);
       if (!result.valid) {
-        expect(result.error).toContain('Unexpected properties');
         expect(result.error).toContain('extra');
+        expect(result.error).toContain('Unexpected property');
+        // Structured errors preserve the property
+        expect(result.results).toHaveProperty('extra');
       }
     });
 
@@ -130,7 +134,10 @@ describe('Struct', () => {
       const result = userValidator.validate(invalidUser);
       expect(result.valid).toBe(false);
       if (!result.valid) {
-        expect(result.error).toContain("Property 'address'");
+        expect(result.error).toContain('address');
+        expect(result.error).toContain('zip');
+        // Structured errors preserve nested paths
+        expect(result.results).toHaveProperty('address');
       }
     });
 
@@ -156,6 +163,77 @@ describe('Struct', () => {
       const strictValidator = Struct({}, true);
       expect(strictValidator.validate({}).valid).toBe(true);
       expect(strictValidator.validate({ any: 'thing' }).valid).toBe(false);
+    });
+
+    it('should collect all errors in structured format', () => {
+      const validator = Struct({
+        name: UnicodeString(1, 50),
+        age: Integer(0, 150),
+        email: UnicodeString(5, 100),
+      });
+
+      // Multiple fields failing
+      const result = validator.validate({
+        name: '', // too short
+        age: 200, // too high
+        email: 'x', // too short
+      });
+
+      expect(result.valid).toBe(false);
+      if (!result.valid) {
+        // Structured results contain per-field ValidationResults
+        const results = result.results as Record<string, { valid: boolean; error?: string; value?: any }>;
+        expect(results).toHaveProperty('name');
+        expect(results).toHaveProperty('age');
+        expect(results).toHaveProperty('email');
+        
+        // Each result is a ValidationResult object
+        expect(results.name.valid).toBe(false);
+        expect(results.age.valid).toBe(false);
+        expect(results.email.valid).toBe(false);
+        expect(results.name.error).toContain('less than minimum');
+        expect(results.age.error).toContain('greater than maximum');
+      }
+    });
+
+    it('should provide nested structured errors', () => {
+      const addressValidator = Struct({
+        city: UnicodeString(1, 50),
+        zip: UnicodeString(5, 5),
+      });
+      
+      const userValidator = Struct({
+        name: UnicodeString(1, 50),
+        address: addressValidator,
+      });
+
+      const result = userValidator.validate({
+        name: 'Alice',
+        address: {
+          city: '', // too short
+          zip: '1', // too short
+        },
+      });
+
+      expect(result.valid).toBe(false);
+      if (!result.valid) {
+        // Nested structure preserved - results contain ValidationResults
+        const results = result.results as Record<string, any>;
+        
+        // name passed
+        expect(results.name.valid).toBe(true);
+        expect(results.name.value).toBe('Alice');
+        
+        // address failed with nested results
+        expect(results.address.valid).toBe(false);
+        expect(results.address.results).toBeDefined();
+        expect(results.address.results.city.valid).toBe(false);
+        expect(results.address.results.zip.valid).toBe(false);
+        
+        // Flattened error contains full path
+        expect(result.error).toContain('address.city');
+        expect(result.error).toContain('address.zip');
+      }
     });
   });
 

@@ -23,7 +23,7 @@ export {
   ContiguousType,
   ContiguousTypeValue,
 } from "./Domain";
-export { Validator } from "./Validator";
+export { Validator, BaseValidator } from "./Validator";
 export { Generator } from "./Generator";
 
 // Type utilities for inference
