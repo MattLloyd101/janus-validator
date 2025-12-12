@@ -2,6 +2,8 @@
 
 Avro schema import/export for [Janus Validator](../core/README.md).
 
+🚧 **Pre-1.0 notice:** This package has **not** reached `1.0` yet. Until then, the public API and behavior are **subject to change** between releases. If you need stability, **pin exact versions**.
+
 ## Installation
 
 ```bash
@@ -59,7 +61,7 @@ const validator = avroToValidator(avroSchema);
 // And generate test data
 import { Generator } from '@janus-validator/core';
 const generator = new Generator({ random: Math.random });
-const testUser = generator.generate(validator);
+const testUser = generator.generate(validator.domain);
 ```
 
 ### Export: Validator → Avro

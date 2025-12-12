@@ -2,6 +2,8 @@
 
 Concise DSL for [Janus Validator](../core/README.md) - short aliases for all validators and combinators.
 
+🚧 **Pre-1.0 notice:** This package has **not** reached `1.0` yet. Until then, the public API and behavior are **subject to change** between releases. If you need stability, **pin exact versions**.
+
 The DSL is “just syntax”: it builds validators from `@janus-validator/core`, so you still get:
 
 - ✅ **Forward validation**: `validate(unknown)`
@@ -41,7 +43,7 @@ const result = userValidator.validate({
 
 // Generate test data
 const generator = new Generator({ random: Math.random });
-const testUser = generator.generate(userValidator);
+const testUser = generator.generate(userValidator.domain);
 ```
 
 ## Why this is powerful
@@ -57,7 +59,7 @@ import { O, U, I } from '@janus-validator/dsl';
 const User = O({ name: U(1, 50), age: I(0, 150) });
 const generator = new Generator({ random: Math.random });
 
-const fixture = generator.generate(User);
+const fixture = generator.generate(User.domain);
 const roundTrip = User.validate(fixture);
 // roundTrip.valid === true
 ```

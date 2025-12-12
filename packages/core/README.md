@@ -2,6 +2,8 @@
 
 Core validation library for Janus Validator - composable validators that can both **validate data** and **generate valid examples**. Perfect for testing, API validation, and form handling.
 
+🚧 **Pre-1.0 notice:** This package has **not** reached `1.0` yet. Until then, the public API and behavior are **subject to change** between releases. If you need stability, **pin exact versions**.
+
 ## Features
 
 - 🎯 **Type-safe validation** with clear, helpful error messages
@@ -321,7 +323,7 @@ type UserType = InferValidatorType<typeof userValidator>;
 ```typescript
 class Generator {
   constructor(rng: RNG);
-  generate<T>(validator: Validator<T>): T;
+  generate<T>(domain: Domain<T>): T;
 }
 
 interface RNG {

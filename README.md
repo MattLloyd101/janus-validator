@@ -2,6 +2,8 @@
 
 A TypeScript combinator library for defining validators that can both **validate data** and **generate valid examples**.
 
+🚧 **Pre-1.0 notice:** This project has **not** reached `1.0` yet. Until then, the public API and behavior are **subject to change** between releases. If you need stability, **pin exact versions**.
+
 Janus is built around a simple idea:
 
 - **Validate forwards**: check unknown input and get back a typed value (or a structured error)
@@ -66,7 +68,7 @@ const result = userValidator.validate({
 
 // Generate test data
 const generator = new Generator({ random: Math.random });
-const testUser = generator.generate(userValidator);
+const testUser = generator.generate(userValidator.domain);
 
 // Type assertion for interfaces
 interface User { name: string; age: number; }
@@ -90,7 +92,7 @@ const User = O({
 
 // Backwards: generate fixtures
 const generator = new Generator({ random: Math.random });
-const fixture = generator.generate(User);
+const fixture = generator.generate(User.domain);
 
 // Forwards: validate runtime input (fixtures always validate)
 const roundTrip = User.validate(fixture);
