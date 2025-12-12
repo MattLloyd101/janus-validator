@@ -2,12 +2,18 @@
 
 A TypeScript combinator library for defining validators that can both **validate data** and **generate valid examples**.
 
+Janus is built around a simple idea:
+
+- **Validate forwards**: check unknown input and get back a typed value (or a structured error)
+- **Run “backwards”**: generate values that *must* satisfy the same validator (great for tests and fixtures)
+
 ## Features
 
-- 🧩 **Composable validators** - Build complex schemas from simple primitives
-- 🎲 **Automatic test data generation** - Generate valid examples from any validator
+- 🧩 **Composable validators** - Build complex schemas from small parts
+- 🎲 **Automatic data generation** - Generate valid examples from any validator
+- 🧬 **Structured errors** - Errors can mirror the shape of your input with per-field/per-index results
 - 📝 **Concise DSL** - Short aliases for quick definitions
-- 🎯 **Full type inference** - Union types (`Or`), tuple types (`Seq`), and object shapes are automatically inferred
+- 🎯 **Type inference** - Union types (`Or`), tuple types (`Seq`), and object shapes are inferred
 
 ## Packages
 
@@ -23,7 +29,7 @@ A TypeScript combinator library for defining validators that can both **validate
 # Core library with DSL
 npm install @janus-validator/core @janus-validator/dsl
 
-# Or just core (DSL also available via @janus-validator/core/DSL)
+# Or just core (no DSL)
 npm install @janus-validator/core
 
 # With Avro support
@@ -65,6 +71,50 @@ const testUser = generator.generate(userValidator);
 // Type assertion for interfaces
 interface User { name: string; age: number; }
 const TypedUserValidator = Typed<User>()(O({ name: U(1, 100), age: I(0, 150) }));
+```
+
+## The “two faces”: validate + generate
+
+The same validator definition supports both directions:
+
+```typescript
+import { Generator } from '@janus-validator/core';
+import { O, U, I, B, Or, Null } from '@janus-validator/dsl';
+
+const User = O({
+  name: U(1, 50),
+  age: I(0, 150),
+  active: B(),
+  nickname: Or(U(1, 30), Null()),
+});
+
+// Backwards: generate fixtures
+const generator = new Generator({ random: Math.random });
+const fixture = generator.generate(User);
+
+// Forwards: validate runtime input (fixtures always validate)
+const roundTrip = User.validate(fixture);
+// roundTrip.valid === true
+```
+
+## Structured errors (and examples)
+
+Errors can include:
+- `error`: a human readable path-based summary
+- `results`: recursive per-field/per-element results
+- `example`: a generated value that would pass the validator (useful for debugging and docs)
+
+```typescript
+import { O, U, I } from '@janus-validator/dsl';
+
+const Profile = O({ name: U(1, 50), age: I(0, 150) });
+const result = Profile.validate({ name: 'Alice', age: 999 });
+
+if (!result.valid) {
+  result.error;   // e.g. "age: Value 999 is greater than maximum 150"
+  result.example; // a generated valid example for the whole validator
+  result.results; // per-field results (recursive)
+}
 ```
 
 See the [DSL package README](./packages/dsl/README.md) for the full DSL reference.

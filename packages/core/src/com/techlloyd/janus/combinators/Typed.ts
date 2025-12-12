@@ -10,27 +10,29 @@ import { ValidationResult } from '../ValidationResult';
  * 
  * @example
  * ```typescript
+ * import { Struct, UnicodeString, Integer } from '@janus-validator/core/combinators';
+ *
  * interface User {
  *   name: string;
  *   age: number;
  * }
  * 
  * // Without Typed - need to cast:
- * const v1 = O({ name: S(), age: I() });
+ * const v1 = Struct({ name: UnicodeString(), age: Integer() });
  * const result1 = v1.validate(input);
  * if (result1.valid) {
  *   const user: User = result1.value; // Works but verbose
  * }
  * 
  * // With Typed - output is directly User:
- * const v2 = Typed<User>(O({ name: S(), age: I() }));
+ * const v2 = Typed<User>()(Struct({ name: UnicodeString(), age: Integer() }));
  * const result2 = v2.validate(input);
  * if (result2.valid) {
  *   result2.value.name; // TypeScript knows this is User
  * }
  * 
  * // Compile-time error if schema doesn't match interface:
- * const v3 = Typed<User>(O({ name: S() })); // Error: missing 'age'
+ * const v3 = Typed<User>()(Struct({ name: UnicodeString() })); // Error: missing 'age'
  * ```
  */
 export function Typed<T>() {
@@ -55,11 +57,13 @@ export function Typed<T>() {
  * 
  * @example
  * ```typescript
+ * import { Struct, UnicodeString, Integer } from '@janus-validator/core/combinators';
+ *
  * interface User { name: string; age: number; }
  * 
- * const userValidator = As<User>()(O({
- *   name: S(),
- *   age: I(),
+ * const userValidator = As<User>()(Struct({
+ *   name: UnicodeString(),
+ *   age: Integer(),
  * }));
  * // userValidator is Validator<User>
  * ```

@@ -2,9 +2,8 @@
  * @janus-validator/dsl - Concise DSL for Janus Validator
  * 
  * This package re-exports the DSL from @janus-validator/core for convenience.
- * You can use either:
- *   - import { B, S, I } from '@janus-validator/dsl'
- *   - import { B, S, I } from '@janus-validator/core/DSL'
+ * Use:
+ *   - import { B, U, S, I } from '@janus-validator/dsl'
  * 
  * @example
  * ```typescript

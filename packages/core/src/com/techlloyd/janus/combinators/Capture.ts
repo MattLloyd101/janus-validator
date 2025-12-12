@@ -67,8 +67,10 @@ export interface RefDomain<T> extends Domain<T> {
  * 
  * @example
  * ```typescript
+ * import { Struct, UnicodeString } from '@janus-validator/core/combinators';
+ *
  * const ctx = new ValidationContext();
- * const validator = O({
+ * const validator = Struct({
  *   password: new Capture(ctx, 'pwd', UnicodeString(8, 50)),
  *   confirmPassword: new Ref(ctx, 'pwd')
  * });
@@ -106,8 +108,10 @@ export class Capture<T> implements Validator<T> {
  * 
  * @example
  * ```typescript
+ * import { Struct, UnicodeString } from '@janus-validator/core/combinators';
+ *
  * const ctx = new ValidationContext();
- * const validator = O({
+ * const validator = Struct({
  *   password: new Capture(ctx, 'pwd', UnicodeString(8, 50)),
  *   confirmPassword: new Ref(ctx, 'pwd')
  * });
@@ -160,9 +164,11 @@ export interface CaptureGroup {
  * 
  * @example
  * ```typescript
+ * import { Struct, UnicodeString } from '@janus-validator/core/combinators';
+ *
  * const { capture, ref, context } = createCaptureGroup();
  * 
- * const validator = O({
+ * const validator = Struct({
  *   password: capture('pwd', UnicodeString(8, 50)),
  *   confirmPassword: ref('pwd')
  * });

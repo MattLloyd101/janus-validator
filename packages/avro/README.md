@@ -10,6 +10,17 @@ npm install @janus-validator/avro @janus-validator/core
 
 ## Usage
 
+🚧 **Status:** Avro conversion is scaffolded but not yet implemented. The exported functions currently throw `Error('Not yet implemented')`.
+
+## Why this package exists
+
+Avro schemas describe *shape* but don’t standardize validation constraints (lengths, numeric bounds, regex patterns, etc).
+This package is intended to bridge that gap by encoding validation constraints as `x-janus-*` extension fields, so the
+same schema can be:
+
+- **Validated forwards** (Avro → Janus validator → validate)
+- **Generated backwards** (Janus validator → Generator → fixtures)
+
 ### Import: Avro → Validator
 
 Convert an Avro schema to a Janus validator:
@@ -43,9 +54,7 @@ const avroSchema = {
 
 const validator = avroToValidator(avroSchema);
 
-// Now you can validate data
-validator.validate({ name: 'Alice', age: 30, email: 'alice@example.com' });
-// { valid: true, value: { name: 'Alice', age: 30, email: 'alice@example.com' } }
+// NOTE: Currently throws "Not yet implemented"
 
 // And generate test data
 import { Generator } from '@janus-validator/core';
@@ -59,10 +68,10 @@ Convert a Janus validator to an Avro schema:
 
 ```typescript
 import { validatorToAvro } from '@janus-validator/avro';
-import { O, S, I, R } from '@janus-validator/core/DSL';
+import { O, U, I, R } from '@janus-validator/dsl';
 
 const userValidator = O({
-  name: S(1, 100),
+  name: U(1, 100),
   age: I(0, 150),
   email: R(/^[\w.]+@[\w.]+\.\w+$/),
 });
@@ -110,15 +119,24 @@ Since Avro doesn't natively support validation constraints, this package uses `x
 | `null` | `Null()` |
 | `boolean` | `B()` |
 | `int` | `I(min?, max?)` |
-| `long` | `I(min?, max?)` |
+| `long` | `L(min?, max?)` |
 | `float` | `N(min?, max?)` |
 | `double` | `N(min?, max?)` |
-| `string` | `S(minLen?, maxLen?)` or `R(pattern)` |
-| `bytes` | `S(minLen?, maxLen?)` |
+| `string` | `U(minLen?, maxLen?)` or `R(pattern)` |
+| `bytes` | `Bytes(minLen?, maxLen?)` |
 | `array` | `oneOrMore(item)` / `between(item, min, max)` |
 | `record` | `O({ ... })` |
-| `enum` | `Or(C('a'), C('b'), ...)` |
+| `enum` | `Or('a', 'b', ...)` |
 | `union` | `Or(type1, type2, ...)` |
+
+## Roadmap
+
+Planned behavior once implemented:
+- `avroToValidator(schema)`:
+  - Produces a validator from Avro schema + `x-janus-*` constraints
+  - Records become `Struct(...)` / DSL `O(...)` with configurable strictness
+- `validatorToAvro(validator)`:
+  - Encodes domains/constraints back into Avro types + `x-janus-*` fields
 
 ## License
 

@@ -26,10 +26,10 @@ export interface ValidatorToAvroOptions {
  *
  * @example
  * ```typescript
- * import { O, S, I } from '@janus-validator/core/DSL';
+ * import { O, U, I } from '@janus-validator/dsl';
  *
  * const userValidator = O({
- *   name: S(1, 100),
+ *   name: U(1, 100),
  *   age: I(0, 150),
  * });
  *

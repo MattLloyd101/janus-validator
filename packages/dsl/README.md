@@ -2,6 +2,11 @@
 
 Concise DSL for [Janus Validator](../core/README.md) - short aliases for all validators and combinators.
 
+The DSL is “just syntax”: it builds validators from `@janus-validator/core`, so you still get:
+
+- ✅ **Forward validation**: `validate(unknown)`
+- 🎲 **Backwards generation**: `new Generator(rng).generate(validator)`
+
 ## Installation
 
 ```bash
@@ -11,7 +16,7 @@ npm install @janus-validator/dsl @janus-validator/core
 ## Quick Start
 
 ```typescript
-import { B, S, I, N, L, R, O, Bytes, Or, Seq, optional, oneOrMore } from '@janus-validator/dsl';
+import { B, U, S, I, N, L, R, O, Bytes, Or, Seq, optional, oneOrMore } from '@janus-validator/dsl';
 import { Generator } from '@janus-validator/core';
 
 // Define validators with concise syntax
@@ -37,6 +42,24 @@ const result = userValidator.validate({
 // Generate test data
 const generator = new Generator({ random: Math.random });
 const testUser = generator.generate(userValidator);
+```
+
+## Why this is powerful
+
+The same validator definition can be used:
+- In production (validate API requests / config / events)
+- In tests (generate fixtures that must satisfy the same constraints)
+
+```typescript
+import { Generator } from '@janus-validator/core';
+import { O, U, I } from '@janus-validator/dsl';
+
+const User = O({ name: U(1, 50), age: I(0, 150) });
+const generator = new Generator({ random: Math.random });
+
+const fixture = generator.generate(User);
+const roundTrip = User.validate(fixture);
+// roundTrip.valid === true
 ```
 
 ## DSL Reference
@@ -128,6 +151,55 @@ const form = O({
 const hexColor = caseInsensitive(S('#', hex(6)));
 hexColor.validate('#AABBCC'); // valid
 hexColor.validate('#aabbcc'); // valid
+```
+
+## Recipes
+
+### 1) Nested objects (strict vs non-strict)
+
+```typescript
+import { O, U, I } from '@janus-validator/dsl';
+
+const User = O({
+  name: U(1, 100),
+  age: I(0, 150),
+});
+
+const StrictUser = O({ name: U(1, 100), age: I(0, 150) }, true);
+```
+
+### 2) “Enum-like” values (auto-wrapping)
+
+```typescript
+import { Or } from '@janus-validator/dsl';
+
+const Status = Or('pending', 'active', 'complete');
+// Type is: Validator<'pending' | 'active' | 'complete'>
+```
+
+### 3) Formatted strings without regex
+
+```typescript
+import { S, D, H } from '@janus-validator/dsl';
+
+const ISODate = S(D(4), '-', D(2), '-', D(2));      // YYYY-MM-DD
+const UUID = S(H(8), '-', H(4), '-', H(4), '-', H(4), '-', H(12));
+```
+
+### 4) Capture & reference (e.g. password confirmation)
+
+```typescript
+import { O, U, createCaptureGroup } from '@janus-validator/dsl';
+
+const { capture, ref, context } = createCaptureGroup();
+
+const Signup = O({
+  password: capture('pwd', U(8, 100)),
+  confirmPassword: ref('pwd'),
+});
+
+// If reusing between validations, clear captures
+context.clear();
 ```
 
 ## Auto-Wrapping
