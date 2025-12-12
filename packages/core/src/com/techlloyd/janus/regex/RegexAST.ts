@@ -6,6 +6,8 @@
  * construct.
  */
 
+import type { CharRange } from '../Domain';
+
 // ============================================================================
 // Node Type Constants
 // ============================================================================
@@ -51,12 +53,16 @@ export interface LiteralNode {
 }
 
 /**
- * A character class node - matches one character from a set
- * When negated, matches any character NOT in the set
+ * A character class node - matches one character from a set of ranges.
+ * When negated, matches any character NOT in the ranges.
+ * 
+ * Uses contiguous code point ranges for efficient representation:
+ * - `[a-z]` is stored as `[{ min: 97, max: 122 }]`
+ * - `[a-zA-Z0-9]` is stored as `[{ min: 48, max: 57 }, { min: 65, max: 90 }, { min: 97, max: 122 }]`
  */
 export interface CharClassNode {
   type: typeof RegexNodeType.CHAR_CLASS;
-  chars: string[];
+  ranges: readonly CharRange[];
   negated: boolean;
 }
 

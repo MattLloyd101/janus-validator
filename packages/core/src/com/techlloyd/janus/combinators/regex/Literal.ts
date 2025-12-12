@@ -1,4 +1,4 @@
-import { RegexDomain, DomainType } from '../../Domain';
+import { RegexDomain } from '../../Domain';
 import { BaseRegexValidator, MatchResult } from './RegexValidator';
 
 /**
@@ -9,11 +9,8 @@ export class Literal extends BaseRegexValidator {
 
   constructor(public readonly char: string) {
     super();
-    this._domain = {
-      type: DomainType.REGEX_DOMAIN,
-      pattern: new RegExp(this.escapeRegex(char)),
-      source: this.escapeRegex(char),
-    };
+    const src = this.escapeRegex(char);
+    this._domain = new RegexDomain(new RegExp(src));
   }
 
   get domain(): RegexDomain {

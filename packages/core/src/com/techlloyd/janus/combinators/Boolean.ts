@@ -1,15 +1,12 @@
 import { BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { FiniteDomain, DomainType } from '../Domain';
+import { FiniteDomain } from '../Domain';
 
 /**
  * Validator for boolean values.
  */
 export class BooleanValidator extends BaseValidator<boolean> {
-  public readonly domain: FiniteDomain<boolean> = {
-    type: DomainType.FINITE_DOMAIN,
-    values: [true, false] as const,
-  };
+  public readonly domain: FiniteDomain<boolean> = new FiniteDomain([true, false] as const);
 
   validate(input: unknown): ValidationResult<boolean> {
     if (typeof input === 'boolean') {

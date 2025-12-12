@@ -1,6 +1,6 @@
 import { Validator, BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { Domain, AlternationDomain, DomainType } from '../Domain';
+import { Domain, AlternationDomain } from '../Domain';
 import { UnionOfValidators } from '../Types';
 
 /**
@@ -25,16 +25,13 @@ import { UnionOfValidators } from '../Types';
  * ```
  */
 export class Alternation<T, D extends Domain<T> = AlternationDomain<T>> extends BaseValidator<T> {
-  public readonly validators: Validator<any>[];
+  public readonly validators: Validator<unknown>[];
   public readonly domain: D;
 
-  constructor(...validators: Validator<any>[]) {
+  constructor(...validators: Validator<unknown>[]) {
     super();
     this.validators = validators;
-    this.domain = {
-      type: DomainType.ALTERNATION_DOMAIN,
-      alternatives: validators.map(v => v.domain),
-    } as unknown as D;
+    this.domain = new AlternationDomain(validators.map(v => v.domain)) as unknown as D;
   }
 
   /**
@@ -65,7 +62,7 @@ export class Alternation<T, D extends Domain<T> = AlternationDomain<T>> extends 
    * const v = Alternation.of(UnicodeString(), Integer(), Null());
    * ```
    */
-  static of<Vs extends readonly Validator<any>[]>(
+  static of<Vs extends readonly Validator<unknown>[]>(
     ...validators: Vs
   ): Validator<UnionOfValidators<Vs>> {
     if (validators.length === 0) {

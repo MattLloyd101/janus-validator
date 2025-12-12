@@ -1,5 +1,6 @@
-import { RegexDomain, DomainType } from '../../Domain';
+import { RegexDomain } from '../../Domain';
 import { BaseRegexValidator, MatchResult, RegexValidator } from './RegexValidator';
+import { Empty } from './Empty';
 
 /**
  * Regex-specific Sequence combinator that matches validators in order.
@@ -26,11 +27,7 @@ export class RegexSequence extends BaseRegexValidator {
     this.validators = validators;
     
     const source = validators.map(v => (v.domain as RegexDomain).source).join('');
-    this._domain = {
-      type: DomainType.REGEX_DOMAIN,
-      pattern: new RegExp(source),
-      source,
-    };
+    this._domain = new RegexDomain(new RegExp(source));
   }
 
   get domain(): RegexDomain {
@@ -72,7 +69,6 @@ export class RegexSequence extends BaseRegexValidator {
 
     // Handle edge cases
     if (flattened.length === 0) {
-      const { Empty } = require('./Empty');
       return new Empty();
     }
     if (flattened.length === 1) {

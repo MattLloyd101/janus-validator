@@ -34,7 +34,7 @@ export function astToValidator(node: RegexASTNode): RegexValidator {
       return new Literal(node.char);
 
     case RegexNodeType.CHAR_CLASS:
-      return new CharClass(node.chars, node.negated);
+      return new CharClass(node.ranges, node.negated);
 
     case RegexNodeType.ANY:
       return new Any();
@@ -85,7 +85,7 @@ export function astToValidator(node: RegexASTNode): RegexValidator {
  * validator.validate('test@example.com'); // valid
  * ```
  */
-export function parseRegex(source: string): RegexValidator {
-  const ast = parseRegexToAST(source);
+export function parseRegex(source: string, flags: string = ''): RegexValidator {
+  const ast = parseRegexToAST(source, flags);
   return astToValidator(ast);
 }

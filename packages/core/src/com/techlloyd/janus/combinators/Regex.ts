@@ -1,6 +1,6 @@
 import { BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { RegexDomain, DomainType } from '../Domain';
+import { RegexDomain } from '../Domain';
 import { RegexValidator, MatchResult } from './regex/RegexValidator';
 import { parseRegex } from './regex/ASTConverter';
 
@@ -32,7 +32,7 @@ export function Regex(pattern: RegExp | string, flags?: string): RegexValidator 
   const source = regex.source;
   
   // Parse the regex pattern into a composed validator tree
-  const validator = parseRegex(source);
+  const validator = parseRegex(source, regex.flags);
   
   // Create a wrapper that uses the parsed validator but exposes the original regex
   return new RegexWrapper(validator, regex);
@@ -49,11 +49,7 @@ class RegexWrapper extends BaseValidator<string> implements RegexValidator {
     private readonly regex: RegExp
   ) {
     super();
-    this.domain = {
-      type: DomainType.REGEX_DOMAIN,
-      pattern: regex,
-      source: regex.source,
-    };
+    this.domain = new RegexDomain(regex);
   }
 
   validate(value: unknown): ValidationResult<string> {

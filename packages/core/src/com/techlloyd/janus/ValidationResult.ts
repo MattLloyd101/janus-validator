@@ -26,5 +26,5 @@ export type ValidationResult<T> =
       error: string;
       example?: T;
       /** For composite types: per-field or per-element results */
-      results?: { [key: string]: ValidationResult<any> } | ValidationResult<any>[];
+      results?: { [key: string]: ValidationResult<unknown> } | ValidationResult<unknown>[];
     };

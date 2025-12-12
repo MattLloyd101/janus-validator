@@ -12,6 +12,28 @@ import {
   QuantifierNode,
   GroupNode,
 } from './RegexAST';
+import type { CharRange } from '../Domain';
+
+// ============================================================================
+// Predefined character class ranges
+// ============================================================================
+
+/** Range for digits 0-9 */
+const DIGIT_RANGE: CharRange = { min: 0x30, max: 0x39 };
+
+/** Ranges for word characters [a-zA-Z0-9_] */
+const WORD_RANGES: readonly CharRange[] = [
+  { min: 0x30, max: 0x39 }, // 0-9
+  { min: 0x41, max: 0x5A }, // A-Z
+  { min: 0x5F, max: 0x5F }, // _
+  { min: 0x61, max: 0x7A }, // a-z
+];
+
+/** Ranges for whitespace [ \t\n\v\f\r] */
+const WHITESPACE_RANGES: readonly CharRange[] = [
+  { min: 0x09, max: 0x0D }, // \t \n \v \f \r (contiguous)
+  { min: 0x20, max: 0x20 }, // space
+];
 
 /**
  * Parser that converts a regex source string into an AST.
@@ -32,9 +54,49 @@ import {
  * // Returns an AST representing the email-like pattern
  * ```
  */
-export function parseRegexToAST(source: string): RegexASTNode {
+export function parseRegexToAST(source: string, flags: string = ''): RegexASTNode {
+  assertSupportedPortableRegex(source, flags);
   const parser = new RegexASTParserImpl(source);
   return parser.parse();
+}
+
+/**
+ * Validate that the regex source is within the supported (portable/decidable) subset.
+ *
+ * IMPORTANT:
+ * - This is intentionally a *parser-level* responsibility (not `Domain.encapsulates()`),
+ *   because unsupported constructs should fail fast with explicit errors.
+ * - This is NOT trying to accept "all regex"; it rejects constructs we don't model
+ *   correctly (e.g. lookarounds/backrefs), even if some engines would treat them specially.
+ */
+function assertSupportedPortableRegex(source: string, flags: string): void {
+  const src = source ?? '';
+
+  if (flags && flags.length > 0) {
+    throw new Error(`Unsupported regex flags: "${flags}"`);
+  }
+
+  // Disallow lookarounds and inline-flag groups.
+  // These start with "(?" but are NOT "(?:", which is allowed.
+  // Examples to reject: (?=...), (?!...), (?<=...), (?<!...), (?i:...), (?i)
+  for (let i = 0; i < src.length - 1; i++) {
+    if (src[i] !== '(' || src[i + 1] !== '?') continue;
+    const third = src[i + 2] ?? '';
+    const fourth = src[i + 3] ?? '';
+    const isNonCapturing = third === ':'; // (?:...)
+    if (isNonCapturing) continue;
+    const token = `(?${third}${fourth}`;
+    throw new Error(`Unsupported regex construct: ${token}...`);
+  }
+
+  // Disallow backreferences like \1, \2, ... and \k<name>.
+  // NOTE: Without this, the parser would incorrectly treat them as literals.
+  if (/\\[1-9][0-9]*/.test(src)) {
+    throw new Error('Unsupported regex construct: numeric backreference (e.g. \\1)');
+  }
+  if (/\\k<[^>]+>/.test(src)) {
+    throw new Error('Unsupported regex construct: named backreference (e.g. \\k<name>)');
+  }
 }
 
 /**
@@ -209,28 +271,29 @@ class RegexASTParserImpl {
     this.consume(); // '['
 
     const negated = this.match('^');
-    const chars: string[] = [];
+    const ranges: CharRange[] = [];
 
     while (!this.isEnd() && this.peek() !== ']') {
-      const expandedChars = this.parseCharClassChars();
+      const item = this.parseCharClassItem();
 
-      // Check for range
+      // Check for range (only if item is a single character)
       if (
-        expandedChars.length === 1 &&
+        item.type === 'char' &&
         !this.isEnd() &&
         this.peek() === '-' &&
         this.source[this.pos + 1] !== ']'
       ) {
         this.consume(); // '-'
-        const endChars = this.parseCharClassChars();
-        if (endChars.length !== 1) {
+        const endItem = this.parseCharClassItem();
+        if (endItem.type !== 'char') {
           throw new Error(`Cannot use character class escape as range endpoint at position ${this.pos}`);
         }
-        for (let c = expandedChars[0].charCodeAt(0); c <= endChars[0].charCodeAt(0); c++) {
-          chars.push(String.fromCharCode(c));
-        }
+        ranges.push({ min: item.codePoint, max: endItem.codePoint });
+      } else if (item.type === 'char') {
+        ranges.push({ min: item.codePoint, max: item.codePoint });
       } else {
-        chars.push(...expandedChars);
+        // Multiple ranges from escape like \d, \w
+        ranges.push(...item.ranges);
       }
     }
 
@@ -238,83 +301,87 @@ class RegexASTParserImpl {
       throw new Error(`Expected ']' at position ${this.pos}`);
     }
 
-    return { type: RegexNodeType.CHAR_CLASS, chars, negated };
+    return { type: RegexNodeType.CHAR_CLASS, ranges: this.normalizeRanges(ranges), negated };
   }
 
-  private parseCharClassChars(): string[] {
+  /**
+   * Result of parsing a char class item - either a single char or multiple ranges
+   */
+  private parseCharClassItem(): { type: 'char'; codePoint: number } | { type: 'ranges'; ranges: CharRange[] } {
     if (this.peek() === '\\') {
       this.consume();
       return this.parseCharClassEscape();
     }
-    return [this.consume()];
+    const ch = this.consume();
+    return { type: 'char', codePoint: ch.codePointAt(0)! };
   }
 
-  private parseCharClassEscape(): string[] {
+  private parseCharClassEscape(): { type: 'char'; codePoint: number } | { type: 'ranges'; ranges: CharRange[] } {
     const ch = this.peek();
 
     if (ch === 'd') {
       this.consume();
-      return ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      return { type: 'ranges', ranges: [DIGIT_RANGE] };
     }
     if (ch === 'D') {
       this.consume();
-      const chars: string[] = [];
-      for (let c = 32; c <= 126; c++) {
-        if (c < 48 || c > 57) {
-          chars.push(String.fromCharCode(c));
-        }
-      }
-      return chars;
+      // Non-digits in ASCII printable range: complement of 0-9
+      // For simplicity, we use printable ASCII minus digits
+      return { type: 'ranges', ranges: [{ min: 0x20, max: 0x2F }, { min: 0x3A, max: 0x7E }] };
     }
     if (ch === 'w') {
       this.consume();
-      const chars: string[] = [];
-      for (let c = 'a'.charCodeAt(0); c <= 'z'.charCodeAt(0); c++) {
-        chars.push(String.fromCharCode(c));
-      }
-      for (let c = 'A'.charCodeAt(0); c <= 'Z'.charCodeAt(0); c++) {
-        chars.push(String.fromCharCode(c));
-      }
-      for (let c = '0'.charCodeAt(0); c <= '9'.charCodeAt(0); c++) {
-        chars.push(String.fromCharCode(c));
-      }
-      chars.push('_');
-      return chars;
+      return { type: 'ranges', ranges: [...WORD_RANGES] };
     }
     if (ch === 'W') {
       this.consume();
-      const wordChars = new Set<number>();
-      for (let c = 'a'.charCodeAt(0); c <= 'z'.charCodeAt(0); c++) wordChars.add(c);
-      for (let c = 'A'.charCodeAt(0); c <= 'Z'.charCodeAt(0); c++) wordChars.add(c);
-      for (let c = '0'.charCodeAt(0); c <= '9'.charCodeAt(0); c++) wordChars.add(c);
-      wordChars.add('_'.charCodeAt(0));
-
-      const chars: string[] = [];
-      for (let c = 32; c <= 126; c++) {
-        if (!wordChars.has(c)) {
-          chars.push(String.fromCharCode(c));
-        }
-      }
-      return chars;
+      // Non-word in ASCII printable: complement of [0-9A-Z_a-z]
+      return { type: 'ranges', ranges: [
+        { min: 0x20, max: 0x2F }, // space to /
+        { min: 0x3A, max: 0x40 }, // : to @
+        { min: 0x5B, max: 0x5E }, // [ to ^
+        { min: 0x60, max: 0x60 }, // `
+        { min: 0x7B, max: 0x7E }, // { to ~
+      ]};
     }
     if (ch === 's') {
       this.consume();
-      return [' ', '\t', '\n', '\r', '\f', '\v'];
+      return { type: 'ranges', ranges: [...WHITESPACE_RANGES] };
     }
     if (ch === 'S') {
       this.consume();
-      const whitespace = new Set([' ', '\t', '\n', '\r', '\f', '\v']);
-      const chars: string[] = [];
-      for (let c = 32; c <= 126; c++) {
-        const char = String.fromCharCode(c);
-        if (!whitespace.has(char)) {
-          chars.push(char);
-        }
-      }
-      return chars;
+      // Non-whitespace in ASCII printable: complement of [ \t\n\v\f\r]
+      return { type: 'ranges', ranges: [
+        { min: 0x21, max: 0x7E }, // ! to ~ (excludes space)
+      ]};
     }
 
-    return [this.parseEscapeChar()];
+    const escaped = this.parseEscapeChar();
+    return { type: 'char', codePoint: escaped.codePointAt(0)! };
+  }
+
+  /**
+   * Normalizes ranges by sorting and merging overlapping/adjacent ranges.
+   */
+  private normalizeRanges(ranges: CharRange[]): CharRange[] {
+    if (ranges.length === 0) return [];
+    
+    const sorted = [...ranges].sort((a, b) => a.min - b.min || b.max - a.max);
+    const result: CharRange[] = [];
+    let current = { ...sorted[0] };
+    
+    for (let i = 1; i < sorted.length; i++) {
+      const next = sorted[i];
+      if (next.min <= current.max + 1) {
+        current.max = Math.max(current.max, next.max);
+      } else {
+        result.push(current);
+        current = { ...next };
+      }
+    }
+    result.push(current);
+    
+    return result;
   }
 
   private parseGroup(): GroupNode {
@@ -347,40 +414,36 @@ class RegexASTParserImpl {
 
     const ch = this.peek();
 
+    // Explicitly reject unsupported escapes that are meaningful in regex engines
+    // but not represented in our AST.
+    if (ch === 'B') {
+      throw new Error('Unsupported regex escape: \\B');
+    }
+
     // Character class escapes
     if (ch === 'd') {
       this.consume();
-      return { type: RegexNodeType.CHAR_CLASS, chars: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], negated: false } as CharClassNode;
+      return { type: RegexNodeType.CHAR_CLASS, ranges: [DIGIT_RANGE], negated: false } as CharClassNode;
     }
     if (ch === 'D') {
       this.consume();
-      return { type: RegexNodeType.CHAR_CLASS, chars: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], negated: true } as CharClassNode;
+      return { type: RegexNodeType.CHAR_CLASS, ranges: [DIGIT_RANGE], negated: true } as CharClassNode;
     }
     if (ch === 'w') {
       this.consume();
-      const chars: string[] = [];
-      for (let c = 'a'.charCodeAt(0); c <= 'z'.charCodeAt(0); c++) chars.push(String.fromCharCode(c));
-      for (let c = 'A'.charCodeAt(0); c <= 'Z'.charCodeAt(0); c++) chars.push(String.fromCharCode(c));
-      for (let c = '0'.charCodeAt(0); c <= '9'.charCodeAt(0); c++) chars.push(String.fromCharCode(c));
-      chars.push('_');
-      return { type: RegexNodeType.CHAR_CLASS, chars, negated: false } as CharClassNode;
+      return { type: RegexNodeType.CHAR_CLASS, ranges: [...WORD_RANGES], negated: false } as CharClassNode;
     }
     if (ch === 'W') {
       this.consume();
-      const chars: string[] = [];
-      for (let c = 'a'.charCodeAt(0); c <= 'z'.charCodeAt(0); c++) chars.push(String.fromCharCode(c));
-      for (let c = 'A'.charCodeAt(0); c <= 'Z'.charCodeAt(0); c++) chars.push(String.fromCharCode(c));
-      for (let c = '0'.charCodeAt(0); c <= '9'.charCodeAt(0); c++) chars.push(String.fromCharCode(c));
-      chars.push('_');
-      return { type: RegexNodeType.CHAR_CLASS, chars, negated: true } as CharClassNode;
+      return { type: RegexNodeType.CHAR_CLASS, ranges: [...WORD_RANGES], negated: true } as CharClassNode;
     }
     if (ch === 's') {
       this.consume();
-      return { type: RegexNodeType.CHAR_CLASS, chars: [' ', '\t', '\n', '\r', '\f', '\v'], negated: false } as CharClassNode;
+      return { type: RegexNodeType.CHAR_CLASS, ranges: [...WHITESPACE_RANGES], negated: false } as CharClassNode;
     }
     if (ch === 'S') {
       this.consume();
-      return { type: RegexNodeType.CHAR_CLASS, chars: [' ', '\t', '\n', '\r', '\f', '\v'], negated: true } as CharClassNode;
+      return { type: RegexNodeType.CHAR_CLASS, ranges: [...WHITESPACE_RANGES], negated: true } as CharClassNode;
     }
 
     // Word boundary - generates nothing

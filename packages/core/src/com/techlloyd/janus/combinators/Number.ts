@@ -1,6 +1,6 @@
 import { BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { ContiguousDomain, DomainType, ContiguousType } from '../Domain';
+import { ContiguousDomain, ContiguousType } from '../Domain';
 
 /**
  * Validator for floating-point number values within an optional range.
@@ -22,12 +22,7 @@ export class NumberValidator extends BaseValidator<number> {
     public readonly max: number = globalThis.Number.MAX_VALUE
   ) {
     super();
-    this.domain = {
-      type: DomainType.CONTIGUOUS_DOMAIN,
-      contiguousType: ContiguousType.FLOAT,
-      min,
-      max,
-    };
+    this.domain = new ContiguousDomain(ContiguousType.FLOAT, min, max);
   }
 
   validate(input: unknown): ValidationResult<number> {

@@ -31,10 +31,11 @@ export const StrictEmail = () => Regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|
 
 /**
  * Corporate email (no free email providers)
- * Note: This is a simplified check - uses negative lookahead to exclude common free providers
+ * Note: This validates basic email format. Use custom validation logic to exclude
+ * specific domains like gmail, yahoo, etc. Generation produces corporate-style domains.
  */
 export const CorporateEmail = () => withGenerator(
-  Regex(/^[a-zA-Z0-9._%+-]+@(?!gmail|yahoo|hotmail|outlook|aol)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+  Regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
   (rng) => {
     const chars = 'abcdefghijklmnopqrstuvwxyz';
     const name = Array.from({ length: 5 + Math.floor(rng.random() * 5) }, () =>

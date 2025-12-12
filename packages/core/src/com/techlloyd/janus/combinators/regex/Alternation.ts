@@ -1,7 +1,8 @@
-import { RegexDomain, DomainType } from '../../Domain';
+import { RegexDomain } from '../../Domain';
 import { ValidationResult } from '../../ValidationResult';
 import { MatchResult, RegexValidator } from './RegexValidator';
 import { Alternation as GenericAlternation } from '../Alternation';
+import { Empty } from './Empty';
 
 /**
  * Regex-specific Alternation combinator that extends the generic Alternation<string>
@@ -30,11 +31,7 @@ export class RegexAlternation extends GenericAlternation<string, RegexDomain> im
     }).join('|');
     
     // Override the domain with RegexDomain
-    (this as any).domain = {
-      type: DomainType.REGEX_DOMAIN,
-      pattern: new RegExp(source),
-      source,
-    };
+    (this as any).domain = new RegexDomain(new RegExp(source));
   }
 
   /**
@@ -82,7 +79,6 @@ export class RegexAlternation extends GenericAlternation<string, RegexDomain> im
 
     // Handle edge cases
     if (flattened.length === 0) {
-      const { Empty } = require('./Empty');
       return new Empty();
     }
     if (flattened.length === 1) {

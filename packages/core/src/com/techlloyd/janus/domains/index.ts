@@ -1,19 +1,48 @@
 /**
- * Domain generator strategies
+ * Domain classes for validation and generation.
+ *
+ * Domains represent the set of valid values for a validator and are used for:
+ * - generation (via domain generator strategies)
+ * - compatibility reasoning (`encapsulates`)
  */
-export { DomainGeneratorStrategy } from './DomainGeneratorStrategy';
-export { FiniteDomainGenerator } from './FiniteDomainGenerator';
-export { StringDomainGenerator } from './StringDomainGenerator';
-export { ContiguousDomainGenerator } from './ContiguousDomainGenerator';
-export { RegexDomainGenerator } from './RegexDomainGenerator';
-export { AlternationDomainGenerator } from './AlternationDomainGenerator';
-export { SequenceDomainGenerator } from './SequenceDomainGenerator';
-export { QuantifierDomainGenerator } from './QuantifierDomainGenerator';
-export { StructDomainGenerator } from './StructDomainGenerator';
-export { CaptureDomainGenerator } from './CaptureDomainGenerator';
-export { RefDomainGenerator } from './RefDomainGenerator';
-export { CustomGeneratorDomainGenerator } from './CustomGeneratorDomainGenerator';
-export { BytesDomainGenerator } from './BytesDomainGenerator';
-export { BigIntDomainGenerator } from './BigIntDomainGenerator';
-export { DomainGeneratorStrategyRegistry } from './DomainGeneratorStrategyRegistry';
 
+// Types and utilities
+export {
+  DomainType,
+  RelationResult,
+  ok,
+  no,
+  unknown,
+} from './types';
+
+// CharRange utilities (for CharSetDomain and regex character classes)
+export {
+  CharRange,
+  normalizeRanges,
+  rangesSize,
+  rangesSubset,
+  charsToRanges,
+  charRange,
+} from './CharRange';
+
+// Base class
+export { Domain } from './Domain';
+
+// Concrete domain classes
+export { FiniteDomain } from './FiniteDomain';
+export { StringDomain } from './StringDomain';
+export { CharSetDomain } from './CharSetDomain';
+export { ContiguousDomain } from './ContiguousDomain';
+export { RegexDomain } from './RegexDomain';
+export { AlternationDomain } from './AlternationDomain';
+export { SequenceDomain } from './SequenceDomain';
+export { QuantifierDomain } from './QuantifierDomain';
+export { BytesDomain } from './BytesDomain';
+export { BigIntDomain } from './BigIntDomain';
+export { StructDomain } from './StructDomain';
+export { CaptureDomain } from './CaptureDomain';
+export { RefDomain } from './RefDomain';
+export { CustomGeneratorDomain } from './CustomGeneratorDomain';
+
+// Re-export ContiguousType for convenience
+export { ContiguousType, ContiguousTypeValue } from '../generators/interpolate/ContiguousType';

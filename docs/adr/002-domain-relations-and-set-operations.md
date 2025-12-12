@@ -1,7 +1,7 @@
 # ADR-002: Domain Relations and Set Operations for Schema Compatibility
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2025-12-12
@@ -30,7 +30,7 @@ To keep domain relations **decidable and exact** (or “fail fast” for unsuppo
 
 Concretely:
 - `Capture` / `Ref` (and their associated domain types) should be **removed** from the library for this version.
-- This avoids introducing domains whose meaning depends on runtime context/control-flow and would otherwise force `unknown` results (or unsound approximations) in `encapsulates` and set operations.
+- This avoids introducing domains whose meaning depends on runtime context/control-flow and, in some cases, can introduce **undecidability** (or require whole-program/whole-schema constraint solving) for domain relations like `encapsulates` and for set operations.
 
 We may revisit cross-field constraints in a future version with a dedicated design that preserves correctness (e.g. whole-schema constraint solving with explicit scoping/ordering rules), captured in a separate ADR.
 
@@ -65,7 +65,7 @@ Define set operations that construct new domains:
 These operations should be implemented with an **exact-first** approach:
 
 1. **Exact simplifications** for tractable domain types (e.g. numeric ranges, finite sets, length bounds).
-2. If an exact result cannot be computed safely, return an explicit **“unknown/opaque”** representation (or refuse the operation), rather than producing a lossy domain.
+2. If an exact result cannot be computed safely, **fail fast** (or return an explicit error result) rather than producing a lossy domain. `unknown` is a relation-level concept; domain construction should not silently “approximate”.
 
 ### 3) Normalization
 Introduce a “normalization” step for domains produced by set operations:
@@ -84,8 +84,7 @@ Domains are intended to be the single source of truth for both validation and ge
 - **Completeness (goal)**: for domains where it is feasible, generation should be capable of producing any value that the domain considers valid (i.e. generation and validation sets align).
 
 This is actively enforced via **property-based testing**: generated values should always validate (soundness), and we should add targeted tests to increase confidence in coverage for each `DomainType` (a practical proxy for completeness).
-
-When this alignment cannot be guaranteed (e.g. niche/complex domains), compatibility reasoning should still be **exact-first** and may return `unknown` rather than relying on generator behavior.
+This constraint informs the standard library feature set: we prefer to **constrain support** (and fail fast on unsupported constructs) so that standard-library relations and operations remain exact.
 
 ## Consequences
 ### Benefits
@@ -93,16 +92,17 @@ When this alignment cannot be guaranteed (e.g. niche/complex domains), compatibi
 - Encourages **domain-first introspection tooling**: diffing, reporting, and CI checks.
 - Enables future “domain algebra” features and simplifications.
 
-### Tradeoffs / Non-goals
-- Some relations are inherently complex; we intentionally return **unknown** for cases that are:
-  - not decidable with our supported information
-  - likely to be niche / surprising
-  - expensive to compute in worst cases
+### Standard library posture on `unknown`
+- For the **standard library**, `unknown` should be **exceptional**. We prefer:
+  - constraining what we support, and
+  - failing fast for unsupported constructs
+  so that relations and set operations are exact.
+- `unknown` still exists to support:
+  - **extensions** (unknown/third-party domain types), and
+  - **complexity guardrails** (e.g. if a decidable check exceeds configured resource limits).
 
-### Known complex areas
-These cases may require extra care. Our default posture remains **exact-first**:
-- Prefer an exact, decidable rule.
-- If we cannot provide a correct rule, return `unknown` (or fail fast where appropriate).
+### Areas requiring constraints / defensive programming
+These areas require explicit constraints so correctness is guaranteed.
 
 - **`DomainType.REGEX_DOMAIN` inclusion**
   - **Stance:** We explicitly support only a **decidable subset** of regex so that domain relations and set operations can be **correct**.
@@ -143,7 +143,7 @@ The implementation should likely take the form of a small relations/algebra modu
 Recommended properties of the implementation:
 - **Pure, deterministic** operations (no RNG)
 - **Explainability**: return `reason` strings for `false`/`unknown`
-- **Exact-first**: treat “unknown” as acceptable and expected in niche scenarios
+- **Exact-first**: standard-library operations should avoid `unknown` via constraints + fail-fast; `unknown` is primarily for extensions/guardrails
 
 ## Follow-ups
 - Decide public API shape (`Domains` namespace module vs methods).
@@ -151,8 +151,8 @@ Recommended properties of the implementation:
 - Define exact `encapsulates` rules for tractable domain types:
   - `FINITE_DOMAIN`, `CONTIGUOUS_DOMAIN`, `BIGINT_DOMAIN`, `BYTES_DOMAIN`, `STRING_DOMAIN` length-bounds
   - `STRUCT_DOMAIN` (including `strict` semantics)
-  - `SEQUENCE_DOMAIN`, `QUANTIFIER_DOMAIN`, `CAPTURE_DOMAIN`
-- Define policy for `REGEX_DOMAIN` (supported subset + defensive parsing/errors) and any supported regex flags.
+  - `SEQUENCE_DOMAIN`, `QUANTIFIER_DOMAIN`
+- Implement defensive parsing/errors for the portable `REGEX_DOMAIN` subset, and confirm the “no regex flags over the wire” policy.
 - Define a unified “string-language” direction (AST/model) that covers:
   - regex subset
   - compound strings (`_parts`)

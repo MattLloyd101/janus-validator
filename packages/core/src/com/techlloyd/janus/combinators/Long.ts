@@ -1,6 +1,6 @@
 import { BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { BigIntDomain, DomainType } from '../Domain';
+import { BigIntDomain } from '../Domain';
 
 const LONG_MIN = -(2n ** 63n);
 const LONG_MAX = 2n ** 63n - 1n;
@@ -27,11 +27,7 @@ export class LongValidator extends BaseValidator<bigint> {
     if (min > max) {
       throw new Error('min must be less than or equal to max');
     }
-    this.domain = {
-      type: DomainType.BIGINT_DOMAIN,
-      min,
-      max,
-    };
+    this.domain = new BigIntDomain(min, max);
   }
 
   /**

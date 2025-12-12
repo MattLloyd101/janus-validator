@@ -7,7 +7,7 @@
 
 import { Validator, BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { Domain, DomainType, StringDomain, FiniteDomain } from '../Domain';
+import { Domain, DomainType, StringDomain, FiniteDomain, CharSetDomain, CharRange, charRange, charsToRanges } from '../Domain';
 import { Constant, ConstantValidator } from './Constant';
 
 // ============================================================================
@@ -24,10 +24,7 @@ export type StringPart = string | Domain<string>;
 /**
  * Domain for compound strings
  */
-export interface CompoundStringDomain extends Domain<string> {
-  type: DomainType.STRING_DOMAIN;
-  minLength: number;
-  maxLength: number;
+export interface CompoundStringDomain extends StringDomain {
   /**
    * For generation: parts are stored as either literal strings or domains.
    * This avoids coupling generator strategies to the Validator runtime.
@@ -35,17 +32,6 @@ export interface CompoundStringDomain extends Domain<string> {
   _parts: StringPart[];
 }
 
-// ============================================================================
-// Helper character sets
-// ============================================================================
-
-const DIGITS = '0123456789';
-const LOWERCASE = 'abcdefghijklmnopqrstuvwxyz';
-const UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const LETTERS = LOWERCASE + UPPERCASE;
-const ALPHANUMERIC = LETTERS + DIGITS;
-const HEX_LOWER = '0123456789abcdef';
-const HEX_UPPER = '0123456789ABCDEF';
 
 // ============================================================================
 // Character set validator class
@@ -56,26 +42,51 @@ function escapeRegex(str: string): string {
 }
 
 /**
- * Validator for a string of characters from a given character set
+ * Validator for a string of characters from a given character set.
+ * 
+ * Internally uses range-based representation for efficient storage and comparison.
  */
 class CharSetValidator extends BaseValidator<string> {
-  public readonly domain: StringDomain & { _charSet: string[] };
+  public readonly domain: CharSetDomain;
+  public readonly minLength: number;
+  public readonly maxLength: number;
   private readonly charSetRegex: RegExp;
 
+  /**
+   * Create from ranges or a string of allowed characters.
+   * @param charset - Either an array of CharRange or a string of allowed characters
+   */
   constructor(
-    chars: string,
-    public readonly minLength: number,
-    public readonly maxLength: number
+    charset: string | readonly CharRange[],
+    minLength: number,
+    maxLength: number
   ) {
     super();
-    const charArray = chars.split('');
-    this.charSetRegex = new RegExp(`^[${escapeRegex(chars)}]{${minLength},${maxLength}}$`);
-    this.domain = {
-      type: DomainType.STRING_DOMAIN,
-      minLength,
-      maxLength,
-      _charSet: charArray,
-    };
+    this.minLength = minLength;
+    this.maxLength = maxLength;
+
+    let ranges: readonly CharRange[];
+    let regexPattern: string;
+
+    if (typeof charset === 'string') {
+      // Convert character string to ranges
+      ranges = charsToRanges(charset);
+      regexPattern = escapeRegex(charset);
+    } else {
+      // Use ranges directly
+      ranges = charset;
+      // Build regex pattern from ranges
+      // Note: use globalThis.String to avoid shadowing by the exported String function
+      regexPattern = charset.map(r => {
+        const minChar = globalThis.String.fromCodePoint(r.min);
+        const maxChar = globalThis.String.fromCodePoint(r.max);
+        if (r.min === r.max) return escapeRegex(minChar);
+        return `${escapeRegex(minChar)}-${escapeRegex(maxChar)}`;
+      }).join('');
+    }
+
+    this.charSetRegex = new RegExp(`^[${regexPattern}]{${minLength},${maxLength}}$`);
+    this.domain = new CharSetDomain(minLength, maxLength, ranges);
   }
 
   validate(input: unknown): ValidationResult<string> {
@@ -93,13 +104,38 @@ class CharSetValidator extends BaseValidator<string> {
 }
 
 /**
- * Creates a validator for a string of characters from a given character set
+ * Creates a validator for a string of characters from a given character set (string or ranges)
  */
-function charSetValidator(chars: string, length: number | [number, number]): CharSetValidator {
+function charSetValidator(charset: string | readonly CharRange[], length: number | [number, number]): CharSetValidator {
   const minLen = typeof length === 'number' ? length : length[0];
   const maxLen = typeof length === 'number' ? length : length[1];
-  return new CharSetValidator(chars, minLen, maxLen);
+  return new CharSetValidator(charset, minLen, maxLen);
 }
+
+// ============================================================================
+// Predefined Character Ranges (more efficient than string conversion)
+// ============================================================================
+
+/** Range for digits 0-9 (U+0030 to U+0039) */
+const DIGIT_RANGES: readonly CharRange[] = [charRange('0', '9')];
+
+/** Range for lowercase letters a-z (U+0061 to U+007A) */
+const LOWERCASE_RANGES: readonly CharRange[] = [charRange('a', 'z')];
+
+/** Range for uppercase letters A-Z (U+0041 to U+005A) */
+const UPPERCASE_RANGES: readonly CharRange[] = [charRange('A', 'Z')];
+
+/** Ranges for all letters A-Za-z */
+const LETTER_RANGES: readonly CharRange[] = [charRange('A', 'Z'), charRange('a', 'z')];
+
+/** Ranges for alphanumeric 0-9A-Za-z */
+const ALPHANUMERIC_RANGES: readonly CharRange[] = [charRange('0', '9'), charRange('A', 'Z'), charRange('a', 'z')];
+
+/** Ranges for hex lowercase 0-9a-f */
+const HEX_LOWER_RANGES: readonly CharRange[] = [charRange('0', '9'), charRange('a', 'f')];
+
+/** Ranges for hex uppercase 0-9A-F */
+const HEX_UPPER_RANGES: readonly CharRange[] = [charRange('0', '9'), charRange('A', 'F')];
 
 // ============================================================================
 // Built-in Part Validators
@@ -114,7 +150,7 @@ export function digits(length: number): CharSetValidator;
  */
 export function digits(min: number, max: number): CharSetValidator;
 export function digits(minOrExact: number, max?: number): CharSetValidator {
-  return charSetValidator(DIGITS, max !== undefined ? [minOrExact, max] : minOrExact);
+  return charSetValidator(DIGIT_RANGES, max !== undefined ? [minOrExact, max] : minOrExact);
 }
 
 /**
@@ -126,7 +162,7 @@ export function lower(length: number): CharSetValidator;
  */
 export function lower(min: number, max: number): CharSetValidator;
 export function lower(minOrExact: number, max?: number): CharSetValidator {
-  return charSetValidator(LOWERCASE, max !== undefined ? [minOrExact, max] : minOrExact);
+  return charSetValidator(LOWERCASE_RANGES, max !== undefined ? [minOrExact, max] : minOrExact);
 }
 
 /**
@@ -138,7 +174,7 @@ export function upper(length: number): CharSetValidator;
  */
 export function upper(min: number, max: number): CharSetValidator;
 export function upper(minOrExact: number, max?: number): CharSetValidator {
-  return charSetValidator(UPPERCASE, max !== undefined ? [minOrExact, max] : minOrExact);
+  return charSetValidator(UPPERCASE_RANGES, max !== undefined ? [minOrExact, max] : minOrExact);
 }
 
 /**
@@ -150,7 +186,7 @@ export function letters(length: number): CharSetValidator;
  */
 export function letters(min: number, max: number): CharSetValidator;
 export function letters(minOrExact: number, max?: number): CharSetValidator {
-  return charSetValidator(LETTERS, max !== undefined ? [minOrExact, max] : minOrExact);
+  return charSetValidator(LETTER_RANGES, max !== undefined ? [minOrExact, max] : minOrExact);
 }
 
 /**
@@ -162,7 +198,7 @@ export function alphanumeric(length: number): CharSetValidator;
  */
 export function alphanumeric(min: number, max: number): CharSetValidator;
 export function alphanumeric(minOrExact: number, max?: number): CharSetValidator {
-  return charSetValidator(ALPHANUMERIC, max !== undefined ? [minOrExact, max] : minOrExact);
+  return charSetValidator(ALPHANUMERIC_RANGES, max !== undefined ? [minOrExact, max] : minOrExact);
 }
 
 /**
@@ -174,7 +210,7 @@ export function hex(length: number): CharSetValidator;
  */
 export function hex(min: number, max: number): CharSetValidator;
 export function hex(minOrExact: number, max?: number): CharSetValidator {
-  return charSetValidator(HEX_LOWER, max !== undefined ? [minOrExact, max] : minOrExact);
+  return charSetValidator(HEX_LOWER_RANGES, max !== undefined ? [minOrExact, max] : minOrExact);
 }
 
 /**
@@ -186,7 +222,7 @@ export function hexUpper(length: number): CharSetValidator;
  */
 export function hexUpper(min: number, max: number): CharSetValidator;
 export function hexUpper(minOrExact: number, max?: number): CharSetValidator {
-  return charSetValidator(HEX_UPPER, max !== undefined ? [minOrExact, max] : minOrExact);
+  return charSetValidator(HEX_UPPER_RANGES, max !== undefined ? [minOrExact, max] : minOrExact);
 }
 
 /**
@@ -259,7 +295,7 @@ export class StringValidator extends BaseValidator<string> {
       }
       
       // StringDomain - variable length
-      const stringDomain = domain as StringDomain & { _charSet?: string[] };
+      const stringDomain = domain as StringDomain;
       return { 
         validator,
         minLength: stringDomain.minLength ?? 1,
@@ -267,12 +303,11 @@ export class StringValidator extends BaseValidator<string> {
       };
     });
 
-    this.domain = {
-      type: DomainType.STRING_DOMAIN,
-      minLength: this.partInfo.reduce((sum, p) => sum + p.minLength, 0),
-      maxLength: this.partInfo.reduce((sum, p) => sum + p.maxLength, 0),
-      _parts: parts.map((p): StringPart => (typeof p === 'string' ? p : p.domain)),
-    };
+    this.domain = new StringDomain(
+      this.partInfo.reduce((sum, p) => sum + p.minLength, 0),
+      this.partInfo.reduce((sum, p) => sum + p.maxLength, 0),
+      { _parts: parts.map((p) => (typeof p === 'string' ? p : p.domain)) }
+    ) as CompoundStringDomain;
   }
 
   validate(input: unknown): ValidationResult<string> {

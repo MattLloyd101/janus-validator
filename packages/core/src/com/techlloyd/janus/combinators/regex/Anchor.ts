@@ -1,4 +1,4 @@
-import { RegexDomain, DomainType } from '../../Domain';
+import { RegexDomain } from '../../Domain';
 import { BaseRegexValidator, MatchResult } from './RegexValidator';
 
 export type AnchorKind = 'start' | 'end' | 'wordBoundary';
@@ -13,11 +13,7 @@ export class Anchor extends BaseRegexValidator {
   constructor(public readonly kind: AnchorKind) {
     super();
     const source = this.kindToSource();
-    this._domain = {
-      type: DomainType.REGEX_DOMAIN,
-      pattern: new RegExp(source),
-      source,
-    };
+    this._domain = new RegexDomain(new RegExp(source));
   }
 
   get domain(): RegexDomain {

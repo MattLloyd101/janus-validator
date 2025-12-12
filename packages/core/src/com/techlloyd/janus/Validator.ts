@@ -72,7 +72,7 @@ export abstract class BaseValidator<T> implements Validator<T> {
    * Flatten nested validation results to a single error string.
    */
   private flattenResults(
-    results: { [key: string]: ValidationResult<any> } | ValidationResult<any>[],
+    results: { [key: string]: ValidationResult<unknown> } | ValidationResult<unknown>[],
     prefix: string = ''
   ): string {
     if (Array.isArray(results)) {
@@ -128,7 +128,7 @@ export abstract class BaseValidator<T> implements Validator<T> {
    * Derives example from child results, or generates a complete example if needed.
    * @internal
    */
-  objectError(results: { [key: string]: ValidationResult<any> }): ValidationResult<T> {
+  objectError(results: { [key: string]: ValidationResult<unknown> }): ValidationResult<T> {
     const errorMsg = this.flattenResults(results);
     
     // Try to derive example from child results
@@ -163,7 +163,7 @@ export abstract class BaseValidator<T> implements Validator<T> {
    * Derives example from child results, or generates a complete example if needed.
    * @internal
    */
-  arrayError(results: ValidationResult<any>[]): ValidationResult<T> {
+  arrayError(results: ValidationResult<unknown>[]): ValidationResult<T> {
     const errorMsg = this.flattenResults(results);
     
     // Try to derive example from child results

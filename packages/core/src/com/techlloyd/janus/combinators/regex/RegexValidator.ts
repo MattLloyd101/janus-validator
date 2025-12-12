@@ -1,6 +1,6 @@
 import { Validator, BaseValidator } from '../../Validator';
 import { ValidationResult } from '../../ValidationResult';
-import { RegexDomain, DomainType } from '../../Domain';
+import { RegexDomain } from '../../Domain';
 
 /**
  * Result of a regex match operation
@@ -47,14 +47,4 @@ export abstract class BaseRegexValidator extends BaseValidator<string> implement
     return this.error(`String "${value}" does not match pattern`);
   }
 
-  /**
-   * Create a RegexDomain for this validator
-   */
-  protected createDomain(): RegexDomain {
-    return {
-      type: DomainType.REGEX_DOMAIN,
-      pattern: new RegExp(''), // Will be overridden by specific validators
-      source: '',
-    };
-  }
 }

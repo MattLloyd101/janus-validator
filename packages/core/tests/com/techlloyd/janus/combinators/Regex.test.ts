@@ -24,8 +24,14 @@ describe('Regex validator', () => {
       expect(validator.validate('abc').valid).toBe(false);
     });
 
-    it('should support regex flags', () => {
-      const validator = Regex('^hello$', 'i');
+    it('should reject unsupported regex flags for cross-language portability', () => {
+      // Flags are not supported to ensure portable regex semantics across languages
+      expect(() => Regex('^hello$', 'i')).toThrow('Unsupported regex flags');
+    });
+
+    it('should handle case-insensitive matching via explicit character classes', () => {
+      // Instead of /i flag, use explicit character classes for portability
+      const validator = Regex('^[hH][eE][lL][lL][oO]$');
       expect(validator.validate('hello').valid).toBe(true);
       expect(validator.validate('HELLO').valid).toBe(true);
       expect(validator.validate('HeLLo').valid).toBe(true);

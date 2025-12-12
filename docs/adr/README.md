@@ -7,7 +7,7 @@ This directory contains Architectural Decision Records (ADRs) for the Janus Vali
 | ADR | Title | Status |
 |-----|-------|--------|
 | [ADR-001](./001-avro-map-type-handling.md) | Avro Map Type Handling | Accepted |
-| [ADR-002](./002-domain-relations-and-set-operations.md) | Domain Relations and Set Operations for Schema Compatibility | Proposed |
+| [ADR-002](./002-domain-relations-and-set-operations.md) | Domain Relations and Set Operations for Schema Compatibility | Accepted |
 
 ## What is an ADR?
 

@@ -1,52 +1,52 @@
 import { CharClass, CharClasses } from '@/com/techlloyd/janus/combinators/regex/CharClass';
-import { DomainType } from '@/com/techlloyd/janus/Domain';
+import { DomainType, charRange, CharRange } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
 import { Generator } from '@/com/techlloyd/janus/Generator';
 
 describe('CharClass', () => {
   describe('matching', () => {
     it('should match any character in the class', () => {
-      const charClass = new CharClass(['a', 'b', 'c']);
+      const charClass = new CharClass([charRange('a', 'c')]);
       expect(charClass.match('a', 0).matched).toBe(true);
       expect(charClass.match('b', 0).matched).toBe(true);
       expect(charClass.match('c', 0).matched).toBe(true);
     });
 
     it('should not match characters outside the class', () => {
-      const charClass = new CharClass(['a', 'b', 'c']);
+      const charClass = new CharClass([charRange('a', 'c')]);
       expect(charClass.match('d', 0).matched).toBe(false);
       expect(charClass.match('x', 0).matched).toBe(false);
     });
 
     it('should consume exactly 1 character', () => {
-      const charClass = new CharClass(['a', 'b', 'c']);
+      const charClass = new CharClass([charRange('a', 'c')]);
       const result = charClass.match('abc', 0);
       expect(result.matched).toBe(true);
       expect(result.consumed).toBe(1);
     });
 
     it('should match at any position', () => {
-      const charClass = new CharClass(['x', 'y', 'z']);
+      const charClass = new CharClass([charRange('x', 'z')]);
       expect(charClass.match('axyz', 1).matched).toBe(true);
       expect(charClass.match('axyz', 2).matched).toBe(true);
     });
 
     it('should not match past end of string', () => {
-      const charClass = new CharClass(['a', 'b']);
+      const charClass = new CharClass([charRange('a', 'b')]);
       expect(charClass.match('ab', 2).matched).toBe(false);
     });
   });
 
   describe('negated matching', () => {
     it('should match characters NOT in the negated class', () => {
-      const negatedClass = new CharClass(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], true);
+      const negatedClass = new CharClass([charRange('0', '9')], true);
       expect(negatedClass.match('a', 0).matched).toBe(true);
       expect(negatedClass.match('Z', 0).matched).toBe(true);
       expect(negatedClass.match('!', 0).matched).toBe(true);
     });
 
     it('should NOT match characters in the negated class', () => {
-      const negatedClass = new CharClass(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], true);
+      const negatedClass = new CharClass([charRange('0', '9')], true);
       expect(negatedClass.match('0', 0).matched).toBe(false);
       expect(negatedClass.match('5', 0).matched).toBe(false);
       expect(negatedClass.match('9', 0).matched).toBe(false);
@@ -55,30 +55,30 @@ describe('CharClass', () => {
 
   describe('validation', () => {
     it('should validate single character from class', () => {
-      const charClass = new CharClass(['a', 'b', 'c']);
+      const charClass = new CharClass([charRange('a', 'c')]);
       expect(charClass.validate('a').valid).toBe(true);
       expect(charClass.validate('b').valid).toBe(true);
     });
 
     it('should reject longer strings', () => {
-      const charClass = new CharClass(['a', 'b', 'c']);
+      const charClass = new CharClass([charRange('a', 'c')]);
       expect(charClass.validate('ab').valid).toBe(false);
     });
 
     it('should reject empty strings', () => {
-      const charClass = new CharClass(['a', 'b', 'c']);
+      const charClass = new CharClass([charRange('a', 'c')]);
       expect(charClass.validate('').valid).toBe(false);
     });
 
     it('should reject non-strings', () => {
-      const charClass = new CharClass(['a', 'b', 'c']);
+      const charClass = new CharClass([charRange('a', 'c')]);
       expect(charClass.validate(123).valid).toBe(false);
     });
   });
 
   describe('generation', () => {
     it('should generate characters from the class', () => {
-      const charClass = new CharClass(['a', 'b', 'c']);
+      const charClass = new CharClass([charRange('a', 'c')]);
       const rng: RNG = { random: () => Math.random() };
       const generator = new Generator(rng);
 
@@ -93,7 +93,7 @@ describe('CharClass', () => {
     });
 
     it('should generate from negated class', () => {
-      const negatedClass = new CharClass(['a', 'b', 'c'], true);
+      const negatedClass = new CharClass([charRange('a', 'c')], true);
       const rng: RNG = { random: () => Math.random() };
       const generator = new Generator(rng);
 
@@ -106,7 +106,7 @@ describe('CharClass', () => {
     });
 
     it('should select specific character based on RNG', () => {
-      const charClass = new CharClass(['x', 'y', 'z']);
+      const charClass = new CharClass([charRange('x', 'z')]);
       
       // RNG 0 should select first character
       expect(new Generator({ random: () => 0.0 }).generate(charClass.domain)).toBe('x');
@@ -117,14 +117,14 @@ describe('CharClass', () => {
 
   describe('domain', () => {
     it('should expose a regex domain', () => {
-      const charClass = new CharClass(['a', 'b', 'c']);
+      const charClass = new CharClass([charRange('a', 'c')]);
       expect(charClass.domain.type).toBe(DomainType.REGEX_DOMAIN);
-      expect(charClass.domain.source).toBe('[abc]');
+      expect(charClass.domain.source).toBe('[a-c]');
     });
 
     it('should format negated class correctly', () => {
-      const negatedClass = new CharClass(['a', 'b'], true);
-      expect(negatedClass.domain.source).toBe('[^ab]');
+      const negatedClass = new CharClass([charRange('a', 'b')], true);
+      expect(negatedClass.domain.source).toBe('[^a-b]');
     });
   });
 });
@@ -202,4 +202,3 @@ describe('CharClasses factory', () => {
     });
   });
 });
-

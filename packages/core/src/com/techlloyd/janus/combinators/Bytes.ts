@@ -1,6 +1,6 @@
 import { BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { BytesDomain, DomainType } from '../Domain';
+import { BytesDomain } from '../Domain';
 
 /**
  * Validator for variable-length binary data (Uint8Array)
@@ -26,11 +26,7 @@ export class BytesValidator extends BaseValidator<Uint8Array> {
     if (maxLength < minLength) {
       throw new Error('maxLength must be greater than or equal to minLength');
     }
-    this.domain = {
-      type: DomainType.BYTES_DOMAIN,
-      minLength,
-      maxLength,
-    };
+    this.domain = new BytesDomain(minLength, maxLength);
   }
 
   /**

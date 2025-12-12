@@ -1,7 +1,7 @@
 import { Validator, BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { SequenceDomain, DomainType } from '../Domain';
-import { TupleOfValidators } from '../Types';
+import { SequenceDomain } from '../Domain';
+import { TupleOfValidators, DomainsForTuple } from '../Types';
 
 /**
  * Generic Sequence combinator that validates an array of values against a list of validators.
@@ -28,24 +28,26 @@ import { TupleOfValidators } from '../Types';
  * }
  * ```
  */
-export class Sequence<T extends any[] = any[]> extends BaseValidator<T> {
-  public readonly validators: Validator<any>[];
-  public readonly domain: SequenceDomain<any>;
+export class Sequence<
+  Vs extends readonly Validator<unknown>[] = readonly Validator<unknown>[]
+> extends BaseValidator<TupleOfValidators<Vs>> {
+  public readonly validators: Vs;
+  public readonly domain: SequenceDomain<TupleOfValidators<Vs>>;
 
-  constructor(...validators: Validator<any>[]) {
+  constructor(...validators: [...Vs]) {
     super();
-    this.validators = validators;
-    this.domain = {
-      type: DomainType.SEQUENCE_DOMAIN,
-      parts: validators.map(v => v.domain),
-    };
+    this.validators = validators as Vs;
+    // The mapped domains preserve the tuple structure - cast is safe
+    this.domain = new SequenceDomain(
+      validators.map(v => v.domain) as DomainsForTuple<TupleOfValidators<Vs>>
+    );
   }
 
   /**
    * Validate an array by checking each element against its corresponding validator.
    * Returns recursive ValidationResult with per-element results.
    */
-  validate(value: unknown): ValidationResult<T> {
+  validate(value: unknown): ValidationResult<TupleOfValidators<Vs>> {
     if (!Array.isArray(value)) {
       return this.error(`Expected array, got ${typeof value}`);
     }
@@ -54,8 +56,8 @@ export class Sequence<T extends any[] = any[]> extends BaseValidator<T> {
       return this.error(`Expected array of length ${this.validators.length}, got ${value.length}`);
     }
 
-    const validatedValues: any[] = [];
-    const results: ValidationResult<any>[] = [];
+    const validatedValues: unknown[] = [];
+    const results: ValidationResult<unknown>[] = [];
     let hasErrors = false;
 
     for (let i = 0; i < this.validators.length; i++) {
@@ -73,7 +75,7 @@ export class Sequence<T extends any[] = any[]> extends BaseValidator<T> {
       return this.arrayError(results);
     }
 
-    return this.success(validatedValues as T);
+    return this.success(validatedValues as TupleOfValidators<Vs>);
   }
 
   /**
@@ -85,9 +87,9 @@ export class Sequence<T extends any[] = any[]> extends BaseValidator<T> {
    * const v = Sequence.of(UnicodeString(), Integer(), Boolean());
    * ```
    */
-  static of<Vs extends readonly Validator<any>[]>(
+  static of<Vs extends readonly Validator<unknown>[]>(
     ...validators: Vs
-  ): Validator<TupleOfValidators<Vs> & any[]> {
-    return new Sequence<TupleOfValidators<Vs> & any[]>(...validators);
+  ): Sequence<Vs> {
+    return new Sequence<Vs>(...validators);
   }
 }

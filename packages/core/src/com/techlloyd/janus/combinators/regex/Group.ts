@@ -1,4 +1,4 @@
-import { RegexDomain, DomainType } from '../../Domain';
+import { RegexDomain } from '../../Domain';
 import { BaseRegexValidator, MatchResult, RegexValidator } from './RegexValidator';
 
 /**
@@ -19,11 +19,7 @@ export class Group extends BaseRegexValidator {
     const inner = (validator.domain as RegexDomain).source;
     const source = capturing ? `(${inner})` : `(?:${inner})`;
     
-    this._domain = {
-      type: DomainType.REGEX_DOMAIN,
-      pattern: new RegExp(source),
-      source,
-    };
+    this._domain = new RegexDomain(new RegExp(source));
   }
 
   get domain(): RegexDomain {

@@ -1,6 +1,6 @@
 import { Validator, BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { Domain, DomainType } from '../Domain';
+import { CaptureDomain, RefDomain } from '../Domain';
 
 /**
  * Context for storing captured values during validation.
@@ -46,23 +46,6 @@ export class ValidationContext {
 }
 
 /**
- * Domain for captured values - wraps the inner validator's domain
- */
-export interface CaptureDomain<T> extends Domain<T> {
-  type: DomainType.CAPTURE_DOMAIN;
-  name: string;
-  inner: Domain<T>;
-}
-
-/**
- * Domain for reference validators
- */
-export interface RefDomain<T> extends Domain<T> {
-  type: DomainType.REF_DOMAIN;
-  name: string;
-}
-
-/**
  * Capture combinator - validates input and stores the result in context.
  * 
  * @example
@@ -84,11 +67,7 @@ export class Capture<T> implements Validator<T> {
     public readonly name: string,
     public readonly validator: Validator<T>
   ) {
-    this.domain = {
-      type: DomainType.CAPTURE_DOMAIN,
-      name,
-      inner: validator.domain,
-    };
+    this.domain = new CaptureDomain(name, validator.domain) as any;
   }
 
   validate(input: unknown): ValidationResult<T> {
@@ -126,10 +105,7 @@ export class Ref<T> extends BaseValidator<T> {
     private readonly comparator: (a: unknown, b: T) => boolean = (a, b) => a === b
   ) {
     super();
-    this.domain = {
-      type: DomainType.REF_DOMAIN,
-      name,
-    };
+    this.domain = new RefDomain(name) as any;
   }
 
   validate(input: unknown): ValidationResult<T> {

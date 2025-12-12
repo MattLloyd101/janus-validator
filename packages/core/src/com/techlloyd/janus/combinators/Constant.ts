@@ -1,6 +1,6 @@
 import { BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { FiniteDomain, DomainType } from '../Domain';
+import { FiniteDomain } from '../Domain';
 
 /**
  * Validator for a single constant value.
@@ -21,10 +21,7 @@ export class ConstantValidator<T> extends BaseValidator<T> {
     public readonly displayName: string = String(value)
   ) {
     super();
-    this.domain = {
-      type: DomainType.FINITE_DOMAIN,
-      values: [value],
-    };
+    this.domain = new FiniteDomain([value]);
   }
 
   validate(input: unknown): ValidationResult<T> {

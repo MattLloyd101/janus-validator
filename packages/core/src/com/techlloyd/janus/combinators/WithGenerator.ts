@@ -3,9 +3,9 @@
  */
 
 import { BaseValidator, Validator } from '../Validator';
-import { Domain, DomainType } from '../Domain';
 import { RNG } from '../RNG';
 import { ValidationResult } from '../ValidationResult';
+import { CustomGeneratorDomain } from '../Domain';
 
 class WithGeneratorValidator<T> extends BaseValidator<T> {
   public readonly domain: CustomGeneratorDomain<T>;
@@ -15,11 +15,7 @@ class WithGeneratorValidator<T> extends BaseValidator<T> {
     generate: GeneratorFn<T>
   ) {
     super();
-    this.domain = {
-      type: DomainType.CUSTOM_GENERATOR_DOMAIN,
-      innerDomain: inner.domain,
-      generate,
-    };
+    this.domain = new CustomGeneratorDomain(inner.domain, generate) as any;
   }
 
   validate(value: unknown): ValidationResult<T> {
@@ -54,15 +50,6 @@ class WithGeneratorValidator<T> extends BaseValidator<T> {
     }
     return res.example;
   }
-}
-
-/**
- * Custom domain type that wraps another domain with custom generation logic
- */
-export interface CustomGeneratorDomain<T> extends Domain<T> {
-  type: DomainType.CUSTOM_GENERATOR_DOMAIN;
-  innerDomain: Domain<T>;
-  generate: (rng: RNG) => T;
 }
 
 /**

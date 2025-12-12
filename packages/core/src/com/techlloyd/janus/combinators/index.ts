@@ -30,10 +30,10 @@ export { Regex } from './Regex';
 export { Alternation } from './Alternation';
 export { Sequence } from './Sequence';
 export { Quantifier } from './Quantifier';
-export { Struct, StructSchema, InferStructType, StructDomain } from './Struct';
+export { Struct, StructSchema, InferStructType } from './Struct';
 export { Typed, As } from './Typed';
 export { caseInsensitive } from './CaseInsensitive';
-export { Capture, Ref, ValidationContext, CaptureDomain, RefDomain, createCaptureGroup } from './Capture';
+export { Capture, Ref, ValidationContext, createCaptureGroup } from './Capture';
 export {
   withGenerator,
   fromValues,
@@ -41,7 +41,6 @@ export {
   cycleValues,
   combineGenerators,
   templateGenerator,
-  CustomGeneratorDomain,
   GeneratorFn,
 } from './WithGenerator';
 

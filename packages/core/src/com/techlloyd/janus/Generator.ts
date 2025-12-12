@@ -1,6 +1,6 @@
 import { Domain } from './Domain';
 import { RNG } from './RNG';
-import { DomainGeneratorStrategyRegistry } from './domains/DomainGeneratorStrategyRegistry';
+import { DomainGeneratorStrategyRegistry } from './generators/DomainGeneratorStrategyRegistry';
 
 /**
  * Generator class that generates values from a domain using an RNG

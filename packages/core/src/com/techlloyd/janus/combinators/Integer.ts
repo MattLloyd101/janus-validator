@@ -1,6 +1,6 @@
 import { BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { ContiguousDomain, DomainType, ContiguousType } from '../Domain';
+import { ContiguousDomain, ContiguousType } from '../Domain';
 
 /**
  * Validator for integer values within an optional range.
@@ -21,12 +21,7 @@ export class IntegerValidator extends BaseValidator<number> {
     public readonly max: number = Number.MAX_SAFE_INTEGER
   ) {
     super();
-    this.domain = {
-      type: DomainType.CONTIGUOUS_DOMAIN,
-      contiguousType: ContiguousType.INTEGER,
-      min,
-      max,
-    };
+    this.domain = new ContiguousDomain(ContiguousType.INTEGER, min, max);
   }
 
   validate(input: unknown): ValidationResult<number> {

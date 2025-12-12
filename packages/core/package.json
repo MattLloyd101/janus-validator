@@ -1,6 +1,6 @@
 {
   "name": "@janus-validator/core",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "A combinator library for defining validators that validate objects and provide examples",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

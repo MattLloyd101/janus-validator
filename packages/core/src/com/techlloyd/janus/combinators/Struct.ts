@@ -1,12 +1,12 @@
 import { Validator, BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { Domain, DomainType } from '../Domain';
+import { StructDomain, Domain } from '../Domain';
 
 /**
  * Schema definition for Struct validator - maps property names to validators
  */
 export type StructSchema = {
-  [key: string]: Validator<any>;
+  [key: string]: Validator<unknown>;
 };
 
 /**
@@ -15,15 +15,6 @@ export type StructSchema = {
 export type InferStructType<S extends StructSchema> = {
   [K in keyof S]: S[K] extends Validator<infer T> ? T : never;
 };
-
-/**
- * Domain for struct validators
- */
-export interface StructDomain<T = object> extends Domain<T> {
-  type: DomainType.STRUCT_DOMAIN;
-  schema: { [key: string]: Domain<any> };
-  strict: boolean;
-}
 
 /**
  * Validator for objects with a specified schema.
@@ -61,13 +52,10 @@ export class StructValidator<S extends StructSchema> extends BaseValidator<Infer
   ) {
     super();
     this.schemaKeys = Object.keys(schema);
-    this.domain = {
-      type: DomainType.STRUCT_DOMAIN,
-      schema: Object.fromEntries(
-        this.schemaKeys.map(key => [key, schema[key].domain])
-      ),
-      strict,
-    };
+    this.domain = new StructDomain(
+      Object.fromEntries(this.schemaKeys.map(key => [key, schema[key].domain])),
+      strict
+    ) as any;
   }
 
   validate(input: unknown): ValidationResult<InferStructType<S>> {
@@ -80,7 +68,7 @@ export class StructValidator<S extends StructSchema> extends BaseValidator<Infer
 
     const inputObj = input as Record<string, unknown>;
     const inputKeys = Object.keys(inputObj);
-    const results: { [key: string]: ValidationResult<any> } = {};
+    const results: { [key: string]: ValidationResult<unknown> } = {};
     const validatedObj: Record<string, any> = {};
     let hasErrors = false;
 

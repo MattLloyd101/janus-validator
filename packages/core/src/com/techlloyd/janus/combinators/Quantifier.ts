@@ -1,6 +1,6 @@
 import { Validator, BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { QuantifierDomain, DomainType } from '../Domain';
+import { QuantifierDomain } from '../Domain';
 
 /**
  * Generic Quantifier combinator that validates arrays of values.
@@ -30,12 +30,7 @@ export class Quantifier<T> extends BaseValidator<T[]> {
     public readonly max: number
   ) {
     super();
-    this.domain = {
-      type: DomainType.QUANTIFIER_DOMAIN,
-      inner: validator.domain,
-      min,
-      max,
-    };
+    this.domain = new QuantifierDomain(validator.domain, min, max);
   }
 
   /**

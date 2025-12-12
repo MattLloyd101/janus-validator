@@ -1,6 +1,6 @@
 import { BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { StringDomain, DomainType } from '../Domain';
+import { StringDomain } from '../Domain';
 
 /**
  * Validator for Unicode string values with optional length constraints.
@@ -20,11 +20,7 @@ export class UnicodeStringValidator extends BaseValidator<string> {
     public readonly maxLength?: number
   ) {
     super();
-    this.domain = {
-      type: DomainType.STRING_DOMAIN,
-      minLength,
-      maxLength,
-    };
+    this.domain = new StringDomain(minLength, maxLength);
   }
 
   /**
