@@ -15,9 +15,11 @@ import { Constant, ConstantValidator } from './Constant';
 // ============================================================================
 
 /**
- * A part of a compound string - either a literal string or a validator
+ * A part of a compound string - either a literal string or a string domain.
+ * When constructing a StringValidator, users pass validators which are converted to domains.
+ * For generation, only string literals and domains are stored.
  */
-export type StringPart = string | Validator<string>;
+export type StringPart = string | Domain<string>;
 
 /**
  * Domain for compound strings
@@ -26,6 +28,10 @@ export interface CompoundStringDomain extends Domain<string> {
   type: DomainType.STRING_DOMAIN;
   minLength: number;
   maxLength: number;
+  /**
+   * For generation: parts are stored as either literal strings or domains.
+   * This avoids coupling generator strategies to the Validator runtime.
+   */
   _parts: StringPart[];
 }
 
@@ -233,7 +239,7 @@ export class StringValidator extends BaseValidator<string> {
   private readonly partInfo: PartInfo[];
   private readonly validators: Validator<string>[];
 
-  constructor(private readonly parts: StringPart[]) {
+  constructor(parts: (string | Validator<string>)[]) {
     super();
     
     // Convert all parts to validators - literals become Constant validators
@@ -265,7 +271,7 @@ export class StringValidator extends BaseValidator<string> {
       type: DomainType.STRING_DOMAIN,
       minLength: this.partInfo.reduce((sum, p) => sum + p.minLength, 0),
       maxLength: this.partInfo.reduce((sum, p) => sum + p.maxLength, 0),
-      _parts: parts,
+      _parts: parts.map((p): StringPart => (typeof p === 'string' ? p : p.domain)),
     };
   }
 
@@ -342,7 +348,7 @@ export class StringValidator extends BaseValidator<string> {
 /**
  * Creates a validator for strings built from component parts.
  */
-export function String(...parts: StringPart[]): StringValidator {
+export function String(...parts: (string | Validator<string>)[]): StringValidator {
   return new StringValidator(parts);
 }
 

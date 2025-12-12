@@ -1,11 +1,5 @@
 import { RegexDomain, DomainType } from '../../Domain';
-import { RNG } from '../../RNG';
 import { BaseRegexValidator, MatchResult, RegexValidator } from './RegexValidator';
-
-/**
- * Default maximum repetitions for unbounded quantifiers (*, +)
- */
-const DEFAULT_MAX_UNBOUNDED = 10;
 
 /**
  * Regex-specific Quantifier that matches a validator repeated a number of times.
@@ -31,16 +25,13 @@ const DEFAULT_MAX_UNBOUNDED = 10;
  */
 export class RegexQuantifier extends BaseRegexValidator {
   private readonly _domain: RegexDomain;
-  private readonly maxUnbounded: number;
 
   constructor(
     public readonly validator: RegexValidator,
     public readonly min: number,
-    public readonly max: number,
-    maxUnbounded: number = DEFAULT_MAX_UNBOUNDED
+    public readonly max: number
   ) {
     super();
-    this.maxUnbounded = maxUnbounded;
     
     const source = this.buildSource();
     this._domain = {
@@ -79,22 +70,6 @@ export class RegexQuantifier extends BaseRegexValidator {
     }
 
     return { matched: false, consumed: 0 };
-  }
-
-  generate(rng: RNG): string {
-    // Determine the actual max (cap unbounded quantifiers)
-    const effectiveMax = this.max === Infinity ? this.maxUnbounded : this.max;
-
-    // Choose a random repetition count between min and max
-    const range = effectiveMax - this.min + 1;
-    const count = this.min + Math.floor(rng.random() * range);
-
-    // Generate the validator 'count' times
-    let result = '';
-    for (let i = 0; i < count; i++) {
-      result += this.validator.generate(rng);
-    }
-    return result;
   }
 
   private buildSource(): string {

@@ -1,6 +1,7 @@
 import { Literal } from '@/com/techlloyd/janus/combinators/regex/Literal';
 import { DomainType } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
+import { Generator } from '@/com/techlloyd/janus/Generator';
 
 describe('Literal', () => {
   describe('matching', () => {
@@ -71,9 +72,10 @@ describe('Literal', () => {
     it('should always generate the literal character', () => {
       const literal = new Literal('q');
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       for (let i = 0; i < 10; i++) {
-        expect(literal.generate(rng)).toBe('q');
+        expect(generator.generate(literal.domain)).toBe('q');
       }
     });
   });

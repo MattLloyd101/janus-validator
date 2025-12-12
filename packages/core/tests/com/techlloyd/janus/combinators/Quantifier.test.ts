@@ -102,7 +102,7 @@ describe('Quantifier (Generic Combinator)', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(quantifier) as number[];
+        const value = generator.generate(quantifier.domain) as number[];
         expect(Array.isArray(value)).toBe(true);
         expect(value.length).toBeGreaterThanOrEqual(2);
         expect(value.length).toBeLessThanOrEqual(5);
@@ -120,7 +120,7 @@ describe('Quantifier (Generic Combinator)', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(quantifier);
+        const value = generator.generate(quantifier.domain);
         const result = quantifier.validate(value);
         expect(result.valid).toBe(true);
       }
@@ -131,7 +131,7 @@ describe('Quantifier (Generic Combinator)', () => {
 
       const rng: RNG = { random: () => 0.99 }; // Should hit the cap
       const generator = new Generator(rng);
-      const value = generator.generate(quantifier) as number[];
+      const value = generator.generate(quantifier.domain) as number[];
 
       // Default cap is 10
       expect(value.length).toBeLessThanOrEqual(10);
@@ -142,7 +142,7 @@ describe('Quantifier (Generic Combinator)', () => {
 
       const rng: RNG = { random: () => 0 }; // Will pick min
       const generator = new Generator(rng);
-      const value = generator.generate(quantifier) as number[];
+      const value = generator.generate(quantifier.domain) as number[];
 
       expect(value).toEqual([]);
     });

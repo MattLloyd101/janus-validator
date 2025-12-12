@@ -59,7 +59,7 @@ describe('NaN', () => {
       const rng: RNG = { random: () => Math.random() };
       const generator = new Generator(rng);
       
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       expect(globalThis.Number.isNaN(value)).toBe(true);
     });
   });

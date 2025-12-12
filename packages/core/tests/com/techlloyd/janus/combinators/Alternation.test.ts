@@ -101,7 +101,7 @@ describe('Generic Alternation combinator', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(alt) as number;
+        const value = generator.generate(alt.domain) as number;
         expect(typeof value).toBe('number');
         // Should be in one of the two ranges
         const inFirstRange = value >= 0 && value <= 10;
@@ -122,7 +122,7 @@ describe('Generic Alternation combinator', () => {
       let foundSecond = false;
 
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(alt) as number;
+        const value = generator.generate(alt.domain) as number;
         if (value >= 0 && value <= 10) foundFirst = true;
         if (value >= 100 && value <= 200) foundSecond = true;
       }
@@ -140,7 +140,7 @@ describe('Generic Alternation combinator', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(alt);
+        const value = generator.generate(alt.domain);
         const result = alt.validate(value);
         expect(result.valid).toBe(true);
       }

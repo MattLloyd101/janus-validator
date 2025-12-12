@@ -168,7 +168,7 @@ describe('Typed', () => {
       const generator = new Generator({ random: Math.random });
       
       for (let i = 0; i < 10; i++) {
-        const user: User = generator.generate(userValidator);
+        const user: User = generator.generate(userValidator.domain);
         
         expect(typeof user.name).toBe('string');
         expect(typeof user.age).toBe('number');

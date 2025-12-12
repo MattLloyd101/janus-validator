@@ -4,6 +4,7 @@ import { Sequence } from '@/com/techlloyd/janus/combinators/regex/Sequence';
 import { Alternation } from '@/com/techlloyd/janus/combinators/regex/Alternation';
 import { DomainType } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
+import { Generator } from '@/com/techlloyd/janus/Generator';
 
 describe('Group', () => {
   describe('capturing group', () => {
@@ -95,7 +96,8 @@ describe('Group', () => {
         )
       );
       const rng: RNG = { random: () => Math.random() };
-      expect(group.generate(rng)).toBe('hello');
+      const generator = new Generator(rng);
+      expect(generator.generate(group.domain)).toBe('hello');
     });
 
     it('should generate from alternation inside group', () => {
@@ -107,9 +109,10 @@ describe('Group', () => {
         )
       );
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = group.generate(rng);
+        const value = generator.generate(group.domain);
         expect(['a', 'b', 'c']).toContain(value);
       }
     });

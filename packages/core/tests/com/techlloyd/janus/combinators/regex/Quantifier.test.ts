@@ -4,6 +4,7 @@ import { CharClasses } from '@/com/techlloyd/janus/combinators/regex/CharClass';
 import { Sequence } from '@/com/techlloyd/janus/combinators/regex/Sequence';
 import { DomainType } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
+import { Generator } from '@/com/techlloyd/janus/Generator';
 
 describe('Quantifier', () => {
   describe('* (zero or more)', () => {
@@ -170,9 +171,10 @@ describe('Quantifier', () => {
     it('should generate within min-max range', () => {
       const q = Quantifier.between(new Literal('x'), 2, 5);
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = q.generate(rng);
+        const value = generator.generate(q.domain);
         expect(value.length).toBeGreaterThanOrEqual(2);
         expect(value.length).toBeLessThanOrEqual(5);
         expect(value).toMatch(/^x+$/);
@@ -182,18 +184,20 @@ describe('Quantifier', () => {
     it('should generate exact count for {n}', () => {
       const q = Quantifier.exactly(new Literal('y'), 4);
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       for (let i = 0; i < 10; i++) {
-        expect(q.generate(rng)).toBe('yyyy');
+        expect(generator.generate(q.domain)).toBe('yyyy');
       }
     });
 
     it('should generate at least 1 for +', () => {
       const q = Quantifier.oneOrMore(new Literal('z'));
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = q.generate(rng);
+        const value = generator.generate(q.domain);
         expect(value.length).toBeGreaterThanOrEqual(1);
       }
     });
@@ -201,10 +205,11 @@ describe('Quantifier', () => {
     it('should generate variety for *', () => {
       const q = Quantifier.zeroOrMore(new Literal('a'));
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       const lengths = new Set<number>();
       for (let i = 0; i < 100; i++) {
-        lengths.add(q.generate(rng).length);
+        lengths.add(generator.generate(q.domain).length);
       }
       // Should generate various lengths including 0
       expect(lengths.size).toBeGreaterThan(3);
@@ -213,9 +218,10 @@ describe('Quantifier', () => {
     it('should cap unbounded quantifiers', () => {
       const q = Quantifier.zeroOrMore(new Literal('a'));
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = q.generate(rng);
+        const value = generator.generate(q.domain);
         // Default max is 10
         expect(value.length).toBeLessThanOrEqual(10);
       }

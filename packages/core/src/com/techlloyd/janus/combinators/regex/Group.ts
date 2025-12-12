@@ -1,12 +1,11 @@
 import { RegexDomain, DomainType } from '../../Domain';
-import { RNG } from '../../RNG';
 import { BaseRegexValidator, MatchResult, RegexValidator } from './RegexValidator';
 
 /**
  * Group combinator that wraps a validator in a group.
  * 
  * Groups can be capturing or non-capturing.
- * For validation and generation purposes, they behave the same as their inner validator.
+ * For validation purposes, they behave the same as their inner validator.
  */
 export class Group extends BaseRegexValidator {
   private readonly _domain: RegexDomain;
@@ -34,10 +33,6 @@ export class Group extends BaseRegexValidator {
   match(input: string, position: number): MatchResult {
     // Groups just delegate to their inner validator
     return this.validator.match(input, position);
-  }
-
-  generate(rng: RNG): string {
-    return this.validator.generate(rng);
   }
 
   /**

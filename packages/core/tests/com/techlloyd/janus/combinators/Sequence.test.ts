@@ -103,7 +103,7 @@ describe('Sequence (Generic Combinator)', () => {
 
       const rng: RNG = { random: () => 0.5 };
       const generator = new Generator(rng);
-      const value = generator.generate(sequence) as any[];
+      const value = generator.generate(sequence.domain) as any[];
 
       expect(Array.isArray(value)).toBe(true);
       expect(value.length).toBe(3);
@@ -119,7 +119,7 @@ describe('Sequence (Generic Combinator)', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(sequence);
+        const value = generator.generate(sequence.domain);
         const result = sequence.validate(value);
         expect(result.valid).toBe(true);
       }
@@ -130,7 +130,7 @@ describe('Sequence (Generic Combinator)', () => {
 
       const rng: RNG = { random: () => 0.5 };
       const generator = new Generator(rng);
-      const value = generator.generate(sequence);
+      const value = generator.generate(sequence.domain);
 
       expect(value).toEqual([]);
     });

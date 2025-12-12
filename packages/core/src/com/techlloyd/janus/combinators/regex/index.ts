@@ -11,5 +11,5 @@ export { Sequence, RegexSequence } from './Sequence';
 export { RegexAlternation, Alternation } from './Alternation';
 export { Quantifier, RegexQuantifier } from './Quantifier';
 export { Group } from './Group';
-export { RegexParser, parseRegex } from './RegexParser';
+export { astToValidator, parseRegex } from './ASTConverter';
 

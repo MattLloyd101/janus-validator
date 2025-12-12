@@ -82,7 +82,7 @@ describe('Constant', () => {
       const generator = new Generator(rng);
       
       for (let i = 0; i < 10; i++) {
-        expect(generator.generate(validator)).toBe('fixed');
+        expect(generator.generate(validator.domain)).toBe('fixed');
       }
     });
   });

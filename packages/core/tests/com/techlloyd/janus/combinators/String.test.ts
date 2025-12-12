@@ -176,7 +176,7 @@ describe('String (Compound String Combinator)', () => {
       const ISODate = String(digits(4), '-', digits(2), '-', digits(2));
       
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(ISODate);
+        const value = generator.generate(ISODate.domain);
         const result = ISODate.validate(value);
         expect(result.valid).toBe(true);
         expect(value).toMatch(/^\d{4}-\d{2}-\d{2}$/);
@@ -187,7 +187,7 @@ describe('String (Compound String Combinator)', () => {
       const Phone = String('(', digits(3), ') ', digits(3), '-', digits(4));
       
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(Phone);
+        const value = generator.generate(Phone.domain);
         const result = Phone.validate(value);
         expect(result.valid).toBe(true);
         expect(value).toMatch(/^\(\d{3}\) \d{3}-\d{4}$/);
@@ -200,7 +200,7 @@ describe('String (Compound String Combinator)', () => {
       );
       
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(UUID);
+        const value = generator.generate(UUID.domain);
         const result = UUID.validate(value);
         expect(result.valid).toBe(true);
         expect(value).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
@@ -213,7 +213,7 @@ describe('String (Compound String Combinator)', () => {
       );
       
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(CreditCard);
+        const value = generator.generate(CreditCard.domain);
         const result = CreditCard.validate(value);
         expect(result.valid).toBe(true);
         expect(value).toMatch(/^\d{4} \d{4} \d{4} \d{4}$/);
@@ -224,7 +224,7 @@ describe('String (Compound String Combinator)', () => {
       const Code = String(letters(2, 4), '-', digits(3, 5));
       
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(Code);
+        const value = generator.generate(Code.domain);
         const result = Code.validate(value);
         expect(result.valid).toBe(true);
         expect(value).toMatch(/^[a-zA-Z]{2,4}-\d{3,5}$/);

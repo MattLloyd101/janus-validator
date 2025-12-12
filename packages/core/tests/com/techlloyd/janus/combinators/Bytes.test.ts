@@ -107,7 +107,7 @@ describe('Bytes', () => {
       const generator = new Generator({ random: Math.random });
       
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toBeInstanceOf(Uint8Array);
         expect(value.length).toBeGreaterThanOrEqual(10);
         expect(value.length).toBeLessThanOrEqual(20);
@@ -125,7 +125,7 @@ describe('Bytes', () => {
       const generator = new Generator({ random: Math.random });
       
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         const result = validator.validate(value);
         expect(result.valid).toBe(true);
       }
@@ -135,7 +135,7 @@ describe('Bytes', () => {
       const validator = Bytes(0, 0);
       const generator = new Generator({ random: Math.random });
       
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       expect(value.length).toBe(0);
     });
   });

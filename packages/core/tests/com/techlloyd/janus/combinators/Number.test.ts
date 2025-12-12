@@ -125,7 +125,7 @@ describe('Number', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(validator) as number;
+        const value = generator.generate(validator.domain) as number;
         expect(typeof value).toBe('number');
         expect(value).toBeGreaterThanOrEqual(0);
         expect(value).toBeLessThanOrEqual(100);
@@ -139,7 +139,7 @@ describe('Number', () => {
 
       let foundFloat = false;
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(validator) as number;
+        const value = generator.generate(validator.domain) as number;
         if (!globalThis.Number.isInteger(value)) {
           foundFloat = true;
           break;
@@ -154,7 +154,7 @@ describe('Number', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         const result = validator.validate(value);
         expect(result.valid).toBe(true);
       }
@@ -166,12 +166,12 @@ describe('Number', () => {
       // rng = 0 should give min
       const rngMin: RNG = { random: () => 0 };
       const genMin = new Generator(rngMin);
-      expect(genMin.generate(validator)).toBe(10);
+      expect(genMin.generate(validator.domain)).toBe(10);
 
       // rng = 1 (or very close) should give max
       const rngMax: RNG = { random: () => 0.9999999999 };
       const genMax = new Generator(rngMax);
-      const maxVal = genMax.generate(validator) as number;
+      const maxVal = genMax.generate(validator.domain) as number;
       expect(maxVal).toBeGreaterThan(19.9);
       expect(maxVal).toBeLessThanOrEqual(20);
     });

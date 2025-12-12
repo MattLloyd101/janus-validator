@@ -1,6 +1,7 @@
 import { CharClass, CharClasses } from '@/com/techlloyd/janus/combinators/regex/CharClass';
 import { DomainType } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
+import { Generator } from '@/com/techlloyd/janus/Generator';
 
 describe('CharClass', () => {
   describe('matching', () => {
@@ -79,10 +80,11 @@ describe('CharClass', () => {
     it('should generate characters from the class', () => {
       const charClass = new CharClass(['a', 'b', 'c']);
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       const generated = new Set<string>();
       for (let i = 0; i < 100; i++) {
-        const value = charClass.generate(rng);
+        const value = generator.generate(charClass.domain);
         expect(['a', 'b', 'c']).toContain(value);
         generated.add(value);
       }
@@ -93,9 +95,10 @@ describe('CharClass', () => {
     it('should generate from negated class', () => {
       const negatedClass = new CharClass(['a', 'b', 'c'], true);
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = negatedClass.generate(rng);
+        const value = generator.generate(negatedClass.domain);
         expect(value).not.toBe('a');
         expect(value).not.toBe('b');
         expect(value).not.toBe('c');
@@ -106,9 +109,9 @@ describe('CharClass', () => {
       const charClass = new CharClass(['x', 'y', 'z']);
       
       // RNG 0 should select first character
-      expect(charClass.generate({ random: () => 0.0 })).toBe('x');
+      expect(new Generator({ random: () => 0.0 }).generate(charClass.domain)).toBe('x');
       // RNG close to 1 should select last character
-      expect(charClass.generate({ random: () => 0.99 })).toBe('z');
+      expect(new Generator({ random: () => 0.99 }).generate(charClass.domain)).toBe('z');
     });
   });
 

@@ -4,6 +4,7 @@ import { CharClasses } from '@/com/techlloyd/janus/combinators/regex/CharClass';
 import { Empty } from '@/com/techlloyd/janus/combinators/regex/Empty';
 import { DomainType } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
+import { Generator } from '@/com/techlloyd/janus/Generator';
 
 describe('Sequence', () => {
   describe('matching', () => {
@@ -100,7 +101,8 @@ describe('Sequence', () => {
         new Literal('o')
       );
       const rng: RNG = { random: () => Math.random() };
-      expect(seq.generate(rng)).toBe('hello');
+      const generator = new Generator(rng);
+      expect(generator.generate(seq.domain)).toBe('hello');
     });
 
     it('should generate with mixed validators', () => {
@@ -110,9 +112,10 @@ describe('Sequence', () => {
         new Literal('z')
       );
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = seq.generate(rng);
+        const value = generator.generate(seq.domain);
         expect(value.length).toBe(3);
         expect(value[0]).toBe('a');
         expect(value[1]).toMatch(/\d/);
@@ -123,7 +126,8 @@ describe('Sequence', () => {
     it('should generate empty string for empty sequence', () => {
       const seq = new Sequence();
       const rng: RNG = { random: () => Math.random() };
-      expect(seq.generate(rng)).toBe('');
+      const generator = new Generator(rng);
+      expect(generator.generate(seq.domain)).toBe('');
     });
   });
 

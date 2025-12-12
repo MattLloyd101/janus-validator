@@ -1,14 +1,5 @@
 import { RegexDomain, DomainType } from '../../Domain';
-import { RNG } from '../../RNG';
 import { BaseRegexValidator, MatchResult } from './RegexValidator';
-
-/**
- * Printable ASCII characters for negated character classes
- */
-const PRINTABLE_ASCII: string[] = [];
-for (let c = 32; c <= 126; c++) {
-  PRINTABLE_ASCII.push(String.fromCharCode(c));
-}
 
 /**
  * Validator that matches one character from a set of characters
@@ -47,24 +38,6 @@ export class CharClass extends BaseRegexValidator {
     const matched = this.negated ? !inSet : inSet;
 
     return { matched, consumed: matched ? 1 : 0 };
-  }
-
-  generate(rng: RNG): string {
-    if (this.negated) {
-      // For negated classes, choose from printable ASCII excluding the specified chars
-      const available = PRINTABLE_ASCII.filter(c => !this.charSet.has(c));
-      if (available.length === 0) {
-        throw new Error('Negated character class excludes all printable ASCII characters');
-      }
-      const index = Math.floor(rng.random() * available.length);
-      return available[index];
-    } else {
-      if (this.chars.length === 0) {
-        throw new Error('Empty character class');
-      }
-      const index = Math.floor(rng.random() * this.chars.length);
-      return this.chars[index];
-    }
   }
 
   private buildSource(): string {

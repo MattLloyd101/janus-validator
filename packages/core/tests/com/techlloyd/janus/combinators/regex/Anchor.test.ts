@@ -1,6 +1,7 @@
 import { Anchor } from '@/com/techlloyd/janus/combinators/regex/Anchor';
 import { DomainType } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
+import { Generator } from '@/com/techlloyd/janus/Generator';
 
 describe('Anchor', () => {
   describe('start anchor (^)', () => {
@@ -120,10 +121,11 @@ describe('Anchor', () => {
       const end = new Anchor('end');
       const boundary = new Anchor('wordBoundary');
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
-      expect(start.generate(rng)).toBe('');
-      expect(end.generate(rng)).toBe('');
-      expect(boundary.generate(rng)).toBe('');
+      expect(generator.generate(start.domain)).toBe('');
+      expect(generator.generate(end.domain)).toBe('');
+      expect(generator.generate(boundary.domain)).toBe('');
     });
   });
 

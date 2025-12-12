@@ -263,7 +263,7 @@ describe('DSL', () => {
         const { Generator } = require('@janus-validator/core');
         const validator = Enum(StringStatus);
         const generator = new Generator({ random: Math.random });
-        const generated = generator.generate(validator);
+        const generated = generator.generate(validator.domain);
         expect(['pending', 'active', 'completed']).toContain(generated);
       });
     });

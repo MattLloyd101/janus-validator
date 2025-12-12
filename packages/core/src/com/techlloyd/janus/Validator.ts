@@ -1,27 +1,7 @@
 import { ValidationResult } from './ValidationResult';
 import { Domain } from './Domain';
-import type { RNG } from './RNG';
-import type { Generator } from './Generator';
-
-/**
- * Default RNG using Math.random
- */
-const defaultRng: RNG = {
-  random: () => Math.random(),
-};
-
-/**
- * Lazy-loaded generator to avoid circular dependency
- */
-let _generator: Generator | null = null;
-function getGenerator(): Generator {
-  if (_generator === null) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { Generator: GeneratorClass } = require('./Generator');
-    _generator = new GeneratorClass(defaultRng) as Generator;
-  }
-  return _generator!;
-}
+import { Generator } from './Generator';
+import { defaultRng } from './RNG';
 
 /**
  * A validator validates values and exposes a domain
@@ -60,6 +40,20 @@ export interface Validator<T> {
 export abstract class BaseValidator<T> implements Validator<T> {
   abstract domain: Domain<T>;
   abstract validate(value: unknown): ValidationResult<T>;
+
+  /**
+   * Protected generator instance for creating examples.
+   */
+  protected generator: Generator;
+
+  /**
+   * Creates a new BaseValidator.
+   * @param generator Optional generator for creating examples. If not provided,
+   *                  a default generator will be created.
+   */
+  constructor(generator?: Generator) {
+    this.generator = generator ?? new Generator(defaultRng);
+  }
 
   /**
    * Format a value for error messages.
@@ -114,7 +108,7 @@ export abstract class BaseValidator<T> implements Validator<T> {
    */
   error(message: string): ValidationResult<T> {
     try {
-      const example = getGenerator().generate(this);
+      const example = this.generator.generate(this.domain);
       return { valid: false, error: message, example };
     } catch {
       return { valid: false, error: message };
@@ -157,7 +151,7 @@ export abstract class BaseValidator<T> implements Validator<T> {
     
     // Generate a complete example from the validator
     try {
-      const generatedExample = getGenerator().generate(this);
+      const generatedExample = this.generator.generate(this.domain);
       return { valid: false, error: errorMsg, results, example: generatedExample };
     } catch {
       return { valid: false, error: errorMsg, results };
@@ -193,7 +187,7 @@ export abstract class BaseValidator<T> implements Validator<T> {
     
     // Generate a complete example from the validator
     try {
-      const generatedExample = getGenerator().generate(this);
+      const generatedExample = this.generator.generate(this.domain);
       return { valid: false, error: errorMsg, results, example: generatedExample };
     } catch {
       return { valid: false, error: errorMsg, results };

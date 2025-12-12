@@ -1,5 +1,4 @@
 import { RegexDomain, DomainType } from '../../Domain';
-import { RNG } from '../../RNG';
 import { BaseRegexValidator, MatchResult } from './RegexValidator';
 
 /**
@@ -25,10 +24,6 @@ export class Empty extends BaseRegexValidator {
   match(_input: string, _position: number): MatchResult {
     // Empty always matches, consuming nothing
     return { matched: true, consumed: 0 };
-  }
-
-  generate(_rng: RNG): string {
-    return '';
   }
 }
 

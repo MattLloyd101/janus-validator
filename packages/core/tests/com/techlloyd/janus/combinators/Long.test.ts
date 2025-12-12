@@ -170,7 +170,7 @@ describe('Long', () => {
       const generator = new Generator({ random: Math.random });
       
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(typeof value).toBe('bigint');
         expect(value).toBeGreaterThanOrEqual(0n);
         expect(value).toBeLessThanOrEqual(1000n);
@@ -182,7 +182,7 @@ describe('Long', () => {
       const generator = new Generator({ random: Math.random });
       
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         const result = validator.validate(value);
         expect(result.valid).toBe(true);
       }
@@ -192,7 +192,7 @@ describe('Long', () => {
       const validator = Long(42n, 42n);
       const generator = new Generator({ random: Math.random });
       
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       expect(value).toBe(42n);
     });
 
@@ -204,7 +204,7 @@ describe('Long', () => {
       const generator = new Generator({ random: Math.random });
       
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toBeGreaterThanOrEqual(min);
         expect(value).toBeLessThanOrEqual(max);
       }

@@ -9,3 +9,10 @@ export interface RNG {
   random(): number;
 }
 
+/**
+ * Default RNG using Math.random
+ */
+export const defaultRng: RNG = {
+  random: () => Math.random(),
+};
+

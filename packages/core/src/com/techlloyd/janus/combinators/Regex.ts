@@ -1,9 +1,8 @@
 import { BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
 import { RegexDomain, DomainType } from '../Domain';
-import { RNG } from '../RNG';
 import { RegexValidator, MatchResult } from './regex/RegexValidator';
-import { parseRegex } from './regex/RegexParser';
+import { parseRegex } from './regex/ASTConverter';
 
 /**
  * Creates a validator for strings that match a regular expression pattern.
@@ -72,9 +71,5 @@ class RegexWrapper extends BaseValidator<string> implements RegexValidator {
 
   match(input: string, position: number): MatchResult {
     return this.validator.match(input, position);
-  }
-
-  generate(rng: RNG): string {
-    return this.validator.generate(rng);
   }
 }

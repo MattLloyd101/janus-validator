@@ -140,7 +140,7 @@ describe('Integer domain generation', () => {
     };
     const generator = new Generator(rng);
 
-    const value = generator.generate(validator);
+    const value = generator.generate(validator.domain);
     expect(typeof value).toBe('number');
     expect(Number.isInteger(value)).toBe(true);
     
@@ -158,7 +158,7 @@ describe('Integer domain generation', () => {
 
     // Generate multiple values and verify they all meet constraints
     for (let i = 0; i < 100; i++) {
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       const result = validator.validate(value);
       expect(result.valid).toBe(true);
       expect(value).toBeGreaterThanOrEqual(10);
@@ -174,7 +174,7 @@ describe('Integer domain generation', () => {
     };
     const generator = new Generator(rng);
 
-    const value = generator.generate(validator);
+    const value = generator.generate(validator.domain);
     expect(value).toBe(5);
   });
 
@@ -185,7 +185,7 @@ describe('Integer domain generation', () => {
     };
     const generator = new Generator(rng);
 
-    const value = generator.generate(validator);
+    const value = generator.generate(validator.domain);
     expect(value).toBe(15);
   });
 
@@ -198,7 +198,7 @@ describe('Integer domain generation', () => {
 
     const generatedValues = new Set<number>();
     for (let i = 0; i < 1000; i++) {
-      generatedValues.add(generator.generate(validator));
+      generatedValues.add(generator.generate(validator.domain));
     }
 
     // Should have generated all values 0-5
@@ -218,7 +218,7 @@ describe('Integer domain generation', () => {
     const generator = new Generator(rng);
 
     for (let i = 0; i < 50; i++) {
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       const result = validator.validate(value);
       expect(result.valid).toBe(true);
       expect(value).toBeGreaterThanOrEqual(-10);
@@ -235,7 +235,7 @@ describe('Integer domain generation', () => {
 
     // Generate multiple values and verify they all pass validation
     for (let i = 0; i < 100; i++) {
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       const result = validator.validate(value);
       expect(result.valid).toBe(true);
       if (result.valid) {
@@ -253,7 +253,7 @@ describe('Integer domain generation', () => {
     const generator = new Generator(rng);
 
     for (let i = 0; i < 10; i++) {
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       expect(value).toBe(42);
     }
   });
@@ -267,7 +267,7 @@ describe('Integer domain generation', () => {
 
     const generatedValues = new Set<number>();
     for (let i = 0; i < 1000; i++) {
-      generatedValues.add(generator.generate(validator));
+      generatedValues.add(generator.generate(validator.domain));
     }
 
     // Should have generated all values -3 to 3
@@ -286,12 +286,12 @@ describe('Integer domain generation', () => {
     // Test RNG returning exactly 0
     const rng0: RNG = { random: () => 0 };
     const gen0 = new Generator(rng0);
-    expect(gen0.generate(validator)).toBe(0);
+    expect(gen0.generate(validator.domain)).toBe(0);
 
     // Test RNG returning value very close to 1
     const rng1: RNG = { random: () => 1 - Number.EPSILON };
     const gen1 = new Generator(rng1);
-    const value = gen1.generate(validator);
+    const value = gen1.generate(validator.domain);
     expect(value).toBeGreaterThanOrEqual(0);
     expect(value).toBeLessThanOrEqual(10);
   });
@@ -307,7 +307,7 @@ describe('Integer domain generation', () => {
     const iterations = 10000;
     
     for (let i = 0; i < iterations; i++) {
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       counts.set(value, (counts.get(value) || 0) + 1);
     }
 

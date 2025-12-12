@@ -1,5 +1,4 @@
 import { RegexDomain, DomainType } from '../../Domain';
-import { RNG } from '../../RNG';
 import { BaseRegexValidator, MatchResult } from './RegexValidator';
 
 export type AnchorKind = 'start' | 'end' | 'wordBoundary';
@@ -42,11 +41,6 @@ export class Anchor extends BaseRegexValidator {
 
     // Anchors consume no characters
     return { matched, consumed: 0 };
-  }
-
-  generate(_rng: RNG): string {
-    // Anchors don't produce characters
-    return '';
   }
 
   private kindToSource(): string {

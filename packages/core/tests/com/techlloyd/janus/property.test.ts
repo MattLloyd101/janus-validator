@@ -32,7 +32,7 @@ describe('Property: Generated values always pass validation', () => {
     it('Boolean', () => {
       const validator = Boolean();
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
       }
     });
@@ -46,7 +46,7 @@ describe('Property: Generated values always pass validation', () => {
       ];
       for (const validator of validators) {
         for (let i = 0; i < 100; i++) {
-          const value = generator.generate(validator);
+          const value = generator.generate(validator.domain);
           expect(validator.validate(value).valid).toBe(true);
         }
       }
@@ -61,7 +61,7 @@ describe('Property: Generated values always pass validation', () => {
       ];
       for (const validator of validators) {
         for (let i = 0; i < 100; i++) {
-          const value = generator.generate(validator);
+          const value = generator.generate(validator.domain);
           expect(validator.validate(value).valid).toBe(true);
         }
       }
@@ -75,7 +75,7 @@ describe('Property: Generated values always pass validation', () => {
       ];
       for (const validator of validators) {
         for (let i = 0; i < 100; i++) {
-          const value = generator.generate(validator);
+          const value = generator.generate(validator.domain);
           expect(validator.validate(value).valid).toBe(true);
         }
       }
@@ -90,7 +90,7 @@ describe('Property: Generated values always pass validation', () => {
       ];
       for (const validator of validators) {
         for (let i = 0; i < 100; i++) {
-          const value = generator.generate(validator);
+          const value = generator.generate(validator.domain);
           expect(validator.validate(value).valid).toBe(true);
         }
       }
@@ -105,7 +105,7 @@ describe('Property: Generated values always pass validation', () => {
       ];
       for (const validator of validators) {
         for (let i = 0; i < 100; i++) {
-          const value = generator.generate(validator);
+          const value = generator.generate(validator.domain);
           expect(validator.validate(value).valid).toBe(true);
         }
       }
@@ -123,7 +123,7 @@ describe('Property: Generated values always pass validation', () => {
       ];
       for (const validator of validators) {
         for (let i = 0; i < 100; i++) {
-          const value = generator.generate(validator);
+          const value = generator.generate(validator.domain);
           expect(validator.validate(value).valid).toBe(true);
         }
       }
@@ -134,7 +134,7 @@ describe('Property: Generated values always pass validation', () => {
     it('Null', () => {
       const validator = Null();
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         expect(value).toBe(null);
       }
@@ -143,7 +143,7 @@ describe('Property: Generated values always pass validation', () => {
     it('Undefined', () => {
       const validator = Undefined();
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         expect(value).toBe(undefined);
       }
@@ -157,7 +157,7 @@ describe('Property: Generated values always pass validation', () => {
       ];
       for (const validator of validators) {
         for (let i = 0; i < 10; i++) {
-          const value = generator.generate(validator);
+          const value = generator.generate(validator.domain);
           expect(validator.validate(value).valid).toBe(true);
         }
       }
@@ -173,7 +173,7 @@ describe('Property: Generated values always pass validation', () => {
       ];
       for (const validator of validators) {
         for (let i = 0; i < 100; i++) {
-          const value = generator.generate(validator);
+          const value = generator.generate(validator.domain);
           expect(validator.validate(value).valid).toBe(true);
         }
       }
@@ -188,7 +188,7 @@ describe('Property: Generated values always pass validation', () => {
       const validators: Validator<any>[] = [stringOrNumber, boolOrNull, abc];
       for (const validator of validators) {
         for (let i = 0; i < 100; i++) {
-          const value = generator.generate(validator);
+          const value = generator.generate(validator.domain);
           expect(validator.validate(value).valid).toBe(true);
         }
       }
@@ -201,7 +201,7 @@ describe('Property: Generated values always pass validation', () => {
       ];
       for (const validator of validators) {
         for (let i = 0; i < 100; i++) {
-          const value = generator.generate(validator);
+          const value = generator.generate(validator.domain);
           expect(validator.validate(value).valid).toBe(true);
         }
       }
@@ -217,7 +217,7 @@ describe('Property: Generated values always pass validation', () => {
       ];
       for (const validator of validators) {
         for (let i = 0; i < 100; i++) {
-          const value = generator.generate(validator);
+          const value = generator.generate(validator.domain);
           expect(validator.validate(value).valid).toBe(true);
         }
       }
@@ -239,7 +239,7 @@ describe('Property: Generated values always pass validation', () => {
       });
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(Response);
+        const value = generator.generate(Response.domain);
         expect(Response.validate(value).valid).toBe(true);
       }
     });
@@ -253,7 +253,7 @@ describe('Property: Generated values always pass validation', () => {
       );
 
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(StringOrNumberOrNull);
+        const value = generator.generate(StringOrNumberOrNull.domain);
         expect(StringOrNumberOrNull.validate(value).valid).toBe(true);
       }
     });

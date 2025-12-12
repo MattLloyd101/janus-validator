@@ -1,6 +1,7 @@
 import { Any } from '@/com/techlloyd/janus/combinators/regex/Any';
 import { DomainType } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
+import { Generator } from '@/com/techlloyd/janus/Generator';
 
 describe('Any', () => {
   describe('matching', () => {
@@ -71,9 +72,10 @@ describe('Any', () => {
     it('should generate printable ASCII characters', () => {
       const any = new Any();
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       for (let i = 0; i < 100; i++) {
-        const value = any.generate(rng);
+        const value = generator.generate(any.domain);
         expect(value.length).toBe(1);
         const code = value.charCodeAt(0);
         expect(code).toBeGreaterThanOrEqual(32);
@@ -84,10 +86,11 @@ describe('Any', () => {
     it('should generate variety of characters', () => {
       const any = new Any();
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       const generated = new Set<string>();
       for (let i = 0; i < 200; i++) {
-        generated.add(any.generate(rng));
+        generated.add(generator.generate(any.domain));
       }
       // Should generate many different characters
       expect(generated.size).toBeGreaterThan(20);

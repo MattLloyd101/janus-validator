@@ -1,8 +1,10 @@
-import { parseRegex } from '@/com/techlloyd/janus/combinators/regex/RegexParser';
+import { parseRegex } from '@/com/techlloyd/janus/combinators/regex/ASTConverter';
 import { RNG } from '@/com/techlloyd/janus/RNG';
+import { Generator } from '@/com/techlloyd/janus/Generator';
 
-describe('RegexParser', () => {
+describe('ASTConverter', () => {
   const rng: RNG = { random: () => Math.random() };
+  const generator = new Generator(rng);
 
   describe('literals', () => {
     it('should parse single literal', () => {
@@ -110,7 +112,7 @@ describe('RegexParser', () => {
     it('should generate from character class with \\d', () => {
       const validator = parseRegex('[\\d]');
       for (let i = 0; i < 20; i++) {
-        const value = validator.generate(rng);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^\d$/);
       }
     });
@@ -118,7 +120,7 @@ describe('RegexParser', () => {
     it('should generate from character class with \\s', () => {
       const validator = parseRegex('[\\s]');
       for (let i = 0; i < 20; i++) {
-        const value = validator.generate(rng);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^\s$/);
       }
     });
@@ -126,7 +128,7 @@ describe('RegexParser', () => {
     it('should generate from mixed character class', () => {
       const validator = parseRegex('[\\d\\s-]');
       for (let i = 0; i < 50; i++) {
-        const value = validator.generate(rng);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^[\d\s-]$/);
       }
     });
@@ -277,13 +279,13 @@ describe('RegexParser', () => {
   describe('generation', () => {
     it('should generate matching strings for literals', () => {
       const validator = parseRegex('hello');
-      expect(validator.generate(rng)).toBe('hello');
+      expect(generator.generate(validator.domain)).toBe('hello');
     });
 
     it('should generate matching strings for patterns', () => {
       const validator = parseRegex('\\d{3}');
       for (let i = 0; i < 50; i++) {
-        const value = validator.generate(rng);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^\d{3}$/);
       }
     });
@@ -291,7 +293,7 @@ describe('RegexParser', () => {
     it('should generate valid values for complex patterns', () => {
       const validator = parseRegex('[a-z]+@[a-z]+\\.[a-z]{2,3}');
       for (let i = 0; i < 50; i++) {
-        const value = validator.generate(rng);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
       }
     });

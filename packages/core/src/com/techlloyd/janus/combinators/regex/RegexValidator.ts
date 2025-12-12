@@ -1,7 +1,6 @@
 import { Validator, BaseValidator } from '../../Validator';
 import { ValidationResult } from '../../ValidationResult';
 import { RegexDomain, DomainType } from '../../Domain';
-import { RNG } from '../../RNG';
 
 /**
  * Result of a regex match operation
@@ -23,11 +22,6 @@ export interface RegexValidator extends Validator<string> {
    * Returns the number of characters consumed if matched, or null if no match.
    */
   match(input: string, position: number): MatchResult;
-
-  /**
-   * Generate a string that matches this validator using the given RNG
-   */
-  generate(rng: RNG): string;
 }
 
 /**
@@ -35,7 +29,6 @@ export interface RegexValidator extends Validator<string> {
  */
 export abstract class BaseRegexValidator extends BaseValidator<string> implements RegexValidator {
   abstract match(input: string, position: number): MatchResult;
-  abstract generate(rng: RNG): string;
   abstract readonly domain: RegexDomain;
 
   /**

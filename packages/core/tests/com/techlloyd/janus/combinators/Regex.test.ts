@@ -97,7 +97,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toBe('hello');
         expect(validator.validate(value).valid).toBe(true);
       }
@@ -109,7 +109,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^\d{3}$/);
         expect(validator.validate(value).valid).toBe(true);
       }
@@ -121,7 +121,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^\w{5}$/);
         expect(validator.validate(value).valid).toBe(true);
       }
@@ -135,7 +135,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^a*$/);
         expect(validator.validate(value).valid).toBe(true);
       }
@@ -147,7 +147,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value.length).toBeGreaterThan(0);
         expect(value).toMatch(/^a+$/);
         expect(validator.validate(value).valid).toBe(true);
@@ -161,7 +161,7 @@ describe('Regex generation', () => {
 
       const values = new Set<string>();
       for (let i = 0; i < 100; i++) {
-        values.add(generator.generate(validator));
+        values.add(generator.generate(validator.domain));
       }
       // Should generate both 'ac' and 'abc'
       expect(values.has('ac') || values.has('abc')).toBe(true);
@@ -173,7 +173,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toBe('xxxxx');
       }
     });
@@ -184,7 +184,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value.length).toBeGreaterThanOrEqual(2);
         expect(value.length).toBeLessThanOrEqual(4);
         expect(value).toMatch(/^a{2,4}$/);
@@ -199,7 +199,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^[abc]{3}$/);
         expect(validator.validate(value).valid).toBe(true);
       }
@@ -211,7 +211,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^[a-f]{4}$/);
         expect(validator.validate(value).valid).toBe(true);
       }
@@ -223,7 +223,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^[^0-9]{3}$/);
         expect(validator.validate(value).valid).toBe(true);
       }
@@ -238,7 +238,7 @@ describe('Regex generation', () => {
 
       const values = new Set<string>();
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         values.add(value);
         expect(validator.validate(value).valid).toBe(true);
       }
@@ -254,7 +254,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value.length).toBeGreaterThan(0);
         expect(value).toMatch(/^(ab)+$/);
         expect(validator.validate(value).valid).toBe(true);
@@ -267,7 +267,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value.length).toBeGreaterThan(0);
         expect(value).toMatch(/^(?:ab)+$/);
         expect(validator.validate(value).valid).toBe(true);
@@ -282,7 +282,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value.length).toBe(3);
         expect(validator.validate(value).valid).toBe(true);
       }
@@ -296,7 +296,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^\d{3}-\d{3}-\d{4}$/);
         expect(validator.validate(value).valid).toBe(true);
       }
@@ -308,7 +308,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^[a-z]+@[a-z]+\.[a-z]{2,3}$/);
         expect(validator.validate(value).valid).toBe(true);
       }
@@ -320,7 +320,7 @@ describe('Regex generation', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(value).toMatch(/^#[0-9a-f]{6}$/);
         expect(validator.validate(value).valid).toBe(true);
       }
@@ -348,7 +348,7 @@ describe('property: generated values always validate', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         const result = validator.validate(value);
         expect(result.valid).toBe(true);
       }

@@ -89,7 +89,7 @@ describe('Boolean domain', () => {
     };
     const generator = new Generator(rng);
 
-    const value = generator.generate(validator);
+    const value = generator.generate(validator.domain);
     expect(typeof value).toBe('boolean');
     expect([true, false]).toContain(value);
   });
@@ -101,7 +101,7 @@ describe('Boolean domain', () => {
     };
     const generator = new Generator(rng);
 
-    const value = generator.generate(validator);
+    const value = generator.generate(validator.domain);
     // With random() = 0.0, Math.floor(0.0 * 2) = 0, so index 0
     // The values array is [true, false], so index 0 is true
     expect(value).toBe(true);
@@ -120,8 +120,8 @@ describe('Boolean domain', () => {
 
     const generator1 = new Generator(rng1);
     const generator2 = new Generator(rng2);
-    const value1 = generator1.generate(validator);
-    const value2 = generator2.generate(validator);
+    const value1 = generator1.generate(validator.domain);
+    const value2 = generator2.generate(validator.domain);
     expect([true, false]).toContain(value1);
     expect([true, false]).toContain(value2);
   });
@@ -135,7 +135,7 @@ describe('Boolean domain', () => {
 
     // Generate multiple values and verify they all pass validation
     for (let i = 0; i < 100; i++) {
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       const result = validator.validate(value);
       expect(result.valid).toBe(true);
       if (result.valid) {
@@ -153,7 +153,7 @@ describe('Generator class with Boolean', () => {
     };
     const generator = new Generator(rng);
 
-    const value = generator.generate(validator);
+    const value = generator.generate(validator.domain);
     expect(typeof value).toBe('boolean');
     expect([true, false]).toContain(value);
   });
@@ -167,7 +167,7 @@ describe('Generator class with Boolean', () => {
 
     // Generate multiple values and verify they all pass validation
     for (let i = 0; i < 100; i++) {
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       const result = validator.validate(value);
       expect(result.valid).toBe(true);
       if (result.valid) {
@@ -183,7 +183,7 @@ describe('Generator class with Boolean', () => {
     };
     const generator = new Generator(rng);
 
-    const value = generator.generate(validator);
+    const value = generator.generate(validator.domain);
     expect([true, false]).toContain(value);
   });
 });

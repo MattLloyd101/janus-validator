@@ -1,5 +1,4 @@
 import { RegexDomain, DomainType } from '../../Domain';
-import { RNG } from '../../RNG';
 import { BaseRegexValidator, MatchResult } from './RegexValidator';
 
 /**
@@ -26,10 +25,6 @@ export class Literal extends BaseRegexValidator {
       return { matched: true, consumed: 1 };
     }
     return { matched: false, consumed: 0 };
-  }
-
-  generate(_rng: RNG): string {
-    return this.char;
   }
 
   private escapeRegex(str: string): string {

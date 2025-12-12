@@ -48,7 +48,7 @@ describe('Presets - Names', () => {
     it('should generate valid first names', () => {
       const validator = FirstName();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         expect(value.length).toBeGreaterThan(0);
         expect(value).toMatch(/^[A-Z][a-z]+$/);
@@ -59,7 +59,7 @@ describe('Presets - Names', () => {
       const validator = FirstName();
       const names = new Set<string>();
       for (let i = 0; i < 50; i++) {
-        names.add(generator.generate(validator));
+        names.add(generator.generate(validator.domain));
       }
       expect(names.size).toBeGreaterThan(5);
     });
@@ -69,7 +69,7 @@ describe('Presets - Names', () => {
     it('should generate valid last names', () => {
       const validator = LastName();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         expect(value.length).toBeGreaterThan(0);
       }
@@ -80,7 +80,7 @@ describe('Presets - Names', () => {
     it('should generate first and last name', () => {
       const validator = FullName();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         expect(value).toMatch(/^[A-Z][a-z]+ [A-Z][a-z]+$/);
       }
@@ -93,7 +93,7 @@ describe('Presets - Usernames', () => {
     it('should generate valid usernames', () => {
       const validator = RealisticUsername();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
       }
     });
@@ -101,7 +101,7 @@ describe('Presets - Usernames', () => {
     it('should generate gaming-style usernames', () => {
       const validator = RealisticUsername();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         // Should be adjective_noun + number pattern
         expect(value).toMatch(/^[a-z]+_[a-z]+\d+$/);
       }
@@ -114,7 +114,7 @@ describe('Presets - Emails', () => {
     it('should generate valid email addresses', () => {
       const validator = RealisticEmail();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         expect(value).toContain('@');
         expect(value).toMatch(/\.(com|net|org|io)$/);
@@ -125,7 +125,7 @@ describe('Presets - Emails', () => {
       const validator = RealisticEmail();
       const domains = new Set<string>();
       for (let i = 0; i < 50; i++) {
-        const email = generator.generate(validator);
+        const email = generator.generate(validator.domain);
         const domain = email.split('@')[1];
         domains.add(domain);
       }
@@ -138,7 +138,7 @@ describe('Presets - Emails', () => {
     it('should generate corporate email format', () => {
       const validator = CorporateEmailPreset();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         // Should follow first.last@company format
         expect(value).toMatch(/^[a-z]+\.[a-z]+@[a-z]+\.(com|io|co|net|org)$/);
@@ -152,7 +152,7 @@ describe('Presets - Addresses', () => {
     it('should generate valid street addresses', () => {
       const validator = RealisticStreetAddress();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         // Should have number, street name, and type
         expect(value).toMatch(/^\d+ [A-Z][a-z]+ (St|Ave|Blvd|Dr|Ln|Rd|Way|Ct)$/);
@@ -165,7 +165,7 @@ describe('Presets - Addresses', () => {
       const validator = RealisticCity();
       const cities = new Set<string>();
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         cities.add(value);
       }
@@ -177,7 +177,7 @@ describe('Presets - Addresses', () => {
     it('should generate valid US state codes', () => {
       const validator = RealisticState();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         expect(value).toMatch(/^[A-Z]{2}$/);
       }
@@ -187,7 +187,7 @@ describe('Presets - Addresses', () => {
       const validator = RealisticState();
       const states = new Set<string>();
       for (let i = 0; i < 100; i++) {
-        states.add(generator.generate(validator));
+        states.add(generator.generate(validator.domain));
       }
       expect(states.size).toBeGreaterThan(10);
     });
@@ -197,7 +197,7 @@ describe('Presets - Addresses', () => {
     it('should generate valid ZIP codes', () => {
       const validator = RealisticZipCode();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         expect(value).toMatch(/^\d{5}(-\d{4})?$/);
       }
@@ -207,7 +207,7 @@ describe('Presets - Addresses', () => {
       const validator = RealisticZipCode();
       let hasZipPlus4 = false;
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         if (value.includes('-')) {
           hasZipPlus4 = true;
           break;
@@ -223,7 +223,7 @@ describe('Presets - Phone', () => {
     it('should generate valid US phone numbers', () => {
       const validator = RealisticUSPhone();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
       }
     });
@@ -232,7 +232,7 @@ describe('Presets - Phone', () => {
       const validator = RealisticUSPhone();
       const formats = new Set<string>();
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         if (value.startsWith('(')) {
           formats.add('parentheses');
         } else if (value.includes('-')) {
@@ -251,7 +251,7 @@ describe('Presets - Companies', () => {
     it('should generate company names with suffix', () => {
       const validator = CompanyName();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         // Should have company name and suffix
         expect(value).toMatch(/^[A-Za-z]+ (Inc|Corp|LLC|Ltd|Co|Group|Solutions)$/);
@@ -263,7 +263,7 @@ describe('Presets - Companies', () => {
     it('should generate product names', () => {
       const validator = ProductName();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         // Should have adjective and type
         expect(value).toMatch(/^(Premium|Deluxe|Pro|Ultra|Elite|Classic|Essential) (Widget|Gadget|Device|Tool|Kit|System|Package)$/);
@@ -275,7 +275,7 @@ describe('Presets - Companies', () => {
     it('should generate lorem ipsum text', () => {
       const validator = LoremIpsum(10, 30);
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         // Should start with capital and end with period
         expect(value).toMatch(/^[A-Z].+\.$/);
@@ -288,7 +288,7 @@ describe('Presets - Companies', () => {
       const validator = LoremIpsum(minWords, maxWords);
       
       for (let i = 0; i < 10; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         const wordCount = value.replace(/\.$/, '').split(' ').length;
         expect(wordCount).toBeGreaterThanOrEqual(minWords);
         expect(wordCount).toBeLessThanOrEqual(maxWords);
@@ -302,7 +302,7 @@ describe('Presets - Dates', () => {
     it('should generate valid ISO dates', () => {
       const validator = RecentDate();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         expect(value).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       }
@@ -313,7 +313,7 @@ describe('Presets - Dates', () => {
       const now = new Date();
       
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         const date = new Date(value);
         expect(date.getTime()).toBeLessThanOrEqual(now.getTime());
       }
@@ -325,7 +325,7 @@ describe('Presets - Dates', () => {
       const fiveYearsAgo = new Date(now.getTime() - 5 * 365 * 24 * 60 * 60 * 1000);
       
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         const date = new Date(value);
         expect(date.getTime()).toBeGreaterThanOrEqual(fiveYearsAgo.getTime());
       }
@@ -336,7 +336,7 @@ describe('Presets - Dates', () => {
     it('should generate valid ISO dates', () => {
       const validator = FutureDate();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         expect(value).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       }
@@ -347,7 +347,7 @@ describe('Presets - Dates', () => {
       const now = new Date();
       
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         const date = new Date(value);
         expect(date.getTime()).toBeGreaterThan(now.getTime());
       }
@@ -360,7 +360,7 @@ describe('Presets - Money', () => {
     it('should generate valid prices', () => {
       const validator = RealisticPrice();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         expect(validator.validate(value).valid).toBe(true);
         expect(typeof value).toBe('number');
         expect(value).toBeGreaterThanOrEqual(0);
@@ -372,7 +372,7 @@ describe('Presets - Money', () => {
       const prices: number[] = [];
       
       for (let i = 0; i < 100; i++) {
-        prices.push(generator.generate(validator));
+        prices.push(generator.generate(validator.domain));
       }
 
       // Check that we have variety in price ranges
@@ -411,7 +411,7 @@ describe('Presets - Property-based tests', () => {
     it(`${name}: generated values should always validate`, () => {
       const validator = factory();
       for (let i = 0; i < 20; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         const result = validator.validate(value);
         if (!result.valid) {
           throw new Error(

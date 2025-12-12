@@ -1,5 +1,4 @@
 import { RegexDomain, DomainType } from '../../Domain';
-import { RNG } from '../../RNG';
 import { ValidationResult } from '../../ValidationResult';
 import { MatchResult, RegexValidator } from './RegexValidator';
 import { Alternation as GenericAlternation } from '../Alternation';
@@ -65,17 +64,6 @@ export class RegexAlternation extends GenericAlternation<string, RegexDomain> im
       }
     }
     return { matched: false, consumed: 0 };
-  }
-
-  /**
-   * Generate a string by randomly selecting one alternative
-   */
-  generate(rng: RNG): string {
-    if (this.regexValidators.length === 0) {
-      return '';
-    }
-    const index = Math.floor(rng.random() * this.regexValidators.length);
-    return this.regexValidators[index].generate(rng);
   }
 
   /**

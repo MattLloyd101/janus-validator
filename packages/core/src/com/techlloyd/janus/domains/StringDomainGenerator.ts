@@ -1,13 +1,17 @@
 import { Domain, StringDomain } from '../Domain';
 import { RNG } from '../RNG';
 import { DomainGeneratorStrategy } from './DomainGeneratorStrategy';
-import { Validator } from '../Validator';
+
+/**
+ * A string part for generation - either a literal string or a domain
+ */
+type StringPart = string | Domain<string>;
 
 /**
  * Extended domain type that includes compound string parts
  */
 interface CompoundStringDomain extends StringDomain {
-  _parts?: (string | Validator<string>)[];
+  _parts?: StringPart[];
 }
 
 /**
@@ -80,13 +84,13 @@ export class StringDomainGenerator implements DomainGeneratorStrategy<string> {
   /**
    * Generate from a compound string with parts
    */
-  private generateCompoundString(parts: (string | Validator<string>)[], rng: RNG): string {
+  private generateCompoundString(parts: StringPart[], rng: RNG): string {
     return parts.map(part => {
       if (typeof part === 'string') {
         return part;
       }
-      // Generate from the validator's domain
-      return this.generate(part.domain as StringDomain, rng);
+      // Generate from the part domain (skip validators - only domains are stored)
+      return this.generate(part as StringDomain, rng);
     }).join('');
   }
 

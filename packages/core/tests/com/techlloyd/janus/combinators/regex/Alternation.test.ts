@@ -4,6 +4,7 @@ import { Sequence } from '@/com/techlloyd/janus/combinators/regex/Sequence';
 import { Empty } from '@/com/techlloyd/janus/combinators/regex/Empty';
 import { DomainType } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
+import { Generator } from '@/com/techlloyd/janus/Generator';
 
 describe('Alternation', () => {
   describe('matching', () => {
@@ -100,9 +101,10 @@ describe('Alternation', () => {
         new Literal('c')
       );
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = alt.generate(rng);
+        const value = generator.generate(alt.domain);
         expect(['a', 'b', 'c']).toContain(value);
       }
     });
@@ -114,10 +116,11 @@ describe('Alternation', () => {
         new Literal('c')
       );
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       const generated = new Set<string>();
       for (let i = 0; i < 100; i++) {
-        generated.add(alt.generate(rng));
+        generated.add(generator.generate(alt.domain));
       }
       // Should generate multiple different alternatives
       expect(generated.size).toBeGreaterThan(1);
@@ -130,15 +133,16 @@ describe('Alternation', () => {
         new Literal('z')
       );
       // RNG 0 should select first alternative
-      expect(alt.generate({ random: () => 0.0 })).toBe('x');
+      expect(new Generator({ random: () => 0.0 }).generate(alt.domain)).toBe('x');
       // RNG close to 1 should select last alternative
-      expect(alt.generate({ random: () => 0.99 })).toBe('z');
+      expect(new Generator({ random: () => 0.99 }).generate(alt.domain)).toBe('z');
     });
 
     it('should generate empty string for empty alternation', () => {
       const alt = new Alternation();
       const rng: RNG = { random: () => Math.random() };
-      expect(alt.generate(rng)).toBe('');
+      const generator = new Generator(rng);
+      expect(generator.generate(alt.domain)).toBe('');
     });
   });
 

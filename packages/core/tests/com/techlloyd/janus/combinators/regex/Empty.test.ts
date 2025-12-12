@@ -1,6 +1,7 @@
 import { Empty } from '@/com/techlloyd/janus/combinators/regex/Empty';
 import { DomainType } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
+import { Generator } from '@/com/techlloyd/janus/Generator';
 
 describe('Empty', () => {
   describe('matching', () => {
@@ -47,9 +48,10 @@ describe('Empty', () => {
     it('should always generate empty string', () => {
       const empty = new Empty();
       const rng: RNG = { random: () => Math.random() };
+      const generator = new Generator(rng);
 
       for (let i = 0; i < 10; i++) {
-        expect(empty.generate(rng)).toBe('');
+        expect(generator.generate(empty.domain)).toBe('');
       }
     });
   });

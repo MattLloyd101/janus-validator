@@ -279,7 +279,7 @@ describe('Struct', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator) as any;
+        const value = generator.generate(validator.domain) as any;
         
         expect(typeof value).toBe('object');
         expect(typeof value.name).toBe('string');
@@ -304,7 +304,7 @@ describe('Struct', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 100; i++) {
-        const value = generator.generate(validator);
+        const value = generator.generate(validator.domain);
         const result = validator.validate(value);
         expect(result.valid).toBe(true);
       }
@@ -321,7 +321,7 @@ describe('Struct', () => {
 
       const rng: RNG = { random: () => Math.random() };
       const generator = new Generator(rng);
-      const value = generator.generate(validator) as any;
+      const value = generator.generate(validator.domain) as any;
 
       expect(typeof value.user).toBe('object');
       expect(typeof value.user.name).toBe('string');

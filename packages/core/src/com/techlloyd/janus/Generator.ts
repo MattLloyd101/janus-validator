@@ -14,10 +14,10 @@ export class Generator {
   }
 
   /**
-   * Generates a value from the validator's domain using the RNG provided in the constructor
+   * Generates a value from the domain using the RNG provided in the constructor
    */
-  generate<T>(validator: { domain: Domain<T> }): T {
-    return this.strategyRegistry.generate(validator.domain, this.rng);
+  generate<T>(domain: Domain<T>): T {
+    return this.strategyRegistry.generate(domain, this.rng);
   }
 }
 

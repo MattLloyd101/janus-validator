@@ -48,7 +48,7 @@ describe('withGenerator', () => {
     // Generation uses custom logic
     const generator = new Generator(rng);
     for (let i = 0; i < 20; i++) {
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       expect(names).toContain(value);
     }
   });
@@ -77,7 +77,7 @@ describe('fromValues', () => {
     const generated = new Set<string>();
     
     for (let i = 0; i < 50; i++) {
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       expect(values).toContain(value);
       generated.add(value);
     }
@@ -114,7 +114,7 @@ describe('fromWeightedValues', () => {
     const iterations = 1000;
 
     for (let i = 0; i < iterations; i++) {
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       if (value === 'common') commonCount++;
       if (value === 'rare') rareCount++;
     }
@@ -135,13 +135,13 @@ describe('fromWeightedValues', () => {
     ]);
 
     // RNG returning 0 should select first value
-    expect(new Generator(new SeededRNG(0)).generate(validator)).toBe('first');
+    expect(new Generator(new SeededRNG(0)).generate(validator.domain)).toBe('first');
     
     // RNG returning 0.5 should select second (0.3 + 0.2 into second)
-    expect(new Generator(new SeededRNG(0.5)).generate(validator)).toBe('second');
+    expect(new Generator(new SeededRNG(0.5)).generate(validator.domain)).toBe('second');
     
     // RNG returning 0.9 should select third
-    expect(new Generator(new SeededRNG(0.9)).generate(validator)).toBe('third');
+    expect(new Generator(new SeededRNG(0.9)).generate(validator.domain)).toBe('third');
   });
 });
 
@@ -153,11 +153,11 @@ describe('cycleValues', () => {
     const rng = new DefaultRNG();
     const generator = new Generator(rng);
 
-    expect(generator.generate(validator)).toBe('A');
-    expect(generator.generate(validator)).toBe('B');
-    expect(generator.generate(validator)).toBe('C');
-    expect(generator.generate(validator)).toBe('A'); // wraps around
-    expect(generator.generate(validator)).toBe('B');
+    expect(generator.generate(validator.domain)).toBe('A');
+    expect(generator.generate(validator.domain)).toBe('B');
+    expect(generator.generate(validator.domain)).toBe('C');
+    expect(generator.generate(validator.domain)).toBe('A'); // wraps around
+    expect(generator.generate(validator.domain)).toBe('B');
   });
 
   it('should throw for empty values', () => {
@@ -178,7 +178,7 @@ describe('combineGenerators', () => {
     
     const generated = new Set<number>();
     for (let i = 0; i < 50; i++) {
-      generated.add(generator.generate(validator));
+      generated.add(generator.generate(validator.domain));
     }
 
     // Should generate variety
@@ -206,7 +206,7 @@ describe('templateGenerator', () => {
     const generator = new Generator(rng);
 
     for (let i = 0; i < 20; i++) {
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       const parts = value.split('_');
       expect(adjectives).toContain(parts[0]);
       expect(nouns).toContain(parts[1]);
@@ -223,7 +223,7 @@ describe('templateGenerator', () => {
     
     // Generate multiple values - they should all match pattern
     for (let i = 0; i < 10; i++) {
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       expect(value).toMatch(/^value_\d+$/);
     }
   });

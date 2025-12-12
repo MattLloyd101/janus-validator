@@ -51,7 +51,7 @@ describe('Infinity', () => {
       const rng: RNG = { random: () => Math.random() };
       const generator = new Generator(rng);
       
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       expect(value).toBe(globalThis.Infinity);
     });
   });
@@ -92,7 +92,7 @@ describe('NegativeInfinity', () => {
       const rng: RNG = { random: () => Math.random() };
       const generator = new Generator(rng);
       
-      const value = generator.generate(validator);
+      const value = generator.generate(validator.domain);
       expect(value).toBe(-globalThis.Infinity);
     });
   });

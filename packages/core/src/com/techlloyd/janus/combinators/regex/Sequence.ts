@@ -1,5 +1,4 @@
 import { RegexDomain, DomainType } from '../../Domain';
-import { RNG } from '../../RNG';
 import { BaseRegexValidator, MatchResult, RegexValidator } from './RegexValidator';
 
 /**
@@ -55,13 +54,6 @@ export class RegexSequence extends BaseRegexValidator {
     }
 
     return { matched: true, consumed: totalConsumed };
-  }
-
-  /**
-   * Generate a string by concatenating output from each validator
-   */
-  generate(rng: RNG): string {
-    return this.validators.map(v => v.generate(rng)).join('');
   }
 
   /**

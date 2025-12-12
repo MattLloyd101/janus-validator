@@ -64,7 +64,7 @@ function testGeneration<T>(name: string, validator: Validator<T>, iterations: nu
   const generator = new Generator(new DefaultRNG());
   
   for (let i = 0; i < iterations; i++) {
-    const generated = generator.generate(validator);
+    const generated = generator.generate(validator.domain);
     const result = validator.validate(generated);
     
     if (!result.valid) {

@@ -1,6 +1,6 @@
 {
   "name": "@janus-validator/dsl",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Concise DSL for Janus Validator - short aliases for all combinators",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
