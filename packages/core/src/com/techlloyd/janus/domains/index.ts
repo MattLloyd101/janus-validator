@@ -6,24 +6,15 @@
  * - compatibility reasoning (`encapsulates`)
  */
 
-// Types and utilities
-export {
-  DomainType,
-  RelationResult,
-  ok,
-  no,
-  unknown,
-} from './types';
+// Public types
+export { DomainType, RelationResult } from './types';
 
-// CharRange utilities (for CharSetDomain and regex character classes)
-export {
-  CharRange,
-  normalizeRanges,
-  rangesSize,
-  rangesSubset,
-  charsToRanges,
-  charRange,
-} from './CharRange';
+// Internal utilities - not part of public API but needed by other internal modules
+export { ok, no, unknown } from './types';
+export { normalizeRanges, rangesSize, rangesSubset } from './CharRange';
+
+// CharRange - public API for creating character sets
+export { CharRange, charsToRanges, charRange } from './CharRange';
 
 // Base class
 export { Domain } from './Domain';
@@ -42,5 +33,5 @@ export { BigIntDomain } from './BigIntDomain';
 export { StructDomain } from './StructDomain';
 export { CustomGeneratorDomain } from './CustomGeneratorDomain';
 
-// Re-export ContiguousType for convenience
+// Internal - generator implementation details
 export { ContiguousType, ContiguousTypeValue } from '../generators/interpolate/ContiguousType';

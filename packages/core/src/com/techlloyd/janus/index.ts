@@ -6,17 +6,22 @@
  * - Generate values that match validators using random number generators
  * - Compose complex validators from simple ones
  */
+
+// Core types
 export { ValidationResult } from "./ValidationResult";
 export { RNG } from "./RNG";
+export { Validator, BaseValidator } from "./Validator";
+export { Generator } from "./Generator";
+
+// Domain types (for advanced use cases like schema introspection)
 export {
   Domain,
+  DomainType,
   RelationResult,
+  // Domain classes
   FiniteDomain,
   StringDomain,
   CharSetDomain,
-  CharRange,
-  charRange,
-  charsToRanges,
   ContiguousDomain,
   RegexDomain,
   AlternationDomain,
@@ -26,12 +31,13 @@ export {
   CustomGeneratorDomain,
   BytesDomain,
   BigIntDomain,
-  DomainType,
+  // CharRange utilities for creating character sets
+  CharRange,
+  charRange,
+  charsToRanges,
+  // ContiguousType for creating ContiguousDomains
   ContiguousType,
-  ContiguousTypeValue,
 } from "./Domain";
-export { Validator, BaseValidator } from "./Validator";
-export { Generator } from "./Generator";
 
 // Type utilities for inference
 export {

@@ -96,14 +96,14 @@ export type DomainsForTuple<T extends readonly unknown[]> = {
  * Schema definition for Struct validator - maps property names to validators
  */
 export type ValidatorSchema = {
-  [key: string]: Validator<any>;
+  [key: string]: Validator<unknown>;
 };
 
 /**
  * Schema definition for Struct domain - maps property names to domains
  */
 export type DomainSchema = {
-  [key: string]: Domain<any>;
+  [key: string]: Domain<unknown>;
 };
 
 /**
