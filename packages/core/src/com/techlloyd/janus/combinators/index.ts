@@ -33,7 +33,6 @@ export { Quantifier } from './Quantifier';
 export { Struct, StructSchema, InferStructType, StructDomain } from './Struct';
 export { Typed, As } from './Typed';
 export { caseInsensitive } from './CaseInsensitive';
-export { withExample, validatorWithExample } from './WithExample';
 export { Capture, Ref, ValidationContext, CaptureDomain, RefDomain, createCaptureGroup } from './Capture';
 export {
   withGenerator,

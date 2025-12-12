@@ -230,12 +230,8 @@ describe('templateGenerator', () => {
 });
 
 describe('Integration with Generator class', () => {
-  it('should work with withExample', () => {
-    const { withExample } = require('@/com/techlloyd/janus/combinators/WithExample');
-    
-    const validator = withExample(
-      fromValues(UnicodeString(1, 10), ['Alice', 'Bob', 'Charlie'])
-    );
+  it('should surface examples via BaseValidator error helpers', () => {
+    const validator = fromValues(UnicodeString(1, 10), ['Alice', 'Bob', 'Charlie']);
 
     // Validation failure should include example from custom generator
     const result = validator.validate('');

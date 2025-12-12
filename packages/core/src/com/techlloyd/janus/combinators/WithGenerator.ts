@@ -2,9 +2,59 @@
  * Utilities for customizing value generation for validators
  */
 
-import { Validator } from '../Validator';
+import { BaseValidator, Validator } from '../Validator';
 import { Domain, DomainType } from '../Domain';
 import { RNG } from '../RNG';
+import { ValidationResult } from '../ValidationResult';
+
+class WithGeneratorValidator<T> extends BaseValidator<T> {
+  public readonly domain: CustomGeneratorDomain<T>;
+
+  constructor(
+    private readonly inner: Validator<T>,
+    generate: GeneratorFn<T>
+  ) {
+    super();
+    this.domain = {
+      type: DomainType.CUSTOM_GENERATOR_DOMAIN,
+      innerDomain: inner.domain,
+      generate,
+    };
+  }
+
+  validate(value: unknown): ValidationResult<T> {
+    const result = this.inner.validate(value);
+    if (result.valid) {
+      return this.success(result.value);
+    }
+
+    // Preserve the underlying error/results, but generate the example from THIS validator
+    // so CUSTOM_GENERATOR_DOMAIN is respected.
+    try {
+      const example = this._example();
+      return { valid: false, error: result.error, results: result.results, example };
+    } catch {
+      return { valid: false, error: result.error, results: result.results };
+    }
+  }
+
+  /**
+   * Generate an example for this validator using the shared Generator in BaseValidator.
+   * Kept as a tiny helper to keep validate() readable.
+   */
+  private _example(): T {
+    // BaseValidator.error() already handles try/catch; we need the raw example value here.
+    // We intentionally call the generator indirectly by triggering error() then reading example.
+    const res = this.error('__example__');
+    if (res.valid) {
+      throw new Error('Unexpected valid result');
+    }
+    if (res.example === undefined) {
+      throw new Error('Example generation failed');
+    }
+    return res.example;
+  }
+}
 
 /**
  * Custom domain type that wraps another domain with custom generation logic
@@ -49,14 +99,7 @@ export function withGenerator<T>(
   validator: Validator<T>,
   generate: GeneratorFn<T>
 ): Validator<T> {
-  return {
-    validate: (value: unknown) => validator.validate(value),
-    domain: {
-      type: DomainType.CUSTOM_GENERATOR_DOMAIN,
-      innerDomain: validator.domain,
-      generate,
-    } as CustomGeneratorDomain<T>,
-  };
+  return new WithGeneratorValidator(validator, generate);
 }
 
 /**
