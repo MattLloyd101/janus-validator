@@ -1,7 +1,6 @@
 /**
  * @janus-validator/dsl - Concise DSL for Janus Validator
  * 
- * This package re-exports the DSL from @janus-validator/core for convenience.
  * Use:
  *   - import { B, U, S, I } from '@janus-validator/dsl'
  * 
@@ -10,7 +9,7 @@
  * import { B, S, I, N, L, R, O, Bytes, Or, Seq, optional, oneOrMore } from '@janus-validator/dsl';
  * 
  * const user = O({
- *   name: S(1, 50),
+ *   name: U(1, 50),
  *   age: I(0, 150),
  *   active: B(),
  * });

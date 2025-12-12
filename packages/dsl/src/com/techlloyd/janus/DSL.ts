@@ -1,8 +1,7 @@
 /**
  * DSL - Short aliases for all combinators
  * 
- * All validators are automatically wrapped with withExample() so validation
- * errors always include a valid example.
+ * Examples are automatically included on validation errors by core validators.
  * 
  * @example
  * ```typescript
@@ -10,14 +9,14 @@
  * 
  * // Simple validators
  * const isBoolean = B();
- * const isString = S(1, 100);
+ * const isString = U(1, 100);
  * const isInteger = I(0, 100);
  * const isLong = L();  // 64-bit bigint
  * const isBinary = Bytes(0, 1024);
  * 
  * // Object schema
  * const user = O({
- *   name: S(1, 50),
+ *   name: U(1, 50),
  *   age: I(0, 150),
  *   active: B()
  * });
@@ -26,8 +25,8 @@
  * const email = R(/^[\w.]+@[\w.]+\.\w+$/);
  * 
  * // Combinators
- * const stringOrNumber = Or(S(), N());
- * const tags = oneOrMore(S(1, 20));
+ * const stringOrNumber = Or(U(), N());
+ * const tags = oneOrMore(U(1, 20));
  * ```
  */
 
@@ -65,7 +64,6 @@ import {
   Typed as TypedValidator,
   As as AsValidator,
   caseInsensitive as caseInsensitiveValidator,
-  withExample,
 } from '@janus-validator/core';
 
 // ============================================================================
@@ -161,7 +159,7 @@ function v<T>(input: Validator<T> | T | Record<string, T>): Validator<T> {
     
     if (values.length > 0) {
       const validators = values.map(val => ConstantValidator(val));
-      return withExample(AlternationValidator.of(...validators)) as Validator<T>;
+      return AlternationValidator.of(...validators) as Validator<T>;
     }
   }
   // Otherwise wrap as constant
@@ -176,14 +174,14 @@ function v<T>(input: Validator<T> | T | Record<string, T>): Validator<T> {
  * Boolean validator
  * @example B()
  */
-export const B = (): Validator<boolean> => withExample(BooleanValidator());
+export const B = (): Validator<boolean> => BooleanValidator();
 
 /**
  * U - UnicodeString validator for simple strings with length constraints
  * @example U(), U(1, 100)
  */
 export const U = (minLength?: number, maxLength?: number): Validator<string> =>
-  withExample(UnicodeStringValidator(minLength, maxLength));
+  UnicodeStringValidator(minLength, maxLength);
 
 // ============================================================================
 // Compound String (S)
@@ -209,7 +207,7 @@ export const U = (minLength?: number, maxLength?: number): Validator<string> =>
  * ```
  */
 export const S = (...parts: Parameters<typeof StringValidator>): Validator<string> =>
-  withExample(StringValidator(...parts));
+  StringValidator(...parts);
 
 // ============================================================================
 // Character Set Validators
@@ -252,7 +250,7 @@ export const chars = charsValidator;
  * @example I(), I(0, 100)
  */
 export const I = (min?: number, max?: number): Validator<number> =>
-  withExample(IntegerValidator(min, max));
+  IntegerValidator(min, max);
 
 /**
  * Number (float) validator
@@ -261,7 +259,7 @@ export const I = (min?: number, max?: number): Validator<number> =>
  * @example N(), N(0, 1)
  */
 export const N = (min?: number, max?: number): Validator<number> =>
-  withExample(NumberValidator(min, max));
+  NumberValidator(min, max);
 
 /**
  * Long (bigint) validator - for 64-bit integers
@@ -270,7 +268,7 @@ export const N = (min?: number, max?: number): Validator<number> =>
  * @example L(), L(0n, 1000000000000n)
  */
 export const L = (min?: bigint, max?: bigint): Validator<bigint> =>
-  withExample(LongValidator(min, max));
+  LongValidator(min, max);
 
 /**
  * Bytes (binary) validator
@@ -279,7 +277,7 @@ export const L = (min?: bigint, max?: bigint): Validator<bigint> =>
  * @example Bytes(), Bytes(16, 16) // fixed 16 bytes
  */
 export const Bytes = (minLength?: number, maxLength?: number): Validator<Uint8Array> =>
-  withExample(BytesValidator(minLength, maxLength));
+  BytesValidator(minLength, maxLength);
 
 /**
  * Regex validator
@@ -287,7 +285,7 @@ export const Bytes = (minLength?: number, maxLength?: number): Validator<Uint8Ar
  * @example R(/^hello$/), R(/\d{3}-\d{4}/)
  */
 export const R = (pattern: RegExp): Validator<string> =>
-  withExample(RegexValidator(pattern));
+  RegexValidator(pattern);
 
 /**
  * Struct (object) validator.
@@ -312,7 +310,7 @@ export const O = <T extends SchemaInput>(
   for (const [key, value] of Object.entries(schema)) {
     wrappedSchema[key] = v(value);
   }
-  return withExample(StructValidator(wrappedSchema, strict)) as Validator<InferSchemaInput<T>>;
+  return StructValidator(wrappedSchema, strict) as Validator<InferSchemaInput<T>>;
 };
 
 /**
@@ -327,7 +325,7 @@ export const C = <T>(
   comparator?: (input: unknown, value: T) => boolean,
   displayName?: string
 ): Validator<T> =>
-  withExample(ConstantValidator(value, comparator, displayName));
+  ConstantValidator(value, comparator, displayName);
 
 // ============================================================================
 // Special Values
@@ -349,13 +347,13 @@ export { UndefinedValidator as Undefined };
  * Positive Infinity validator
  * @example Inf()
  */
-export const Inf = (): Validator<number> => withExample(InfinityValidator());
+export const Inf = (): Validator<number> => InfinityValidator();
 
 /**
  * Negative Infinity validator
  * @example NInf()
  */
-export const NInf = (): Validator<number> => withExample(NegativeInfinityValidator());
+export const NInf = (): Validator<number> => NegativeInfinityValidator();
 
 /**
  * NaN validator
@@ -375,7 +373,7 @@ export { NaNValidator as NaN };
  * @example
  * ```typescript
  * // Type is Validator<string | number | null>
- * const v = Or(S(), I(), Null());
+ * const v = Or(U(), I(), Null());
  * 
  * // Primitives are auto-wrapped in Constant
  * const protocol = Or('http', 'https', 'ws', 'wss');
@@ -386,7 +384,7 @@ export const Or = <Vs extends readonly (Validator<any> | Primitive)[]>(
   ...inputs: Vs
 ): Validator<UnionOfInputs<Vs>> => {
   const validators = inputs.map(input => v(input));
-  return withExample(AlternationValidator.of(...validators)) as Validator<UnionOfInputs<Vs>>;
+  return AlternationValidator.of(...validators) as Validator<UnionOfInputs<Vs>>;
 };
 
 /**
@@ -427,7 +425,7 @@ export const Enum = <T extends string | number>(
   }
   
   const validators = values.map(val => ConstantValidator(val));
-  return withExample(AlternationValidator.of(...validators)) as Validator<T>;
+  return AlternationValidator.of(...validators) as Validator<T>;
 };
 
 /**
@@ -438,7 +436,7 @@ export const Enum = <T extends string | number>(
  * @example
  * ```typescript
  * // Type is Validator<[string, number, boolean]>
- * const point = Seq(S(), I(), B());
+ * const point = Seq(U(), I(), B());
  * 
  * // Primitives auto-wrapped
  * const header = Seq('v1', I(), 'end');
@@ -449,7 +447,7 @@ export const Seq = <Vs extends readonly (Validator<any> | Primitive)[]>(
   ...inputs: Vs
 ): Validator<TupleOfInputs<Vs>> => {
   const validators = inputs.map(input => v(input));
-  return withExample(SequenceValidator.of(...validators)) as Validator<TupleOfInputs<Vs>>;
+  return SequenceValidator.of(...validators) as Validator<TupleOfInputs<Vs>>;
 };
 
 // ============================================================================
@@ -462,7 +460,7 @@ export const Seq = <Vs extends readonly (Validator<any> | Primitive)[]>(
  * @example zeroOrMore(S())
  */
 export const zeroOrMore = <T>(validator: Validator<T>): Validator<T[]> =>
-  withExample(QuantifierValidator.zeroOrMore(validator));
+  QuantifierValidator.zeroOrMore(validator);
 
 /**
  * One or more - validates arrays with at least one element
@@ -470,7 +468,7 @@ export const zeroOrMore = <T>(validator: Validator<T>): Validator<T[]> =>
  * @example oneOrMore(I(0, 100))
  */
 export const oneOrMore = <T>(validator: Validator<T>): Validator<T[]> =>
-  withExample(QuantifierValidator.oneOrMore(validator));
+  QuantifierValidator.oneOrMore(validator);
 
 /**
  * Optional - validates arrays with 0 or 1 element
@@ -478,7 +476,7 @@ export const oneOrMore = <T>(validator: Validator<T>): Validator<T[]> =>
  * @example optional(S())
  */
 export const optional = <T>(validator: Validator<T>): Validator<T[]> =>
-  withExample(QuantifierValidator.optional(validator));
+  QuantifierValidator.optional(validator);
 
 /**
  * Exactly N - validates arrays with exactly n elements
@@ -487,7 +485,7 @@ export const optional = <T>(validator: Validator<T>): Validator<T[]> =>
  * @example exactly(I(), 3)
  */
 export const exactly = <T>(validator: Validator<T>, n: number): Validator<T[]> =>
-  withExample(QuantifierValidator.exactly(validator, n));
+  QuantifierValidator.exactly(validator, n);
 
 /**
  * At least N - validates arrays with n or more elements
@@ -496,7 +494,7 @@ export const exactly = <T>(validator: Validator<T>, n: number): Validator<T[]> =
  * @example atLeast(S(), 2)
  */
 export const atLeast = <T>(validator: Validator<T>, n: number): Validator<T[]> =>
-  withExample(QuantifierValidator.atLeast(validator, n));
+  QuantifierValidator.atLeast(validator, n);
 
 /**
  * Between min and max - validates arrays with length in range
@@ -506,7 +504,7 @@ export const atLeast = <T>(validator: Validator<T>, n: number): Validator<T[]> =
  * @example between(I(), 1, 5)
  */
 export const between = <T>(validator: Validator<T>, min: number, max: number): Validator<T[]> =>
-  withExample(QuantifierValidator.between(validator, min, max));
+  QuantifierValidator.between(validator, min, max);
 
 // ============================================================================
 // Capture Group
@@ -518,7 +516,7 @@ export const between = <T>(validator: Validator<T>, min: number, max: number): V
  * @example
  * const { capture, ref, context } = createCaptureGroup();
  * const form = O({
- *   password: capture('pwd', S(8, 100)),
+ *   password: capture('pwd', U(8, 100)),
  *   confirmPassword: ref('pwd'),
  * });
  */
@@ -541,7 +539,7 @@ export { ValidationContext };
  * }
  * 
  * const userValidator = Typed<User>()(O({
- *   name: S(),
+ *   name: U(),
  *   age: I(),
  * }));
  * 
@@ -555,7 +553,7 @@ export const Typed = TypedValidator;
 
 /**
  * Alias for Typed - assert output type matches interface
- * @example As<User>()(O({ name: S(), age: I() }))
+ * @example As<User>()(O({ name: U(), age: I() }))
  */
 export const As = AsValidator;
 

@@ -1,6 +1,17 @@
 import { DomainGeneratorStrategyRegistry } from '@/com/techlloyd/janus/domains/DomainGeneratorStrategyRegistry';
 import { FiniteDomainGenerator } from '@/com/techlloyd/janus/domains/FiniteDomainGenerator';
 import { StringDomainGenerator } from '@/com/techlloyd/janus/domains/StringDomainGenerator';
+import { ContiguousDomainGenerator } from '@/com/techlloyd/janus/domains/ContiguousDomainGenerator';
+import { RegexDomainGenerator } from '@/com/techlloyd/janus/domains/RegexDomainGenerator';
+import { AlternationDomainGenerator } from '@/com/techlloyd/janus/domains/AlternationDomainGenerator';
+import { SequenceDomainGenerator } from '@/com/techlloyd/janus/domains/SequenceDomainGenerator';
+import { QuantifierDomainGenerator } from '@/com/techlloyd/janus/domains/QuantifierDomainGenerator';
+import { StructDomainGenerator } from '@/com/techlloyd/janus/domains/StructDomainGenerator';
+import { CaptureDomainGenerator } from '@/com/techlloyd/janus/domains/CaptureDomainGenerator';
+import { RefDomainGenerator } from '@/com/techlloyd/janus/domains/RefDomainGenerator';
+import { CustomGeneratorDomainGenerator } from '@/com/techlloyd/janus/domains/CustomGeneratorDomainGenerator';
+import { BytesDomainGenerator } from '@/com/techlloyd/janus/domains/BytesDomainGenerator';
+import { BigIntDomainGenerator } from '@/com/techlloyd/janus/domains/BigIntDomainGenerator';
 import { DomainGeneratorStrategy } from '@/com/techlloyd/janus/domains/DomainGeneratorStrategy';
 import { Domain, DomainType, FiniteDomain, StringDomain } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
@@ -12,6 +23,17 @@ describe('DomainGeneratorStrategyRegistry', () => {
     // Should be able to get strategies for default domain types
     expect(registry.get(DomainType.FINITE_DOMAIN)).toBeInstanceOf(FiniteDomainGenerator);
     expect(registry.get(DomainType.STRING_DOMAIN)).toBeInstanceOf(StringDomainGenerator);
+    expect(registry.get(DomainType.CONTIGUOUS_DOMAIN)).toBeInstanceOf(ContiguousDomainGenerator);
+    expect(registry.get(DomainType.REGEX_DOMAIN)).toBeInstanceOf(RegexDomainGenerator);
+    expect(registry.get(DomainType.ALTERNATION_DOMAIN)).toBeInstanceOf(AlternationDomainGenerator);
+    expect(registry.get(DomainType.SEQUENCE_DOMAIN)).toBeInstanceOf(SequenceDomainGenerator);
+    expect(registry.get(DomainType.QUANTIFIER_DOMAIN)).toBeInstanceOf(QuantifierDomainGenerator);
+    expect(registry.get(DomainType.STRUCT_DOMAIN)).toBeInstanceOf(StructDomainGenerator);
+    expect(registry.get(DomainType.CAPTURE_DOMAIN)).toBeInstanceOf(CaptureDomainGenerator);
+    expect(registry.get(DomainType.REF_DOMAIN)).toBeInstanceOf(RefDomainGenerator);
+    expect(registry.get(DomainType.CUSTOM_GENERATOR_DOMAIN)).toBeInstanceOf(CustomGeneratorDomainGenerator);
+    expect(registry.get(DomainType.BYTES_DOMAIN)).toBeInstanceOf(BytesDomainGenerator);
+    expect(registry.get(DomainType.BIGINT_DOMAIN)).toBeInstanceOf(BigIntDomainGenerator);
   });
 
   it('should allow registering custom strategies', () => {
