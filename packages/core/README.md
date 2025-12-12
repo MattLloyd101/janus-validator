@@ -217,20 +217,17 @@ if (!result.valid) {
 ### Form Validation
 
 ```typescript
-import { O, U, R, createCaptureGroup } from '@janus-validator/dsl';
-
-const { capture, ref, context } = createCaptureGroup();
+import { O, U, R } from '@janus-validator/dsl';
 
 const signupForm = O({
   email: R(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
-  password: capture('pwd', U(8, 100)),
-  confirmPassword: ref('pwd'),
+  password: U(8, 100),
   acceptTerms: true, // Must be true (auto-wrapped)
 });
 
-function validateForm(data: unknown) {
-  context.clear();
-  return signupForm.validate(data);
+const result = signupForm.validate(data);
+if (!result.valid) {
+  console.error(result.error);
 }
 ```
 

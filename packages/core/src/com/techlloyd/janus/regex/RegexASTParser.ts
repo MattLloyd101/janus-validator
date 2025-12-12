@@ -14,39 +14,24 @@ import {
 } from './RegexAST';
 import type { CharRange } from '../Domain';
 
-// ============================================================================
-// Predefined character class ranges
-// ============================================================================
-
-/** Range for digits 0-9 */
-const DIGIT_RANGE: CharRange = { min: 0x30, max: 0x39 };
-
-/** Ranges for word characters [a-zA-Z0-9_] */
-const WORD_RANGES: readonly CharRange[] = [
-  { min: 0x30, max: 0x39 }, // 0-9
-  { min: 0x41, max: 0x5A }, // A-Z
-  { min: 0x5F, max: 0x5F }, // _
-  { min: 0x61, max: 0x7A }, // a-z
-];
-
-/** Ranges for whitespace [ \t\n\v\f\r] */
-const WHITESPACE_RANGES: readonly CharRange[] = [
-  { min: 0x09, max: 0x0D }, // \t \n \v \f \r (contiguous)
-  { min: 0x20, max: 0x20 }, // space
-];
-
 /**
  * Parser that converts a regex source string into an AST.
  * 
- * This parser handles:
- * - Literals and escape sequences
- * - Character classes (including negated and ranges)
- * - Character class escapes (\d, \w, \s and their negations)
+ * This parser handles the PORTABLE SUBSET of regex:
+ * - Literals and escape sequences (\n, \t, \r, etc.)
+ * - Character classes (including negated and ranges): [abc], [a-z], [^0-9]
  * - Quantifiers (*, +, ?, {n}, {n,}, {n,m})
  * - Groups (capturing and non-capturing)
  * - Alternation (|)
- * - Anchors (^, $, \b)
+ * - Anchors (^, $)
  * - Any character (.)
+ * 
+ * NON-PORTABLE constructs are REJECTED (see ADR-002):
+ * - Character class escapes (\d, \w, \s, \D, \W, \S) - use explicit [0-9], [A-Za-z0-9_], [ \t\r\n] instead
+ * - Word boundaries (\b, \B) - not portable across engines
+ * - Lookaheads/lookbehinds (?=...), (?!...), (?<=...), (?<!...)
+ * - Backreferences (\1, \k<name>)
+ * - Flags (i, g, m, s, etc.)
  * 
  * @example
  * ```typescript
@@ -96,6 +81,35 @@ function assertSupportedPortableRegex(source: string, flags: string): void {
   }
   if (/\\k<[^>]+>/.test(src)) {
     throw new Error('Unsupported regex construct: named backreference (e.g. \\k<name>)');
+  }
+
+  // Disallow non-portable character class escapes.
+  // These have inconsistent behavior across regex engines (especially for Unicode).
+  // Use explicit character classes instead:
+  //   \d -> [0-9]
+  //   \w -> [A-Za-z0-9_]
+  //   \s -> [ \t\r\n]
+  //   \b -> (word boundary - not portable)
+  const nonPortableEscapes = [
+    { escape: '\\d', replacement: '[0-9]' },
+    { escape: '\\D', replacement: '[^0-9]' },
+    { escape: '\\w', replacement: '[A-Za-z0-9_]' },
+    { escape: '\\W', replacement: '[^A-Za-z0-9_]' },
+    { escape: '\\s', replacement: '[ \\t\\r\\n]' },
+    { escape: '\\S', replacement: '[^ \\t\\r\\n]' },
+    { escape: '\\b', replacement: '(word boundary anchor)' },
+    { escape: '\\B', replacement: '(non-word boundary anchor)' },
+  ];
+
+  for (const { escape, replacement } of nonPortableEscapes) {
+    // Check for the escape sequence (need to handle both raw and escaped forms)
+    const escapePattern = escape.replace('\\', '\\\\');
+    if (new RegExp(escapePattern).test(src)) {
+      throw new Error(
+        `Unsupported regex escape: ${escape} is not portable across engines. ` +
+        `Use explicit ${replacement} instead.`
+      );
+    }
   }
 }
 
@@ -317,45 +331,9 @@ class RegexASTParserImpl {
   }
 
   private parseCharClassEscape(): { type: 'char'; codePoint: number } | { type: 'ranges'; ranges: CharRange[] } {
-    const ch = this.peek();
-
-    if (ch === 'd') {
-      this.consume();
-      return { type: 'ranges', ranges: [DIGIT_RANGE] };
-    }
-    if (ch === 'D') {
-      this.consume();
-      // Non-digits in ASCII printable range: complement of 0-9
-      // For simplicity, we use printable ASCII minus digits
-      return { type: 'ranges', ranges: [{ min: 0x20, max: 0x2F }, { min: 0x3A, max: 0x7E }] };
-    }
-    if (ch === 'w') {
-      this.consume();
-      return { type: 'ranges', ranges: [...WORD_RANGES] };
-    }
-    if (ch === 'W') {
-      this.consume();
-      // Non-word in ASCII printable: complement of [0-9A-Z_a-z]
-      return { type: 'ranges', ranges: [
-        { min: 0x20, max: 0x2F }, // space to /
-        { min: 0x3A, max: 0x40 }, // : to @
-        { min: 0x5B, max: 0x5E }, // [ to ^
-        { min: 0x60, max: 0x60 }, // `
-        { min: 0x7B, max: 0x7E }, // { to ~
-      ]};
-    }
-    if (ch === 's') {
-      this.consume();
-      return { type: 'ranges', ranges: [...WHITESPACE_RANGES] };
-    }
-    if (ch === 'S') {
-      this.consume();
-      // Non-whitespace in ASCII printable: complement of [ \t\n\v\f\r]
-      return { type: 'ranges', ranges: [
-        { min: 0x21, max: 0x7E }, // ! to ~ (excludes space)
-      ]};
-    }
-
+    // Note: Non-portable escapes (\d, \D, \w, \W, \s, \S, \b, \B) are rejected
+    // by assertSupportedPortableRegex before parsing. This method only handles
+    // simple escape sequences that are portable (like \n, \t, \\, etc.)
     const escaped = this.parseEscapeChar();
     return { type: 'char', codePoint: escaped.codePointAt(0)! };
   }
@@ -412,47 +390,9 @@ class RegexASTParserImpl {
       throw new Error('Unexpected end of pattern after escape');
     }
 
-    const ch = this.peek();
-
-    // Explicitly reject unsupported escapes that are meaningful in regex engines
-    // but not represented in our AST.
-    if (ch === 'B') {
-      throw new Error('Unsupported regex escape: \\B');
-    }
-
-    // Character class escapes
-    if (ch === 'd') {
-      this.consume();
-      return { type: RegexNodeType.CHAR_CLASS, ranges: [DIGIT_RANGE], negated: false } as CharClassNode;
-    }
-    if (ch === 'D') {
-      this.consume();
-      return { type: RegexNodeType.CHAR_CLASS, ranges: [DIGIT_RANGE], negated: true } as CharClassNode;
-    }
-    if (ch === 'w') {
-      this.consume();
-      return { type: RegexNodeType.CHAR_CLASS, ranges: [...WORD_RANGES], negated: false } as CharClassNode;
-    }
-    if (ch === 'W') {
-      this.consume();
-      return { type: RegexNodeType.CHAR_CLASS, ranges: [...WORD_RANGES], negated: true } as CharClassNode;
-    }
-    if (ch === 's') {
-      this.consume();
-      return { type: RegexNodeType.CHAR_CLASS, ranges: [...WHITESPACE_RANGES], negated: false } as CharClassNode;
-    }
-    if (ch === 'S') {
-      this.consume();
-      return { type: RegexNodeType.CHAR_CLASS, ranges: [...WHITESPACE_RANGES], negated: true } as CharClassNode;
-    }
-
-    // Word boundary - generates nothing
-    if (ch === 'b') {
-      this.consume();
-      return { type: RegexNodeType.ANCHOR, kind: AnchorKind.WORD_BOUNDARY } as AnchorNode;
-    }
-
-    // Literal escape
+    // Note: Non-portable escapes (\d, \D, \w, \W, \s, \S, \b, \B) are rejected
+    // by assertSupportedPortableRegex before parsing. This method only handles
+    // simple escape sequences that are portable (like \n, \t, \\, etc.)
     const escaped = this.parseEscapeChar();
     return { type: RegexNodeType.LITERAL, char: escaped } as LiteralNode;
   }

@@ -135,17 +135,6 @@ const userValidator = Typed<User>()(O({
 // Or use As<User>() as an alias
 ```
 
-### Capture & Reference
-
-```typescript
-const { capture, ref, context } = createCaptureGroup();
-
-const form = O({
-  password: capture('pwd', U(8, 100)),
-  confirmPassword: ref('pwd'),
-});
-```
-
 ### String Modifiers
 
 ```typescript
@@ -186,22 +175,6 @@ import { S, D, H } from '@janus-validator/dsl';
 
 const ISODate = S(D(4), '-', D(2), '-', D(2));      // YYYY-MM-DD
 const UUID = S(H(8), '-', H(4), '-', H(4), '-', H(4), '-', H(12));
-```
-
-### 4) Capture & reference (e.g. password confirmation)
-
-```typescript
-import { O, U, createCaptureGroup } from '@janus-validator/dsl';
-
-const { capture, ref, context } = createCaptureGroup();
-
-const Signup = O({
-  password: capture('pwd', U(8, 100)),
-  confirmPassword: ref('pwd'),
-});
-
-// If reusing between validations, clear captures
-context.clear();
 ```
 
 ## Auto-Wrapping

@@ -18,22 +18,22 @@ import { UnicodeString } from '../combinators/UnicodeString';
  * Credit card number (Luhn algorithm not validated, just format)
  * 13-19 digits with optional spaces/dashes
  */
-export const CreditCardNumber = () => Regex(/^[\d\s-]{13,23}$/);
+export const CreditCardNumber = () => Regex(/^[0-9 -]{13,23}$/);
 
 /**
  * Visa card (starts with 4, 13 or 16 digits)
  */
-export const VisaCard = () => Regex(/^4\d{12}(\d{3})?$/);
+export const VisaCard = () => Regex(/^4[0-9]{12}([0-9]{3})?$/);
 
 /**
  * Mastercard (starts with 51-55 or 2221-2720)
  */
-export const MasterCard = () => Regex(/^(5[1-5]\d{14}|2(2[2-9][1-9]|[3-6]\d{2}|7[01]\d|720)\d{12})$/);
+export const MasterCard = () => Regex(/^(5[1-5][0-9]{14}|2(2[2-9][1-9]|[3-6][0-9]{2}|7[01][0-9]|720)[0-9]{12})$/);
 
 /**
  * American Express (starts with 34 or 37)
  */
-export const AmexCard = () => Regex(/^3[47]\d{13}$/);
+export const AmexCard = () => Regex(/^3[47][0-9]{13}$/);
 
 /**
  * CVV/CVC (3-4 digits)
@@ -43,12 +43,12 @@ export const CVV = () => S(digits(3, 4));
 /**
  * Card expiry (MM/YY) with month validation
  */
-export const CardExpiryShort = () => Regex(/^(0[1-9]|1[0-2])\/\d{2}$/);
+export const CardExpiryShort = () => Regex(/^(0[1-9]|1[0-2])\/[0-9]{2}$/);
 
 /**
  * Card expiry (MM/YYYY) with month validation
  */
-export const CardExpiryLong = () => Regex(/^(0[1-9]|1[0-2])\/\d{4}$/);
+export const CardExpiryLong = () => Regex(/^(0[1-9]|1[0-2])\/[0-9]{4}$/);
 
 /**
  * Card expiry (MM/YY or MM/YYYY)
@@ -77,12 +77,12 @@ export const CurrencyCode = () => S(upper(3));
 /**
  * Money amount (positive, up to 2 decimal places)
  */
-export const MoneyAmount = () => Regex(/^\d+(\.\d{1,2})?$/);
+export const MoneyAmount = () => Regex(/^[0-9]+(\.[0-9]{1,2})?$/);
 
 /**
  * Price with optional negative (for refunds)
  */
-export const Price = () => Regex(/^-?\d+(\.\d{1,2})?$/);
+export const Price = () => Regex(/^-?[0-9]+(\.[0-9]{1,2})?$/);
 
 /**
  * Percentage (0-100 with up to 2 decimals)
@@ -143,7 +143,7 @@ export const SSNFormatted = () => S(digits(3), '-', digits(2), '-', digits(4));
 /**
  * US SSN with optional dashes
  */
-export const SSN = () => Regex(/^\d{3}-?\d{2}-?\d{4}$/);
+export const SSN = () => Regex(/^[0-9]{3}-?[0-9]{2}-?[0-9]{4}$/);
 
 /**
  * US EIN (Employer Identification Number): XX-XXXXXXX
@@ -153,7 +153,7 @@ export const EINFormatted = () => S(digits(2), '-', digits(7));
 /**
  * US EIN with optional dash
  */
-export const EIN = () => Regex(/^\d{2}-?\d{7}$/);
+export const EIN = () => Regex(/^[0-9]{2}-?[0-9]{7}$/);
 
 /**
  * UK VAT number

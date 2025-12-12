@@ -9,8 +9,6 @@ import { AlternationDomainGenerator } from './AlternationDomainGenerator';
 import { SequenceDomainGenerator } from './SequenceDomainGenerator';
 import { QuantifierDomainGenerator } from './QuantifierDomainGenerator';
 import { StructDomainGenerator } from './StructDomainGenerator';
-import { CaptureDomainGenerator } from './CaptureDomainGenerator';
-import { RefDomainGenerator } from './RefDomainGenerator';
 import { CustomGeneratorDomainGenerator } from './CustomGeneratorDomainGenerator';
 import { BytesDomainGenerator } from './BytesDomainGenerator';
 import { BigIntDomainGenerator } from './BigIntDomainGenerator';
@@ -39,8 +37,6 @@ export class DomainGeneratorStrategyRegistry {
     this.strategies.set(DomainType.SEQUENCE_DOMAIN, new SequenceDomainGenerator(this));
     this.strategies.set(DomainType.QUANTIFIER_DOMAIN, new QuantifierDomainGenerator(this));
     this.strategies.set(DomainType.STRUCT_DOMAIN, new StructDomainGenerator(this));
-    this.strategies.set(DomainType.CAPTURE_DOMAIN, new CaptureDomainGenerator(this));
-    this.strategies.set(DomainType.REF_DOMAIN, new RefDomainGenerator());
     this.strategies.set(DomainType.CUSTOM_GENERATOR_DOMAIN, new CustomGeneratorDomainGenerator());
     this.strategies.set(DomainType.BYTES_DOMAIN, new BytesDomainGenerator());
     this.strategies.set(DomainType.BIGINT_DOMAIN, new BigIntDomainGenerator());

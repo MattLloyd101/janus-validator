@@ -40,8 +40,6 @@ export { QuantifierDomain } from './QuantifierDomain';
 export { BytesDomain } from './BytesDomain';
 export { BigIntDomain } from './BigIntDomain';
 export { StructDomain } from './StructDomain';
-export { CaptureDomain } from './CaptureDomain';
-export { RefDomain } from './RefDomain';
 export { CustomGeneratorDomain } from './CustomGeneratorDomain';
 
 // Re-export ContiguousType for convenience

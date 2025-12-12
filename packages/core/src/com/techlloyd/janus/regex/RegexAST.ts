@@ -30,12 +30,12 @@ export const RegexNodeType = {
 export type RegexNodeType = (typeof RegexNodeType)[keyof typeof RegexNodeType];
 
 /**
- * Anchor kinds supported by the regex AST
+ * Anchor kinds supported by the regex AST.
+ * Note: Word boundaries (\b, \B) are not supported (non-portable per ADR-002)
  */
 export const AnchorKind = {
   START: 'start',
   END: 'end',
-  WORD_BOUNDARY: 'wordBoundary',
 } as const;
 
 export type AnchorKind = (typeof AnchorKind)[keyof typeof AnchorKind];

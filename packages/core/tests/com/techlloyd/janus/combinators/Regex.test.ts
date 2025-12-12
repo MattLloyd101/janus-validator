@@ -11,7 +11,7 @@ describe('Regex validator', () => {
     });
 
     it('should reject non-string values', () => {
-      const validator = Regex(/\d+/);
+      const validator = Regex(/[0-9]+/);
       expect(validator.validate(123).valid).toBe(false);
       expect(validator.validate(null).valid).toBe(false);
       expect(validator.validate(undefined).valid).toBe(false);
@@ -19,7 +19,7 @@ describe('Regex validator', () => {
     });
 
     it('should accept string patterns', () => {
-      const validator = Regex('^\\d+$');
+      const validator = Regex('^[0-9]+$');
       expect(validator.validate('123').valid).toBe(true);
       expect(validator.validate('abc').valid).toBe(false);
     });
@@ -48,15 +48,15 @@ describe('Regex validator', () => {
   });
 
   describe('pattern types', () => {
-    it('should validate digit patterns', () => {
-      const validator = Regex(/^\d{3}-\d{4}$/);
+    it('should validate digit patterns (using explicit [0-9])', () => {
+      const validator = Regex(/^[0-9]{3}-[0-9]{4}$/);
       expect(validator.validate('123-4567').valid).toBe(true);
       expect(validator.validate('12-4567').valid).toBe(false);
       expect(validator.validate('abc-defg').valid).toBe(false);
     });
 
-    it('should validate word patterns', () => {
-      const validator = Regex(/^\w+$/);
+    it('should validate word patterns (using explicit character class)', () => {
+      const validator = Regex(/^[A-Za-z0-9_]+$/);
       expect(validator.validate('hello_world').valid).toBe(true);
       expect(validator.validate('123abc').valid).toBe(true);
       expect(validator.validate('hello world').valid).toBe(false);
@@ -88,9 +88,9 @@ describe('Regex validator', () => {
     });
 
     it('should preserve pattern source', () => {
-      const validator = Regex(/^[a-z]+\d{2,4}$/);
+      const validator = Regex(/^[a-z]+[0-9]{2,4}$/);
       const regexDomain = validator.domain as RegexDomain;
-      expect(regexDomain.source).toBe('^[a-z]+\\d{2,4}$');
+      expect(regexDomain.source).toBe('^[a-z]+[0-9]{2,4}$');
     });
   });
 });
@@ -109,26 +109,26 @@ describe('Regex generation', () => {
       }
     });
 
-    it('should generate strings matching digit pattern', () => {
-      const validator = Regex(/^\d{3}$/);
+    it('should generate strings matching digit pattern (explicit [0-9])', () => {
+      const validator = Regex(/^[0-9]{3}$/);
       const rng: RNG = { random: () => Math.random() };
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
         const value = generator.generate(validator.domain);
-        expect(value).toMatch(/^\d{3}$/);
+        expect(value).toMatch(/^[0-9]{3}$/);
         expect(validator.validate(value).valid).toBe(true);
       }
     });
 
-    it('should generate strings matching word pattern', () => {
-      const validator = Regex(/^\w{5}$/);
+    it('should generate strings matching word pattern (explicit class)', () => {
+      const validator = Regex(/^[A-Za-z0-9_]{5}$/);
       const rng: RNG = { random: () => Math.random() };
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
         const value = generator.generate(validator.domain);
-        expect(value).toMatch(/^\w{5}$/);
+        expect(value).toMatch(/^[A-Za-z0-9_]{5}$/);
         expect(validator.validate(value).valid).toBe(true);
       }
     });
@@ -297,13 +297,13 @@ describe('Regex generation', () => {
 
   describe('complex patterns', () => {
     it('should generate phone number like patterns', () => {
-      const validator = Regex(/^\d{3}-\d{3}-\d{4}$/);
+      const validator = Regex(/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/);
       const rng: RNG = { random: () => Math.random() };
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
         const value = generator.generate(validator.domain);
-        expect(value).toMatch(/^\d{3}-\d{3}-\d{4}$/);
+        expect(value).toMatch(/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/);
         expect(validator.validate(value).valid).toBe(true);
       }
     });
@@ -336,14 +336,15 @@ describe('Regex generation', () => {
 
 describe('property: generated values always validate', () => {
   it('should satisfy: all generated values pass validation', () => {
+    // Note: Use explicit character classes instead of \d, \w, \s (non-portable)
     const patterns = [
       /^hello$/,
-      /^\d{3}$/,
-      /^\w+$/,
+      /^[0-9]{3}$/,
+      /^[A-Za-z0-9_]+$/,
       /^[a-z]{2,5}$/,
       /^(foo|bar|baz)$/,
       /^a+b*c?$/,
-      /^\d{3}-\d{4}$/,
+      /^[0-9]{3}-[0-9]{4}$/,
       /^[A-Z][a-z]+$/,
     ];
 

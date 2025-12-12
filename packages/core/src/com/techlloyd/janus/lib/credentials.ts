@@ -6,7 +6,6 @@ import { Regex } from '../combinators/Regex';
 import { String as S, digits, alphanumeric, letters, lower, upper, chars } from '../combinators/String';
 import { Struct } from '../combinators/Struct';
 import { Alternation } from '../combinators/Alternation';
-import { createCaptureGroup } from '../combinators/Capture';
 import { UnicodeString } from '../combinators/UnicodeString';
 
 // ============================================================================
@@ -74,20 +73,6 @@ export const PIN6 = () => S(digits(6));
  */
 export const PIN = () => Alternation.of(PIN4(), PIN6());
 
-/**
- * Password with confirmation - returns validator and context
- */
-export function PasswordWithConfirmation(minLength: number = 8, maxLength: number = 128) {
-  const { capture, ref, context } = createCaptureGroup();
-  
-  const validator = Struct({
-    password: capture('pwd', UnicodeString(minLength, maxLength)),
-    confirmPassword: ref<string>('pwd'),
-  });
-
-  return { validator, context };
-}
-
 // ============================================================================
 // Authentication tokens
 // ============================================================================
@@ -106,4 +91,4 @@ export const APIKey = () => S(alphanumeric(32, 64));
 /**
  * Bearer token header
  */
-export const BearerToken = () => Regex(/^Bearer\s+[A-Za-z0-9_-]+$/);
+export const BearerToken = () => Regex(/^Bearer[ ]+[A-Za-z0-9_-]+$/);

@@ -177,7 +177,7 @@ export const RealisticState = () => fromValues(
  * Realistic US ZIP code
  */
 export const RealisticZipCode = () => templateGenerator(
-  Regex(/^\d{5}(-\d{4})?$/),
+  Regex(/^[0-9]{5}(-[0-9]{4})?$/),
   (pick, rng) => {
     const zip = String(Math.floor(rng.random() * 90000) + 10000);
     // 30% chance of ZIP+4
@@ -197,7 +197,7 @@ export const RealisticZipCode = () => templateGenerator(
  * Realistic US phone number
  */
 export const RealisticUSPhone = () => templateGenerator(
-  Regex(/^(\(\d{3}\)\s?|\d{3}[-.]?)\d{3}[-.]?\d{4}$/),
+  Regex(/^(\([0-9]{3}\)[ ]?|[0-9]{3}[-.]?)[0-9]{3}[-.]?[0-9]{4}$/),
   (pick, rng) => {
     const area = Math.floor(rng.random() * 800) + 200; // 200-999
     const exchange = Math.floor(rng.random() * 800) + 200;

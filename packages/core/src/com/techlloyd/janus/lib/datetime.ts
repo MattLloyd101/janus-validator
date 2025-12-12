@@ -15,22 +15,22 @@ import { UnicodeString } from '../combinators/UnicodeString';
 /**
  * ISO 8601 date (YYYY-MM-DD) with month/day validation
  */
-export const ISODate = () => Regex(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/);
+export const ISODate = () => Regex(/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/);
 
 /**
  * ISO 8601 datetime with timezone (full validation via regex)
  */
-export const ISODateTime = () => Regex(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d(\.\d+)?(Z|[+-]([01]\d|2[0-3]):[0-5]\d)?$/);
+export const ISODateTime = () => Regex(/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?(Z|[+-]([01][0-9]|2[0-3]):[0-5][0-9])?$/);
 
 /**
  * US date format (MM/DD/YYYY) with month/day validation
  */
-export const USDate = () => Regex(/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}$/);
+export const USDate = () => Regex(/^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/[0-9]{4}$/);
 
 /**
  * European date format (DD/MM/YYYY) with day/month validation
  */
-export const EUDate = () => Regex(/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/);
+export const EUDate = () => Regex(/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/[0-9]{4}$/);
 
 /**
  * Year (1000-9999)
@@ -54,17 +54,17 @@ export const DayOfMonth = () => Integer(1, 31);
 /**
  * 24-hour time (HH:MM) with hour/minute validation
  */
-export const Time24 = () => Regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+export const Time24 = () => Regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/);
 
 /**
  * 24-hour time with seconds (HH:MM:SS) with validation
  */
-export const Time24WithSeconds = () => Regex(/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/);
+export const Time24WithSeconds = () => Regex(/^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/);
 
 /**
  * 12-hour time (HH:MM AM/PM) - uses regex for AM/PM validation
  */
-export const Time12 = () => Regex(/^(0?[1-9]|1[0-2]):[0-5]\d\s?(AM|PM|am|pm)$/);
+export const Time12 = () => Regex(/^(0?[1-9]|1[0-2]):[0-5][0-9][ ]?(AM|PM|am|pm)$/);
 
 /**
  * Hour (0-23)
@@ -111,7 +111,7 @@ export const UTCOffset = () => S(chars('+-', 1), digits(2), ':', digits(2));
 /**
  * ISO 8601 duration (P1Y2M3DT4H5M6S) - complex format requires regex
  */
-export const ISODuration = () => Regex(/^P(\d+Y)?(\d+M)?(\d+D)?(T(\d+H)?(\d+M)?(\d+S)?)?$/);
+export const ISODuration = () => Regex(/^P([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+S)?)?$/);
 
 /**
  * Duration in milliseconds
@@ -156,4 +156,4 @@ export const ScheduledEvent = () => Struct({
 /**
  * Recurring schedule (cron-like) - complex format requires regex
  */
-export const CronExpression = () => Regex(/^(\*|[0-5]?\d)\s+(\*|[01]?\d|2[0-3])\s+(\*|[1-9]|[12]\d|3[01])\s+(\*|[1-9]|1[0-2])\s+(\*|[0-6])$/);
+export const CronExpression = () => Regex(/^(\*|[0-5]?[0-9])[ ]+(\*|[01]?[0-9]|2[0-3])[ ]+(\*|[1-9]|[12][0-9]|3[01])[ ]+(\*|[1-9]|1[0-2])[ ]+(\*|[0-6])$/);

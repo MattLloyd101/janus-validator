@@ -23,8 +23,6 @@ export {
   SequenceDomain,
   QuantifierDomain,
   StructDomain,
-  CaptureDomain,
-  RefDomain,
   CustomGeneratorDomain,
   BytesDomain,
   BigIntDomain,

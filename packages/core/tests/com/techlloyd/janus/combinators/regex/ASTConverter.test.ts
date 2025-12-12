@@ -52,16 +52,34 @@ describe('ASTConverter', () => {
       expect(validator.match('d', 0).matched).toBe(true);
     });
 
-    it('should parse \\d', () => {
-      const validator = parseRegex('\\d');
+    // Non-portable escapes are rejected - use explicit character classes instead
+    it('should reject \\d (use [0-9] instead)', () => {
+      expect(() => parseRegex('\\d')).toThrow('Unsupported regex escape: \\d');
+    });
+
+    it('should reject \\w (use [A-Za-z0-9_] instead)', () => {
+      expect(() => parseRegex('\\w')).toThrow('Unsupported regex escape: \\w');
+    });
+
+    it('should reject \\s (use [ \\t\\r\\n] instead)', () => {
+      expect(() => parseRegex('\\s')).toThrow('Unsupported regex escape: \\s');
+    });
+
+    it('should reject \\d inside character class', () => {
+      expect(() => parseRegex('[\\d]')).toThrow('Unsupported regex escape: \\d');
+    });
+
+    // Explicit character classes work correctly
+    it('should parse explicit digit class [0-9]', () => {
+      const validator = parseRegex('[0-9]');
       for (let i = 0; i <= 9; i++) {
         expect(validator.match(String(i), 0).matched).toBe(true);
       }
       expect(validator.match('a', 0).matched).toBe(false);
     });
 
-    it('should parse \\w', () => {
-      const validator = parseRegex('\\w');
+    it('should parse explicit word class [A-Za-z0-9_]', () => {
+      const validator = parseRegex('[A-Za-z0-9_]');
       expect(validator.match('a', 0).matched).toBe(true);
       expect(validator.match('Z', 0).matched).toBe(true);
       expect(validator.match('5', 0).matched).toBe(true);
@@ -69,67 +87,35 @@ describe('ASTConverter', () => {
       expect(validator.match('!', 0).matched).toBe(false);
     });
 
-    it('should parse \\s', () => {
-      const validator = parseRegex('\\s');
+    it('should parse explicit whitespace class [ \\t\\r\\n]', () => {
+      const validator = parseRegex('[ \\t\\r\\n]');
       expect(validator.match(' ', 0).matched).toBe(true);
       expect(validator.match('\t', 0).matched).toBe(true);
       expect(validator.match('a', 0).matched).toBe(false);
     });
 
-    it('should parse \\d inside character class', () => {
-      const validator = parseRegex('[\\d]');
-      for (let i = 0; i <= 9; i++) {
-        expect(validator.match(String(i), 0).matched).toBe(true);
-      }
-      expect(validator.match('a', 0).matched).toBe(false);
-    });
-
-    it('should parse \\s inside character class', () => {
-      const validator = parseRegex('[\\s]');
-      expect(validator.match(' ', 0).matched).toBe(true);
-      expect(validator.match('\t', 0).matched).toBe(true);
-      expect(validator.match('a', 0).matched).toBe(false);
-    });
-
-    it('should parse \\w inside character class', () => {
-      const validator = parseRegex('[\\w]');
-      expect(validator.match('a', 0).matched).toBe(true);
-      expect(validator.match('Z', 0).matched).toBe(true);
-      expect(validator.match('5', 0).matched).toBe(true);
-      expect(validator.match('_', 0).matched).toBe(true);
-      expect(validator.match('!', 0).matched).toBe(false);
-    });
-
-    it('should parse mixed escape and literal in character class', () => {
-      // [\d\s-] should match digits, whitespace, and dash
-      const validator = parseRegex('[\\d\\s-]');
+    it('should parse mixed explicit ranges and literals', () => {
+      // [0-9 \t-] should match digits, space, tab, and dash
+      const validator = parseRegex('[0-9 \\t\\-]');
       expect(validator.match('5', 0).matched).toBe(true);
       expect(validator.match(' ', 0).matched).toBe(true);
       expect(validator.match('-', 0).matched).toBe(true);
       expect(validator.match('a', 0).matched).toBe(false);
     });
 
-    it('should generate from character class with \\d', () => {
-      const validator = parseRegex('[\\d]');
+    it('should generate from explicit digit class', () => {
+      const validator = parseRegex('[0-9]');
       for (let i = 0; i < 20; i++) {
         const value = generator.generate(validator.domain);
-        expect(value).toMatch(/^\d$/);
+        expect(value).toMatch(/^[0-9]$/);
       }
     });
 
-    it('should generate from character class with \\s', () => {
-      const validator = parseRegex('[\\s]');
+    it('should generate from explicit whitespace class', () => {
+      const validator = parseRegex('[ \\t\\r\\n]');
       for (let i = 0; i < 20; i++) {
         const value = generator.generate(validator.domain);
-        expect(value).toMatch(/^\s$/);
-      }
-    });
-
-    it('should generate from mixed character class', () => {
-      const validator = parseRegex('[\\d\\s-]');
-      for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator.domain);
-        expect(value).toMatch(/^[\d\s-]$/);
+        expect(value).toMatch(/^[ \t\r\n]$/);
       }
     });
   });
@@ -233,10 +219,9 @@ describe('ASTConverter', () => {
       expect(validator.validate('a').valid).toBe(true);
     });
 
-    it('should parse \\b anchor', () => {
-      const validator = parseRegex('\\b');
-      // Word boundary at start of word
-      expect(validator.match('hello', 0).matched).toBe(true);
+    it('should reject \\b anchor (not portable)', () => {
+      // Word boundary is not portable across regex engines
+      expect(() => parseRegex('\\b')).toThrow('Unsupported regex escape: \\b');
     });
   });
 
@@ -257,8 +242,8 @@ describe('ASTConverter', () => {
   });
 
   describe('complex patterns', () => {
-    it('should parse phone number pattern', () => {
-      const validator = parseRegex('\\d{3}-\\d{3}-\\d{4}');
+    it('should parse phone number pattern (using explicit [0-9])', () => {
+      const validator = parseRegex('[0-9]{3}-[0-9]{3}-[0-9]{4}');
       expect(validator.validate('123-456-7890').valid).toBe(true);
       expect(validator.validate('12-456-7890').valid).toBe(false);
     });
@@ -282,11 +267,11 @@ describe('ASTConverter', () => {
       expect(generator.generate(validator.domain)).toBe('hello');
     });
 
-    it('should generate matching strings for patterns', () => {
-      const validator = parseRegex('\\d{3}');
+    it('should generate matching strings for digit patterns (using explicit [0-9])', () => {
+      const validator = parseRegex('[0-9]{3}');
       for (let i = 0; i < 50; i++) {
         const value = generator.generate(validator.domain);
-        expect(value).toMatch(/^\d{3}$/);
+        expect(value).toMatch(/^[0-9]{3}$/);
       }
     });
 

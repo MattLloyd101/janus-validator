@@ -59,40 +59,7 @@ describe('Anchor', () => {
     });
   });
 
-  describe('word boundary anchor (\\b)', () => {
-    it('should match at start of word', () => {
-      const boundary = new Anchor('wordBoundary');
-      // Before 'h' in 'hello'
-      expect(boundary.match('hello', 0).matched).toBe(true);
-      // Before 'w' in ' world'
-      expect(boundary.match(' world', 1).matched).toBe(true);
-    });
-
-    it('should match at end of word', () => {
-      const boundary = new Anchor('wordBoundary');
-      // After 'o' in 'hello'
-      expect(boundary.match('hello', 5).matched).toBe(true);
-      // After 'd' in 'world '
-      expect(boundary.match('world ', 5).matched).toBe(true);
-    });
-
-    it('should NOT match within a word', () => {
-      const boundary = new Anchor('wordBoundary');
-      expect(boundary.match('hello', 2).matched).toBe(false);
-      expect(boundary.match('hello', 3).matched).toBe(false);
-    });
-
-    it('should match between word and non-word', () => {
-      const boundary = new Anchor('wordBoundary');
-      // Between 'd' and '!' in 'word!'
-      expect(boundary.match('word!', 4).matched).toBe(true);
-    });
-
-    it('should have correct source', () => {
-      const boundary = new Anchor('wordBoundary');
-      expect(boundary.domain.source).toBe('\\b');
-    });
-  });
+  // Note: Word boundary (\b, \B) is not supported per ADR-002 (non-portable)
 
   describe('validation', () => {
     it('start anchor should validate empty string', () => {
@@ -119,13 +86,11 @@ describe('Anchor', () => {
     it('should always generate empty string', () => {
       const start = new Anchor('start');
       const end = new Anchor('end');
-      const boundary = new Anchor('wordBoundary');
       const rng: RNG = { random: () => Math.random() };
       const generator = new Generator(rng);
 
       expect(generator.generate(start.domain)).toBe('');
       expect(generator.generate(end.domain)).toBe('');
-      expect(generator.generate(boundary.domain)).toBe('');
     });
   });
 

@@ -27,7 +27,7 @@ const PRINTABLE_ASCII_SIZE = PRINTABLE_ASCII_MAX - PRINTABLE_ASCII_MIN + 1;
  * @example
  * ```typescript
  * const generator = new RegexDomainGenerator();
- * const domain: RegexDomain = { type: DomainType.REGEX_DOMAIN, pattern: /\d{3}/, source: '\\d{3}' };
+ * const domain = new RegexDomain(/[0-9]{3}/); // Use [0-9] instead of \d
  * const value = generator.generate(domain, rng); // e.g., "472"
  * ```
  */

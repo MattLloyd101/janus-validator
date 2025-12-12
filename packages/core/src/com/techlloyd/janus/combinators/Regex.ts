@@ -11,20 +11,26 @@ import { parseRegex } from './regex/ASTConverter';
  * instances, where each node (Literal, CharClass, Sequence, Alternation, etc.)
  * is itself a validator that can match and generate strings.
  * 
+ * Note: Only portable regex constructs are supported (see ADR-002).
+ * Use explicit character classes instead of escapes:
+ * - `[0-9]` instead of `\d`
+ * - `[A-Za-z0-9_]` instead of `\w`
+ * - `[ \t\r\n]` instead of `\s`
+ * 
  * @param pattern - The RegExp pattern to match against. Can also be a string
  *                  which will be converted to a RegExp.
- * @param flags - Optional flags for the regex (only used when pattern is a string)
+ * @param flags - Regex flags are NOT supported for cross-language portability
  * 
  * @example
  * ```typescript
  * // Match email-like strings
  * const emailValidator = Regex(/^[a-z]+@[a-z]+\.[a-z]+$/);
  * 
- * // Match UUIDs
- * const uuidValidator = Regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+ * // Match phone numbers (use [0-9] instead of \d)
+ * const phoneValidator = Regex(/^[0-9]{3}-[0-9]{4}$/);
  * 
- * // Using string pattern
- * const digitValidator = Regex('^\\d+$');
+ * // Match UUIDs
+ * const uuidValidator = Regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
  * ```
  */
 export function Regex(pattern: RegExp | string, flags?: string): RegexValidator {

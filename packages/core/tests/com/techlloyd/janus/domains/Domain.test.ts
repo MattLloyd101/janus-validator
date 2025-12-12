@@ -9,8 +9,6 @@ import {
   ContiguousType,
   AlternationDomain,
   CustomGeneratorDomain,
-  CaptureDomain,
-  RefDomain,
 } from '@/com/techlloyd/janus/Domain';
 
 describe('Domain base class', () => {
@@ -83,54 +81,6 @@ describe('CustomGeneratorDomain', () => {
       const other = new FiniteDomain([3, 4]);
 
       expect(custom.encapsulates(other).result).toBe('false');
-    });
-  });
-});
-
-describe('CaptureDomain', () => {
-  describe('encapsulates', () => {
-    it('delegates to inner domain for encapsulation', () => {
-      const inner = new ContiguousDomain(ContiguousType.INTEGER, 0, 10);
-      const capture = new CaptureDomain('myCapture', inner);
-      const subset = new ContiguousDomain(ContiguousType.INTEGER, 2, 8);
-
-      expect(capture.encapsulates(subset).result).toBe('true');
-    });
-
-    it('compares capture name when both are CaptureDomain', () => {
-      const inner = new ContiguousDomain(ContiguousType.INTEGER, 0, 10);
-      const capture1 = new CaptureDomain('name1', inner);
-      const capture2 = new CaptureDomain('name2', inner);
-
-      // Different capture names - inner domains match but names differ
-      // Should still work based on inner domain
-      expect(capture1.encapsulates(capture2).result).toBe('true');
-    });
-
-    it('returns false when inner domain does not encapsulate', () => {
-      const inner1 = new ContiguousDomain(ContiguousType.INTEGER, 0, 5);
-      const inner2 = new ContiguousDomain(ContiguousType.INTEGER, 10, 20);
-      const capture = new CaptureDomain('cap', inner1);
-
-      expect(capture.encapsulates(inner2).result).toBe('false');
-    });
-  });
-});
-
-describe('RefDomain', () => {
-  describe('encapsulates', () => {
-    it('always returns unknown (cross-field constraint not supported)', () => {
-      const ref1 = new RefDomain('ref1');
-      const ref2 = new RefDomain('ref2');
-
-      // RefDomain is a cross-field constraint and is not supported for encapsulation
-      expect(ref1.encapsulates(ref2).result).toBe('unknown');
-    });
-
-    it('returns unknown even for same ref name', () => {
-      const ref = new RefDomain('myRef');
-      // RefDomain comparison is inherently undecidable without context
-      expect(ref.encapsulates(ref).result).toBe('unknown');
     });
   });
 });

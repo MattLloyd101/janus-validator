@@ -398,10 +398,11 @@ describe('DSL', () => {
 
   describe('real-world usage examples', () => {
     it('should validate a user schema', () => {
+      // Note: Use explicit character classes for portability (no \w, \d, \s)
       const User = O({
         id: I(1, 999999),
         username: U(3, 20),
-        email: R(/^[\w.]+@[\w.]+\.\w+$/),
+        email: R(/^[A-Za-z0-9_.]+@[A-Za-z0-9_.]+\.[A-Za-z0-9_]+$/),
         age: I(0, 150),
         active: B(),
       });

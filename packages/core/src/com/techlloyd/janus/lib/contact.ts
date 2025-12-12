@@ -58,22 +58,22 @@ export const USPhoneFormatted = () => S('(', digits(3), ') ', digits(3), '-', di
 /**
  * US phone number: various formats
  */
-export const USPhone = () => Regex(/^(\(\d{3}\)\s?|\d{3}[-.]?)\d{3}[-.]?\d{4}$/);
+export const USPhone = () => Regex(/^(\([0-9]{3}\)[ ]?|[0-9]{3}[-.]?)[0-9]{3}[-.]?[0-9]{4}$/);
 
 /**
  * International phone with country code: +X XXX XXX XXXX
  */
-export const InternationalPhone = () => Regex(/^\+\d{1,3}[\s.-]?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}$/);
+export const InternationalPhone = () => Regex(/^\+[0-9]{1,3}[ .-]?[0-9]{1,4}[ .-]?[0-9]{1,4}[ .-]?[0-9]{1,9}$/);
 
 /**
  * E.164 format: +XXXXXXXXXXX (up to 15 digits)
  */
-export const E164Phone = () => Regex(/^\+[1-9]\d{1,14}$/);
+export const E164Phone = () => Regex(/^\+[1-9][0-9]{1,14}$/);
 
 /**
  * UK phone number
  */
-export const UKPhone = () => Regex(/^(\+44\s?|0)(\d{2,4}\s?\d{3,4}\s?\d{3,4}|\d{10})$/);
+export const UKPhone = () => Regex(/^(\+44[ ]?|0)([0-9]{2,4}[ ]?[0-9]{3,4}[ ]?[0-9]{3,4}|[0-9]{10})$/);
 
 // ============================================================================
 // Social Media

@@ -16,27 +16,28 @@ import { Constant } from '../combinators/Constant';
 /**
  * HTTP/HTTPS URL
  */
-export const URL = () => Regex(/^https?:\/\/[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)*(:\d+)?(\/[-a-zA-Z0-9_.~%]*)*(\?[-a-zA-Z0-9_.~%&=]*)?(#[-a-zA-Z0-9_.~%]*)?$/);
+export const URL = () => Regex(/^https?:\/\/[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)*(:[0-9]+)?(\/[-a-zA-Z0-9_.~%]*)*(\?[-a-zA-Z0-9_.~%&=]*)?(#[-a-zA-Z0-9_.~%]*)?$/);
 
 /**
  * Simple URL (less strict, more permissive)
+ * Note: Uses explicit non-whitespace character class for portability
  */
-export const SimpleURL = () => Regex(/^https?:\/\/\S+$/);
+export const SimpleURL = () => Regex(/^https?:\/\/[^ \t\r\n]+$/);
 
 /**
  * Secure URL (HTTPS only)
  */
-export const SecureURL = () => Regex(/^https:\/\/[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)*(:\d+)?(\/[-a-zA-Z0-9_.~%]*)*(\?[-a-zA-Z0-9_.~%&=]*)?(#[-a-zA-Z0-9_.~%]*)?$/);
+export const SecureURL = () => Regex(/^https:\/\/[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)*(:[0-9]+)?(\/[-a-zA-Z0-9_.~%]*)*(\?[-a-zA-Z0-9_.~%&=]*)?(#[-a-zA-Z0-9_.~%]*)?$/);
 
 /**
  * WebSocket URL
  */
-export const WebSocketURL = () => Regex(/^wss?:\/\/[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)*(:\d+)?(\/[-a-zA-Z0-9_.~%]*)*$/);
+export const WebSocketURL = () => Regex(/^wss?:\/\/[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)*(:[0-9]+)?(\/[-a-zA-Z0-9_.~%]*)*$/);
 
 /**
  * FTP URL
  */
-export const FTPURL = () => Regex(/^ftps?:\/\/[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)*(:\d+)?(\/[-a-zA-Z0-9_.~%]*)*$/);
+export const FTPURL = () => Regex(/^ftps?:\/\/[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-9][-a-zA-Z0-9]*)*(:[0-9]+)?(\/[-a-zA-Z0-9_.~%]*)*$/);
 
 // ============================================================================
 // Domains
@@ -99,7 +100,7 @@ export const CIDR = () => Regex(/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(
 /**
  * Private IPv4 address ranges
  */
-export const PrivateIPv4 = () => Regex(/^(10\.\d{1,3}\.\d{1,3}\.\d{1,3})|(172\.(1[6-9]|2[0-9]|3[01])\.\d{1,3}\.\d{1,3})|(192\.168\.\d{1,3}\.\d{1,3})$/);
+export const PrivateIPv4 = () => Regex(/^(10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})|(172\.(1[6-9]|2[0-9]|3[01])\.[0-9]{1,3}\.[0-9]{1,3})|(192\.168\.[0-9]{1,3}\.[0-9]{1,3})$/);
 
 // ============================================================================
 // Ports

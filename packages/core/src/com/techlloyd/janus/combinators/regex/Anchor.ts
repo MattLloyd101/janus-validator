@@ -1,10 +1,14 @@
 import { RegexDomain } from '../../Domain';
 import { BaseRegexValidator, MatchResult } from './RegexValidator';
 
-export type AnchorKind = 'start' | 'end' | 'wordBoundary';
+/**
+ * Anchor kinds supported.
+ * Note: Word boundaries (\b, \B) are not supported (non-portable per ADR-002)
+ */
+export type AnchorKind = 'start' | 'end';
 
 /**
- * Validator for anchors (^, $, \b)
+ * Validator for anchors (^, $)
  * Anchors match positions, not characters, so they consume nothing
  */
 export class Anchor extends BaseRegexValidator {
@@ -30,9 +34,6 @@ export class Anchor extends BaseRegexValidator {
       case 'end':
         matched = position === input.length;
         break;
-      case 'wordBoundary':
-        matched = this.isWordBoundary(input, position);
-        break;
     }
 
     // Anchors consume no characters
@@ -43,20 +44,7 @@ export class Anchor extends BaseRegexValidator {
     switch (this.kind) {
       case 'start': return '^';
       case 'end': return '$';
-      case 'wordBoundary': return '\\b';
     }
-  }
-
-  private isWordBoundary(input: string, position: number): boolean {
-    const isWord = (char: string | undefined) => {
-      if (!char) return false;
-      return /\w/.test(char);
-    };
-
-    const before = position > 0 ? input[position - 1] : undefined;
-    const after = position < input.length ? input[position] : undefined;
-
-    return isWord(before) !== isWord(after);
   }
 }
 

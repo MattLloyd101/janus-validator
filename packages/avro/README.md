@@ -49,7 +49,7 @@ const avroSchema = {
     {
       name: 'email',
       type: 'string',
-      'x-janus-pattern': '^[\\w.]+@[\\w.]+\\.\\w+$'
+      'x-janus-pattern': '^[A-Za-z0-9_.]+@[A-Za-z0-9_.]+\\.[A-Za-z0-9_]+$'
     }
   ]
 };
@@ -75,7 +75,7 @@ import { O, U, I, R } from '@janus-validator/dsl';
 const userValidator = O({
   name: U(1, 100),
   age: I(0, 150),
-  email: R(/^[\w.]+@[\w.]+\.\w+$/),
+  email: R(/^[A-Za-z0-9_.]+@[A-Za-z0-9_.]+\.[A-Za-z0-9_]+$/),
 });
 
 const schema = validatorToAvro(userValidator, {
@@ -92,7 +92,7 @@ console.log(JSON.stringify(schema, null, 2));
 //   "fields": [
 //     { "name": "name", "type": "string", "x-janus-minLength": 1, "x-janus-maxLength": 100 },
 //     { "name": "age", "type": "int", "x-janus-min": 0, "x-janus-max": 150 },
-//     { "name": "email", "type": "string", "x-janus-pattern": "^[\\w.]+@[\\w.]+\\.\\w+$" }
+//     { "name": "email", "type": "string", "x-janus-pattern": "^[A-Za-z0-9_.]+@[A-Za-z0-9_.]+\\.[A-Za-z0-9_]+$" }
 //   ]
 // }
 ```

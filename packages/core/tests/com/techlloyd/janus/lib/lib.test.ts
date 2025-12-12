@@ -4,8 +4,7 @@
 
 import {
   // Credentials
-  Username, Handle, Password, StrongPassword, PIN,
-  PasswordWithConfirmation, JWT,
+  Username, Handle, Password, StrongPassword, PIN, JWT,
   // Contact
   Email, USPhone, E164Phone,
   TwitterHandle, ContactForm,
@@ -51,22 +50,6 @@ describe('Lib - Common Validation Patterns', () => {
       expect(PIN().validate('1234').valid).toBe(true);
       expect(PIN().validate('123456').valid).toBe(true);
       expect(PIN().validate('12345').valid).toBe(false);
-    });
-
-    it('PasswordWithConfirmation should validate matching passwords', () => {
-      const { validator, context } = PasswordWithConfirmation(8);
-      
-      expect(validator.validate({
-        password: 'secret123',
-        confirmPassword: 'secret123',
-      }).valid).toBe(true);
-
-      context.clear();
-
-      expect(validator.validate({
-        password: 'secret123',
-        confirmPassword: 'different',
-      }).valid).toBe(false);
     });
 
     it('JWT should validate token format', () => {

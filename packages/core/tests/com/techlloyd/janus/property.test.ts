@@ -112,13 +112,14 @@ describe('Property: Generated values always pass validation', () => {
     });
 
     it('Regex', () => {
+      // Note: Use explicit character classes (no \d, \w, \s) for portability
       const validators = [
         Regex(/^hello$/),
-        Regex(/^\d{3}-\d{4}$/),
+        Regex(/^[0-9]{3}-[0-9]{4}$/),
         Regex(/^[a-z]+@[a-z]+\.[a-z]{2,3}$/),
         Regex(/^(foo|bar|baz)+$/),
         Regex(/^#[0-9a-f]{6}$/),
-        Regex(/^\w{5,10}$/),
+        Regex(/^[A-Za-z0-9_]{5,10}$/),
         Regex(/^[A-Z][a-z]+$/),
       ];
       for (const validator of validators) {

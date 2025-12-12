@@ -10,10 +10,10 @@ describe('RegexDomain', () => {
     });
 
     it('extracts source from pattern automatically', () => {
-      const pattern = /^\d{3}-\d{4}$/;
+      const pattern = /^[0-9]{3}-[0-9]{4}$/;
       const domain = new RegexDomain(pattern);
       expect(domain.pattern).toBe(pattern);
-      expect(domain.source).toBe('^\\d{3}-\\d{4}$');
+      expect(domain.source).toBe('^[0-9]{3}-[0-9]{4}$');
     });
   });
 

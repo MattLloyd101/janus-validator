@@ -59,8 +59,6 @@ import {
   NaN as NaNValidator,
   Bytes as BytesValidator,
   Long as LongValidator,
-  createCaptureGroup as createCaptureGroupBase,
-  ValidationContext,
   Typed as TypedValidator,
   As as AsValidator,
   caseInsensitive as caseInsensitiveValidator,
@@ -505,23 +503,6 @@ export const atLeast = <T>(validator: Validator<T>, n: number): Validator<T[]> =
  */
 export const between = <T>(validator: Validator<T>, min: number, max: number): Validator<T[]> =>
   QuantifierValidator.between(validator, min, max);
-
-// ============================================================================
-// Capture Group
-// ============================================================================
-
-/**
- * Create a capture group for capturing and referencing values during validation
- * Useful for scenarios like password confirmation
- * @example
- * const { capture, ref, context } = createCaptureGroup();
- * const form = O({
- *   password: capture('pwd', U(8, 100)),
- *   confirmPassword: ref('pwd'),
- * });
- */
-export const createCaptureGroup = createCaptureGroupBase;
-export { ValidationContext };
 
 // ============================================================================
 // Type Assertion Helpers

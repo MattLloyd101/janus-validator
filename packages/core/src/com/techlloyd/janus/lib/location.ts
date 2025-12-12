@@ -32,12 +32,12 @@ export const USZipCode = () => Alternation.of(USZip5(), USZipPlus4());
  * UK postcode (case-insensitive - accepts both upper and lower case)
  * Format: A9 9AA, A99 9AA, AA9 9AA, AA99 9AA, A9A 9AA, AA9A 9AA
  */
-export const UKPostcode = () => Regex(/^[A-Za-z]{1,2}\d[A-Za-z\d]?\s*\d[A-Za-z]{2}$/);
+export const UKPostcode = () => Regex(/^[A-Za-z]{1,2}[0-9][A-Za-z0-9]?[ ]*[0-9][A-Za-z]{2}$/);
 
 /**
  * Canadian postal code: A1A 1A1 (case-insensitive)
  */
-export const CanadianPostalCode = () => Regex(/^[A-Za-z]\d[A-Za-z]\s?\d[A-Za-z]\d$/);
+export const CanadianPostalCode = () => Regex(/^[A-Za-z][0-9][A-Za-z][ ]?[0-9][A-Za-z][0-9]$/);
 
 /**
  * German postal code (PLZ): 5 digits

@@ -10,8 +10,6 @@ export { AlternationDomainGenerator } from './AlternationDomainGenerator';
 export { SequenceDomainGenerator } from './SequenceDomainGenerator';
 export { QuantifierDomainGenerator } from './QuantifierDomainGenerator';
 export { StructDomainGenerator } from './StructDomainGenerator';
-export { CaptureDomainGenerator } from './CaptureDomainGenerator';
-export { RefDomainGenerator } from './RefDomainGenerator';
 export { CustomGeneratorDomainGenerator } from './CustomGeneratorDomainGenerator';
 export { BytesDomainGenerator } from './BytesDomainGenerator';
 export { BigIntDomainGenerator } from './BigIntDomainGenerator';

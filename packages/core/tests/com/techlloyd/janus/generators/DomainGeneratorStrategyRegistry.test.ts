@@ -7,8 +7,6 @@ import { AlternationDomainGenerator } from '@/com/techlloyd/janus/generators/Alt
 import { SequenceDomainGenerator } from '@/com/techlloyd/janus/generators/SequenceDomainGenerator';
 import { QuantifierDomainGenerator } from '@/com/techlloyd/janus/generators/QuantifierDomainGenerator';
 import { StructDomainGenerator } from '@/com/techlloyd/janus/generators/StructDomainGenerator';
-import { CaptureDomainGenerator } from '@/com/techlloyd/janus/generators/CaptureDomainGenerator';
-import { RefDomainGenerator } from '@/com/techlloyd/janus/generators/RefDomainGenerator';
 import { CustomGeneratorDomainGenerator } from '@/com/techlloyd/janus/generators/CustomGeneratorDomainGenerator';
 import { BytesDomainGenerator } from '@/com/techlloyd/janus/generators/BytesDomainGenerator';
 import { BigIntDomainGenerator } from '@/com/techlloyd/janus/generators/BigIntDomainGenerator';
@@ -29,8 +27,6 @@ describe('DomainGeneratorStrategyRegistry', () => {
     expect(registry.get(DomainType.SEQUENCE_DOMAIN)).toBeInstanceOf(SequenceDomainGenerator);
     expect(registry.get(DomainType.QUANTIFIER_DOMAIN)).toBeInstanceOf(QuantifierDomainGenerator);
     expect(registry.get(DomainType.STRUCT_DOMAIN)).toBeInstanceOf(StructDomainGenerator);
-    expect(registry.get(DomainType.CAPTURE_DOMAIN)).toBeInstanceOf(CaptureDomainGenerator);
-    expect(registry.get(DomainType.REF_DOMAIN)).toBeInstanceOf(RefDomainGenerator);
     expect(registry.get(DomainType.CUSTOM_GENERATOR_DOMAIN)).toBeInstanceOf(CustomGeneratorDomainGenerator);
     expect(registry.get(DomainType.BYTES_DOMAIN)).toBeInstanceOf(BytesDomainGenerator);
     expect(registry.get(DomainType.BIGINT_DOMAIN)).toBeInstanceOf(BigIntDomainGenerator);

@@ -32,8 +32,6 @@ export {
   BytesDomain,
   BigIntDomain,
   StructDomain,
-  CaptureDomain,
-  RefDomain,
   CustomGeneratorDomain,
   // ContiguousType
   ContiguousType,
