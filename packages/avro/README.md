@@ -12,7 +12,9 @@ npm install @janus-validator/avro @janus-validator/core
 
 ## Usage
 
-🚧 **Status:** Avro conversion is scaffolded but not yet implemented. The exported functions currently throw `Error('Not yet implemented')`.
+**Status:**
+- ✅ `avroToValidator()` - Implemented
+- 🚧 `validatorToAvro()` - Not yet implemented (throws `Error('Not yet implemented')`)
 
 ## Why this package exists
 
@@ -56,7 +58,7 @@ const avroSchema = {
 
 const validator = avroToValidator(avroSchema);
 
-// NOTE: Currently throws "Not yet implemented"
+validator.validate({ name: 'Alice', age: 30, email: 'alice@example.com' }); // { valid: true }
 
 // And generate test data
 import { Generator } from '@janus-validator/core';

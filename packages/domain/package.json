@@ -1,7 +1,7 @@
 {
-  "name": "@janus-validator/dsl",
+  "name": "@janus-validator/domain",
   "version": "0.8.1",
-  "description": "Concise DSL for Janus Validator - short aliases for all combinators",
+  "description": "Domain classes for validation and generation - defines the set of valid values for validators",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -16,20 +16,19 @@
     "clean": "rm -rf dist",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:pbt:short": "JANUS_PBT_PROFILE=short jest",
+    "test:pbt:long": "JANUS_PBT_PROFILE=long jest"
   },
   "keywords": [
     "validator",
-    "validation",
-    "dsl",
+    "domain",
     "typescript",
-    "schema"
+    "schema",
+    "type-checking"
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "@janus-validator/core": "^0.1.0"
-  },
   "devDependencies": {
     "@types/jest": "^29.5.11",
     "@types/node": "^20.11.0",
