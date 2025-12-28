@@ -1,0 +1,7 @@
+(lang dune 3.8)
+(using melange 0.1)
+
+; Keep this dune workspace scoped to proofs/ only.
+; It builds JS artifacts from extracted OCaml via Melange.
+
+

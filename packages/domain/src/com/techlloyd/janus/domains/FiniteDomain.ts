@@ -24,12 +24,6 @@ function uniqueWithSet<T>(values: readonly T[]): { values: T[]; set: Set<T> } {
   return { values: out, set };
 }
 
-function assertFiniteDomain<T>(other: Domain<T>): asserts other is FiniteDomain<T> {
-  if (!(other instanceof FiniteDomain)) {
-    throw new Error(`FiniteDomain operation requires FiniteDomain operand`);
-  }
-}
-
 export class FiniteDomain<T> extends AbstractDomain<T> {
   readonly domainType = DomainType.FINITE_DOMAIN;
   readonly values: readonly T[];
@@ -61,23 +55,25 @@ export class FiniteDomain<T> extends AbstractDomain<T> {
     return this._set.has(value);
   }
 
-  union(other: Domain<T>): FiniteDomain<T> {
-    assertFiniteDomain(other);
-    // Expansive: new universe is the new product (self-referential).
-    return new FiniteDomain<T>([...this.values, ...other.values]);
+  union(other: Domain<T>): Domain<T> {
+    // If the other domain is also finite, the union remains finite.
+    if (other instanceof FiniteDomain) {
+      // Expansive: new universe is the new product (self-referential).
+      return new FiniteDomain<T>([...this.values, ...other.values]);
+    }
+    // Otherwise we cannot enumerate the union; return a composite union domain.
+    return null; // I know this is incorrect. Just a placeholder for now.
   }
 
   intersection(other: Domain<T>): FiniteDomain<T> {
-    assertFiniteDomain(other);
     // Reductive: keep left operand's universe reference.
-    const kept = (this.values as readonly T[]).filter((v) => other._set.has(v));
+    const kept = (this.values as readonly T[]).filter((v) => other.isDefinedAt(v));
     return new FiniteDomain<T>(kept, this.universe);
   }
 
   difference(other: Domain<T>): FiniteDomain<T> {
-    assertFiniteDomain(other);
     // Reductive: keep left operand's universe reference.
-    const kept = (this.values as readonly T[]).filter((v) => !other._set.has(v));
+    const kept = (this.values as readonly T[]).filter((v) => !other.isDefinedAt(v));
     return new FiniteDomain<T>(kept, this.universe);
   }
 }

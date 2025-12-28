@@ -1,0 +1,30 @@
+# dune build
+# OCAMLPARAM: unset
+# Shared cache: enabled-except-user-rules
+# Shared cache location: /Users/matt.lloyd/.cache/dune/db
+# Workspace root: /Users/matt.lloyd/workspace/typescript-validator/proofs
+# Auto-detected concurrency: 12
+# Dune context:
+#  { name = "default"
+#  ; kind = "default"
+#  ; profile = Dev
+#  ; merlin = true
+#  ; fdo_target_exe = None
+#  ; build_dir = In_build_dir "default"
+#  ; instrument_with = []
+#  }
+$ /Users/matt.lloyd/.opam/janus-proofs/bin/ocamlc.opt -config > /var/folders/jg/hnmbyh093dxgbs85r8ydxcl00000gn/T/dune_68da4f_output
+$ /Users/matt.lloyd/.opam/janus-proofs/bin/melc --where > /var/folders/jg/hnmbyh093dxgbs85r8ydxcl00000gn/T/dune_30854f_output
+$ (cd _build/default && /Users/matt.lloyd/.opam/janus-proofs/bin/ocamldep.opt -modules -intf extracted/ContiguousDomain.mli) > _build/default/extracted/.janus.objs/janus__ContiguousDomain.intf.d
+$ (cd _build/default && /Users/matt.lloyd/.opam/janus-proofs/bin/ocamldep.opt -modules -impl extracted/ContiguousDomain.ml) > _build/default/extracted/.janus.objs/janus__ContiguousDomain.impl.d
+$ (cd _build/default && /Users/matt.lloyd/.opam/janus-proofs/bin/melc -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -bin-annot -I extracted/.janus.objs/melange -no-alias-deps -opaque -open Janus -o extracted/.janus.objs/melange/janus__ContiguousDomain.cmi -c -intf extracted/ContiguousDomain.mli)
+$ (cd _build/default && /Users/matt.lloyd/.opam/janus-proofs/bin/melc -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -bin-annot -I extracted/.janus.objs/melange -intf-suffix .ml --bs-stop-after-cmj --bs-package-output extracted --bs-module-name ContiguousDomain -no-alias-deps -opaque -open Janus -o extracted/.janus.objs/melange/janus__ContiguousDomain.cmj -c -impl extracted/ContiguousDomain.ml)
+> File "extracted/ContiguousDomain.ml", line 36, characters 10-14:
+> 36 |   let rec succ = Stdlib.Int.succ
+>                ^^^^
+> Error (warning 39 [unused-rec-flag]): unused rec flag.
+> File "extracted/ContiguousDomain.ml", line 82, characters 10-22:
+> 82 |   let rec compare_cont = fun c x y -> if x=y then c else if x<y then Lt else Gt
+>                ^^^^^^^^^^^^
+> Error (warning 39 [unused-rec-flag]): unused rec flag.
+[2]

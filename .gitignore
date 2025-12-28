@@ -8,3 +8,11 @@ coverage/
 .env
 .env.local
 
+# Rocq/Coq extraction output (some tooling runs from repo root)
+extracted/*
+!extracted/.gitkeep
+
+# extraction output if Rocq/Coq runs with cwd = repo root
+FiniteDomain.ml
+FiniteDomain.mli
+

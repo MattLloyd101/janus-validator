@@ -6,5 +6,3 @@
 export enum DomainType {
   FINITE_DOMAIN = 'FINITE_DOMAIN',
 }
-
-

@@ -1,4 +1,4 @@
-import { DomainType, FiniteDomain } from '@/com/techlloyd/janus';
+import { AbstractDomain, Domain, DomainType, FiniteDomain, UnionDomain } from '@/com/techlloyd/janus';
 import * as Domains from '@/com/techlloyd/janus/domains';
 
 describe('FiniteDomain', () => {
@@ -90,9 +90,11 @@ describe('FiniteDomain', () => {
     const a = universe.intersection(FiniteDomain.of([1, 2]));
 
     const u = a.union(FiniteDomain.of([3, 4]));
-    expect(u.universe).toBe(u);
-    expect(u.domainType).toBe(DomainType.FINITE_DOMAIN);
-    expect(u.values).toEqual([1, 2, 3, 4]);
+    expect(u).toBeInstanceOf(FiniteDomain);
+    const uf = u as FiniteDomain<number>;
+    expect(uf.universe).toBe(uf);
+    expect(uf.domainType).toBe(DomainType.FINITE_DOMAIN);
+    expect(uf.values).toEqual([1, 2, 3, 4]);
   });
 
   it('complement uses the root universe even after multiple reductions', () => {
@@ -107,13 +109,39 @@ describe('FiniteDomain', () => {
     expect(comp.values).toEqual([1, 3, 5, 6]);
   });
 
-  it('throws if operand is not a FiniteDomain', () => {
-    const d = FiniteDomain.of([1, 2, 3]);
-    const fake = { domainType: DomainType.FINITE_DOMAIN } as any;
+  it('can intersect/difference with a non-finite Domain via isDefinedAt', () => {
+    class OnlyEven extends AbstractDomain<number> implements Domain<number> {
+      readonly domainType = DomainType.FINITE_DOMAIN;
+      readonly universe = this;
+      isEmpty(): boolean { return false; }
+      isDefinedAt(v: number): boolean { return v % 2 === 0; }
+      union(other: Domain<number>): Domain<number> { return UnionDomain.of(this, other); }
+      intersection(_other: Domain<number>): Domain<number> { throw new Error('Not implemented'); }
+      difference(_other: Domain<number>): Domain<number> { throw new Error('Not implemented'); }
+    }
 
-    expect(() => d.union(fake)).toThrow(/FiniteDomain operation requires FiniteDomain operand/);
-    expect(() => d.intersection(fake)).toThrow(/FiniteDomain operation requires FiniteDomain operand/);
-    expect(() => d.difference(fake)).toThrow(/FiniteDomain operation requires FiniteDomain operand/);
+    const d = FiniteDomain.of([1, 2, 3, 4, 5]);
+    const even = new OnlyEven();
+
+    expect(d.intersection(even).values).toEqual([2, 4]);
+    expect(d.difference(even).values).toEqual([1, 3, 5]);
+  });
+
+  it('union with a non-finite Domain returns UnionDomain', () => {
+    class OnlyEven extends AbstractDomain<number> {
+      readonly domainType = DomainType.FINITE_DOMAIN;
+      readonly universe = this;
+      isEmpty(): boolean { return false; }
+      isDefinedAt(v: number): boolean { return v % 2 === 0; }
+      union(other: Domain<number>): Domain<number> { return UnionDomain.of(this, other); }
+      intersection(_other: Domain<number>): Domain<number> { throw new Error('Not implemented'); }
+      difference(_other: Domain<number>): Domain<number> { throw new Error('Not implemented'); }
+    }
+
+    const d = FiniteDomain.of([1, 2, 3]);
+    const even = new OnlyEven();
+    const u = d.union(even);
+    expect(u).toBeInstanceOf(UnionDomain);
   });
 });
 

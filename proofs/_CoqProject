@@ -1,0 +1,19 @@
+-Q theories/JanusProofs JanusProofs
+
+# Compatibility shim for tools that still look for `_CoqProject`.
+# We keep `_RocqProject` as the primary project file.
+
+theories/JanusProofs/FiniteDomain.v
+theories/JanusProofs/FiniteDomain/Helpers.v
+theories/JanusProofs/FiniteDomain/Model.v
+theories/JanusProofs/FiniteDomain/Proofs.v
+theories/JanusProofs/FiniteDomain/Extract.v
+theories/JanusProofs/ContiguousDomain/Intervals.v
+theories/JanusProofs/ContiguousDomain/Domain.v
+theories/JanusProofs/ContiguousDomain/UnionCanon.v
+theories/JanusProofs/ContiguousDomain/Ops.v
+theories/JanusProofs/ContiguousDomain/Proofs.v
+theories/JanusProofs/ContiguousDomain.v
+theories/JanusProofs/ContiguousDomain/Extract.v
+
+
