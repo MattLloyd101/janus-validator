@@ -25,10 +25,6 @@ export class ContiguousCert<T> extends DomainCert<T> {
     return new ContiguousCert(this.min, this.max, witness, this.id);
   }
 
-  normalize(): DomainCert<T> {
-    return this;
-  }
-
   contains(value: T): boolean {
     const cmpMin = this.witness.compare(this.min, value);
     const cmpMax = this.witness.compare(value, this.max);

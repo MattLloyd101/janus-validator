@@ -8,7 +8,8 @@ This directory contains Architectural Decision Records (ADRs) for the Janus Vali
 |-----|-------|--------|
 | [ADR-001](./001-avro-map-type-handling.md) | Avro Map Type Handling | Accepted |
 | [ADR-002](./002-domain-relations-and-set-operations.md) | Domain Relations and Set Operations for Schema Compatibility | Accepted |
-| [ADR-003](./003-certificate-based-domain-system.md) | Certificate-Based Domain System with Trusted Kernel and ContiguousDomain | Accepted |
+| [ADR-003](./003-certificate-based-domain-system.md) | Certificate-Based Domain System with Trusted Kernel and ContiguousDomain | Implemented |
+| [ADR-004](./004-certificate-serialization-for-external-checking.md) | Certificate Serialization for External Checking | Proposed |
 
 ## What is an ADR?
 

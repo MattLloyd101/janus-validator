@@ -11,7 +11,6 @@ export abstract class DomainCert<T> {
 
   abstract hash(): string;
   abstract withWitness(witness: DiscreteOrdered<T>): DomainCert<T>;
-  abstract normalize(): DomainCert<T>;
   abstract contains(value: T): boolean;
   abstract isEmpty(): boolean;
   abstract encapsulates(other: DomainCert<T>): boolean;

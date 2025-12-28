@@ -1,3 +1,4 @@
+import { certNormalizer } from "@/domain/cert/CertNormalizer";
 import { ContiguousCert, FiniteCert, UnionCert } from "@/index";
 import { integerWitness } from "../../helpers";
 
@@ -7,7 +8,7 @@ describe("UnionCert", () => {
 
   test("normalize merges adjacent/overlapping contiguous ranges", () => {
     const union = new UnionCert(left, right);
-    const normalized = union.normalize();
+    const normalized = certNormalizer.normalize(union);
     expect(normalized).toBeInstanceOf(ContiguousCert);
     if (normalized instanceof ContiguousCert) {
       expect(normalized.min).toBe(0);
@@ -33,13 +34,13 @@ describe("UnionCert", () => {
   test("normalize handles empty unions", () => {
     const empty = new FiniteCert<number>([]);
     const union = new UnionCert(empty, empty);
-    const normalized = union.normalize();
+    const normalized = certNormalizer.normalize(union);
     expect(normalized.isEmpty()).toBe(true);
   });
 
   test("normalize flattens nested unions", () => {
     const nested = new UnionCert(new UnionCert(left, right), new FiniteCert([]));
-    const normalized = nested.normalize();
+    const normalized = certNormalizer.normalize(nested);
     expect(normalized instanceof ContiguousCert).toBe(true);
     if (normalized instanceof ContiguousCert) {
       expect(normalized.min).toBe(0);
@@ -69,7 +70,7 @@ describe("UnionCert", () => {
     const a = new ContiguousCert(0, 2, integerWitness);
     const b = new ContiguousCert(0, 2, otherWitness);
     const union = new UnionCert(a, b);
-    const normalized = union.normalize();
+    const normalized = certNormalizer.normalize(union);
     expect(normalized instanceof UnionCert).toBe(true);
   });
 
@@ -112,7 +113,7 @@ describe("UnionCert", () => {
     const a = new ContiguousCert(0, 5, integerWitness);
     const b = new ContiguousCert(6, 10, integerWitness);
     const union = new UnionCert(a, b);
-    const normalized = union.normalize();
+    const normalized = certNormalizer.normalize(union);
     expect(normalized instanceof ContiguousCert).toBe(true);
   });
 });

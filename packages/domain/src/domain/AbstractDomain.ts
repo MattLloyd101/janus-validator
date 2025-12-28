@@ -1,4 +1,5 @@
 import { DomainCert } from "./cert/DomainCert";
+import { certNormalizer } from "./cert/CertNormalizer";
 import { ComplementCert } from "./cert/ComplementCert";
 import { IntersectCert } from "./cert/IntersectCert";
 import { UnionCert } from "./cert/UnionCert";
@@ -26,7 +27,7 @@ export abstract class AbstractDomain<T> implements Domain<T> {
   readonly universe: Domain<T>;
 
   protected constructor(cert: DomainCert<T>, universe?: Domain<T>) {
-    this.cert = cert.normalize();
+    this.cert = certNormalizer.normalize(cert);
     this.universe = (universe ?? (this as unknown as Domain<T>));
   }
 
@@ -49,7 +50,7 @@ export abstract class AbstractDomain<T> implements Domain<T> {
   }
 
   complement(): Domain<T> {
-    return this.fromCert(new ComplementCert(this.cert));
+    return this.fromCert(new ComplementCert(this.cert, this.universe.cert));
   }
 
   equals(other: Domain<T>): boolean {

@@ -1,7 +1,7 @@
 # ADR-003: Certificate-Based Domain System with Trusted Kernel and ContiguousDomain
 
 ## Status
-Accepted
+Implemented
 
 ## Date
 2025-12-28

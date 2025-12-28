@@ -17,10 +17,6 @@ export class FiniteCert<T> extends DomainCert<T> {
     return this;
   }
 
-  normalize(): DomainCert<T> {
-    return this;
-  }
-
   contains(value: T): boolean {
     return this.values.some((v) => Object.is(v, value));
   }

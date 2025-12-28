@@ -1,6 +1,4 @@
 import { DomainCert } from "./DomainCert";
-import { ContiguousCert } from "./ContiguousCert";
-import { FiniteCert } from "./FiniteCert";
 import type { DiscreteOrdered } from "@/domain/witnesses/DiscreteOrdered";
 
 export class UnionCert<T> extends DomainCert<T> {
@@ -19,37 +17,6 @@ export class UnionCert<T> extends DomainCert<T> {
 
   withWitness(witness: DiscreteOrdered<T>): DomainCert<T> {
     return new UnionCert(this.left.withWitness(witness), this.right.withWitness(witness), this.id);
-  }
-
-  normalize(): DomainCert<T> {
-    const parts = this.flattenUnion().map((c) => c.normalize()).filter((c) => !c.isEmpty());
-    if (parts.length === 0) return UnionCert.empty<T>();
-    const merged = ContiguousCert.mergeContiguous(parts);
-    if (merged.length === 1) return merged[0];
-    return UnionCert.buildUnionChain(merged);
-  }
-
-  private flattenUnion(): DomainCert<T>[] {
-    const stack: DomainCert<T>[] = [];
-    const push = (c: DomainCert<T>) => {
-      if (c instanceof UnionCert) {
-        push(c.left);
-        push(c.right);
-      } else {
-        stack.push(c);
-      }
-    };
-    push(this.left);
-    push(this.right);
-    return stack;
-  }
-
-  private static buildUnionChain<T>(parts: DomainCert<T>[]): DomainCert<T> {
-    return parts.slice(1).reduce((acc, cur) => new UnionCert(acc, cur), parts[0]);
-  }
-
-  private static empty<T>(): DomainCert<T> {
-    return new FiniteCert<T>([]);
   }
 
   contains(value: T): boolean {

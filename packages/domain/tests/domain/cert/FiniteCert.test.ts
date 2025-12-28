@@ -1,3 +1,4 @@
+import { certNormalizer } from "@/domain/cert/CertNormalizer";
 import { FiniteCert } from "@/index";
 
 describe("FiniteCert", () => {
@@ -19,7 +20,7 @@ describe("FiniteCert", () => {
 
   test("normalize, withWitness, equals/hash are stable", () => {
     const cert = new FiniteCert([1, 2]);
-    const normalized = cert.normalize();
+    const normalized = certNormalizer.normalize(cert);
     expect(normalized).toBe(cert);
     const withWitness = cert.withWitness({ compare: () => 0, succ: () => undefined, pred: () => undefined });
     expect(withWitness).toBe(cert);

@@ -1,3 +1,4 @@
+import { certNormalizer } from "@/domain/cert/CertNormalizer";
 import { ContiguousCert, IntersectCert, FiniteCert } from "@/index";
 import { integerWitness } from "../../helpers";
 
@@ -6,7 +7,7 @@ describe("IntersectCert", () => {
     const a = new ContiguousCert(0, 2, integerWitness);
     const b = new ContiguousCert(5, 7, integerWitness);
     const inter = new IntersectCert(a, b);
-    const normalized = inter.normalize();
+    const normalized = certNormalizer.normalize(inter);
     expect(normalized.isEmpty()).toBe(true);
   });
 
@@ -33,7 +34,7 @@ describe("IntersectCert", () => {
     const a = new ContiguousCert(0, 5, integerWitness);
     const b = new ContiguousCert(0, 5, integerWitness);
     const inter = new IntersectCert(a, b);
-    const normalized = inter.normalize();
+    const normalized = certNormalizer.normalize(inter);
     expect(normalized instanceof ContiguousCert).toBe(true);
     if (normalized instanceof ContiguousCert) {
       expect(normalized.min).toBe(0);
@@ -45,7 +46,7 @@ describe("IntersectCert", () => {
     const a = new ContiguousCert(0, 5, integerWitness);
     const b = new ContiguousCert(3, 10, integerWitness);
     const nested = new IntersectCert(new IntersectCert(a, b), a);
-    const normalized = nested.normalize();
+    const normalized = certNormalizer.normalize(nested);
     expect(normalized instanceof ContiguousCert).toBe(true);
     if (normalized instanceof ContiguousCert) {
       expect(normalized.min).toBe(3);
@@ -75,7 +76,7 @@ describe("IntersectCert", () => {
     const b = new ContiguousCert(3, 10, integerWitness);
     const finite = new FiniteCert([4, 5]);
     const nested = new IntersectCert(new IntersectCert(a, b), finite);
-    const normalized = nested.normalize();
+    const normalized = certNormalizer.normalize(nested);
     expect(normalized instanceof IntersectCert).toBe(true);
   });
 
@@ -83,7 +84,7 @@ describe("IntersectCert", () => {
     const a = new ContiguousCert(0, 5, integerWitness);
     const empty = new FiniteCert<number>([]);
     const inter = new IntersectCert(a, empty);
-    const normalized = inter.normalize();
+    const normalized = certNormalizer.normalize(inter);
     expect(normalized.isEmpty()).toBe(true);
   });
 
@@ -126,7 +127,7 @@ describe("IntersectCert", () => {
     const a = new ContiguousCert(0, 5, integerWitness);
     const b = new ContiguousCert(2, 6, integerWitness);
     const inter = new IntersectCert(a, b);
-    const normalized = inter.normalize();
+    const normalized = certNormalizer.normalize(inter);
     expect(normalized instanceof ContiguousCert).toBe(true);
     if (normalized instanceof ContiguousCert) {
       expect(normalized.min).toBe(2);
@@ -156,7 +157,7 @@ describe("IntersectCert", () => {
     const a = new ContiguousCert(5, 15, integerWitness);
     const b = new ContiguousCert(1, 10, integerWitness);
     const inter = new IntersectCert(a, b);
-    const normalized = inter.normalize();
+    const normalized = certNormalizer.normalize(inter);
     expect(normalized instanceof ContiguousCert).toBe(true);
     if (normalized instanceof ContiguousCert) {
       expect(normalized.min).toBe(5);

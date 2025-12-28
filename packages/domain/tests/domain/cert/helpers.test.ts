@@ -26,7 +26,8 @@ describe("helpers type guards", () => {
   });
 
   test("isComplementCert", () => {
-    const comp = new ComplementCert(new FiniteCert([1]));
+    const universe = new ContiguousCert(0, 10, integerWitness);
+    const comp = new ComplementCert(new FiniteCert([1]), universe);
     expect(isComplementCert(comp)).toBe(true);
     expect(isComplementCert(new FiniteCert([]))).toBe(false);
   });
