@@ -1,8 +1,11 @@
-/**
- * @janus-validator/domain
- *
- * Domain classes for validation and generation - defines the set of valid values for validators.
- */
-
-export * from './com/techlloyd/janus';
+export * from "./domain/AbstractDomain";
+export * from "./domain/cert/DomainCert";
+export * from "./domain/cert/FiniteCert";
+export * from "./domain/cert/ContiguousCert";
+export * from "./domain/cert/UnionCert";
+export * from "./domain/cert/IntersectCert";
+export * from "./domain/cert/ComplementCert";
+export * from "./domain/cert/helpers";
+export * from "./domain/contiguous/ContiguousDomain";
+export * from "./domain/witnesses/DiscreteOrdered";
 

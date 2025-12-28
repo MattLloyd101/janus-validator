@@ -2,7 +2,8 @@
   "files": [],
   "references": [
     { "path": "packages/core" },
-    { "path": "packages/avro" }
+    { "path": "packages/avro" },
+    { "path": "packages/domain" }
   ]
 }
 

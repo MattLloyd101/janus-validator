@@ -17,6 +17,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "coverage": "jest --coverage --coverageReporters=text-summary",
     "test:pbt:short": "JANUS_PBT_PROFILE=short jest",
     "test:pbt:long": "JANUS_PBT_PROFILE=long jest"
   },
