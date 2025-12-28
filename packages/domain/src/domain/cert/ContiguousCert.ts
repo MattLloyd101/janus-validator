@@ -1,6 +1,7 @@
 import { DomainCert } from "./DomainCert";
 import type { DiscreteOrdered } from "@/domain/witnesses/DiscreteOrdered";
 import type { DomainCert as AnyDomainCert } from "./DomainCert";
+import type { SerializedContiguousCert } from "./Serialize";
 import { FiniteCert } from "./FiniteCert";
 
 export class ContiguousCert<T> extends DomainCert<T> {
@@ -16,9 +17,7 @@ export class ContiguousCert<T> extends DomainCert<T> {
   }
 
   hash(): string {
-    return `contiguous:${this.renderValue(this.min)}:${this.renderValue(this.max)}:${this.getWitnessId(
-      this.witness as object
-    )}`;
+    return `contiguous:${this.renderValue(this.min)}:${this.renderValue(this.max)}:${this.witness.id}`;
   }
 
   withWitness(witness: DiscreteOrdered<T>): DomainCert<T> {
@@ -44,6 +43,16 @@ export class ContiguousCert<T> extends DomainCert<T> {
       return other.values.every((v) => this.contains(v));
     }
     return false;
+  }
+
+  serialize(): SerializedContiguousCert<T> {
+    return {
+      kind: "contiguous",
+      id: this.id,
+      min: this.min,
+      max: this.max,
+      witness: { id: this.witness.id }
+    };
   }
 
   static mergeContiguous<T>(parts: AnyDomainCert<T>[]): AnyDomainCert<T>[] {

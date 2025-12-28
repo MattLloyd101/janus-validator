@@ -1,4 +1,5 @@
 import { DomainCert } from "./DomainCert";
+import type { SerializedFiniteCert } from "./Serialize";
 import type { DiscreteOrdered } from "@/domain/witnesses/DiscreteOrdered";
 
 export class FiniteCert<T> extends DomainCert<T> {
@@ -31,6 +32,14 @@ export class FiniteCert<T> extends DomainCert<T> {
       return other.values.every((v) => this.values.some((sv) => Object.is(sv, v)));
     }
     return false;
+  }
+
+  serialize(): SerializedFiniteCert<T> {
+    return {
+      kind: "finite",
+      id: this.id,
+      values: this.values
+    };
   }
 }
 

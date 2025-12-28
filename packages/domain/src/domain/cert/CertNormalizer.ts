@@ -46,14 +46,7 @@ export class CertNormalizer {
     // Merge contiguous segments and keep others as-is.
     const merged = ContiguousCert.mergeContiguous(flattened);
 
-    // Dedupe by hash to enforce idempotence and determinism.
-    const seen = new Map<string, DomainCert<T>>();
-    for (const m of merged) {
-      const h = m.hash();
-      if (!seen.has(h)) seen.set(h, m);
-    }
-    const deduped = Array.from(seen.values());
-    deduped.sort((a, b) => (a.hash() < b.hash() ? -1 : a.hash() > b.hash() ? 1 : 0));
+    const deduped = this.dedupeByHash(merged);
 
     if (deduped.length === 1) return deduped[0];
     return deduped.slice(1).reduce((acc, cur) => new UnionCert(acc, cur), deduped[0]);
@@ -81,14 +74,7 @@ export class CertNormalizer {
     if (reduced.length === 0) return new FiniteCert<T>([]);
     if (reduced.length === 1) return reduced[0];
 
-    // Dedupe by hash for determinism.
-    const seen = new Map<string, DomainCert<T>>();
-    for (const r of reduced) {
-      const h = r.hash();
-      if (!seen.has(h)) seen.set(h, r);
-    }
-    const deduped = Array.from(seen.values());
-    deduped.sort((a, b) => (a.hash() < b.hash() ? -1 : a.hash() > b.hash() ? 1 : 0));
+    const deduped = this.dedupeByHash(reduced);
 
     if (deduped.length === 1) return deduped[0];
     return deduped.slice(1).reduce((acc, cur) => new IntersectCert(acc, cur), deduped[0]);
@@ -111,6 +97,25 @@ export class CertNormalizer {
       return merged ? [merged] : [new FiniteCert<T>([])];
     }
     return [...acc, next];
+  }
+
+  private dedupeByHash<T>(parts: DomainCert<T>[]): DomainCert<T>[] {
+    const seen = new Map<string, DomainCert<T>>();
+    for (const p of parts) {
+      const h = p.hash();
+      if (!seen.has(h)) seen.set(h, p);
+    }
+    const deduped = Array.from(seen.values());
+    deduped.sort((a, b) => this.compareByHash(a, b));
+    return deduped;
+  }
+
+  private compareByHash<T>(a: DomainCert<T>, b: DomainCert<T>): number {
+    const ah = a.hash();
+    const bh = b.hash();
+    if (ah < bh) return -1;
+    if (ah > bh) return 1;
+    return 0;
   }
 }
 

@@ -1,4 +1,6 @@
 export interface DiscreteOrdered<T> {
+  /** Stable identifier for serialization and equality of witnesses */
+  id: string;
   /** Total order comparator: negative if a<b, 0 if equal, positive if a>b */
   compare(a: T, b: T): number;
 

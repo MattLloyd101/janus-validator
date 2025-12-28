@@ -1,4 +1,5 @@
 import { DomainCert } from "./DomainCert";
+import type { SerializedIntersectCert } from "./Serialize";
 import { ContiguousCert } from "./ContiguousCert";
 import type { DiscreteOrdered } from "@/domain/witnesses/DiscreteOrdered";
 
@@ -44,6 +45,15 @@ export class IntersectCert<T> extends DomainCert<T> {
     }
     // Conservative: intersection covers X only if both parts cover X.
     return this.left.encapsulates(other) && this.right.encapsulates(other);
+  }
+
+  serialize(): SerializedIntersectCert<T> {
+    return {
+      kind: "intersect",
+      id: this.id,
+      left: this.left.serialize(),
+      right: this.right.serialize()
+    };
   }
 }
 

@@ -1,6 +1,7 @@
 import type { DiscreteOrdered } from "../src";
 
 export const integerWitness: DiscreteOrdered<number> = {
+  id: "integer",
   compare: (a, b) => a - b,
   succ: (x) => x + 1,
   pred: (x) => x - 1,

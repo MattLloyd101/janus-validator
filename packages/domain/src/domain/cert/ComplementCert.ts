@@ -1,5 +1,6 @@
 import { DiscreteOrdered } from "@/domain/witnesses/DiscreteOrdered";
 import { DomainCert } from "./DomainCert";
+import type { SerializedComplementCert } from "./Serialize";
 
 export class ComplementCert<T> extends DomainCert<T> {
   readonly kind = "complement";
@@ -38,6 +39,15 @@ export class ComplementCert<T> extends DomainCert<T> {
       return other.of.encapsulates(this.of);
     }
     return false;
+  }
+
+  serialize(): SerializedComplementCert<T> {
+    return {
+      kind: "complement",
+      id: this.id,
+      of: this.of.serialize(),
+      universe: this.universe.serialize()
+    };
   }
 }
 

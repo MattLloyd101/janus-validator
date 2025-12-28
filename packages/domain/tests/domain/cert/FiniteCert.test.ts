@@ -22,12 +22,18 @@ describe("FiniteCert", () => {
     const cert = new FiniteCert([1, 2]);
     const normalized = certNormalizer.normalize(cert);
     expect(normalized).toBe(cert);
-    const withWitness = cert.withWitness({ compare: () => 0, succ: () => undefined, pred: () => undefined });
+    const withWitness = cert.withWitness({ id: "noop", compare: () => 0, succ: () => undefined, pred: () => undefined });
     expect(withWitness).toBe(cert);
     const same = new FiniteCert([1, 2]);
     expect(cert.equals(same)).toBe(true);
     const different = new FiniteCert([2, 3]);
     expect(cert.equals(different)).toBe(false);
+  });
+
+  test("serialize produces finite shape", () => {
+    const cert = new FiniteCert([1, 2], "fid");
+    const serialized = cert.serialize();
+    expect(serialized).toEqual({ kind: "finite", id: "fid", values: [1, 2] });
   });
 
   test("encapsulates returns false for non-finite", () => {

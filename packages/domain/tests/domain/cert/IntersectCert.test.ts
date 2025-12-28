@@ -164,5 +164,14 @@ describe("IntersectCert", () => {
       expect(normalized.max).toBe(10);
     }
   });
+
+  test("serialize nests child certs", () => {
+    const inter = new IntersectCert(new FiniteCert([1]), new FiniteCert([2]), "iid");
+    const serialized = inter.serialize();
+    expect(serialized.kind).toBe("intersect");
+    expect(serialized.id).toBe("iid");
+    expect(serialized.left.kind).toBe("finite");
+    expect(serialized.right.kind).toBe("finite");
+  });
 });
 

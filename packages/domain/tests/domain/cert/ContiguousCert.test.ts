@@ -4,6 +4,7 @@ import { integerWitness } from "../../helpers";
 describe("ContiguousCert", () => {
   const base = new ContiguousCert(0, 10, integerWitness);
   const otherWitness = {
+    id: "other",
     compare: (a: number, b: number) => a - b,
     succ: (x: number) => x + 1,
     pred: (x: number) => x - 1
@@ -65,6 +66,12 @@ describe("ContiguousCert", () => {
     expect(base.encapsulates(unknown)).toBe(false);
   });
 
+  test("serialize includes witness id", () => {
+    const serialized = base.serialize();
+    expect(serialized.kind).toBe("contiguous");
+    expect(serialized.witness.id).toBe("integer");
+  });
+
   test("mergeContiguous keeps disjoint same-witness ranges separate", () => {
     const a = new ContiguousCert(0, 2, integerWitness);
     const b = new ContiguousCert(4, 6, integerWitness); // non-adjacent
@@ -78,6 +85,7 @@ describe("ContiguousCert", () => {
 
   test("mergeContiguous does not merge when succ is undefined", () => {
     const noSucc = {
+      id: "nosucc",
       compare: (a: number, b: number) => a - b,
       succ: (_x: number) => undefined,
       pred: (_x: number) => undefined

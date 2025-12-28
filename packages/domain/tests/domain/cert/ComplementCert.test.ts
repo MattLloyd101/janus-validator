@@ -84,12 +84,23 @@ describe("ComplementCert", () => {
     const inner = new FiniteCert([1]);
     const complement = new ComplementCert(inner, universe);
     const otherWitness = {
+      id: "other",
       compare: (a: number, b: number) => a - b,
       succ: (x: number) => x + 1,
       pred: (x: number) => x - 1
     };
     const rewritten = complement.withWitness(otherWitness as any);
     expect(rewritten.hash()).toContain("complement");
+  });
+
+  test("serialize includes universe and of", () => {
+    const inner = new FiniteCert([1], "fid");
+    const comp = new ComplementCert(inner, universe, "cid");
+    const serialized = comp.serialize();
+    expect(serialized.kind).toBe("complement");
+    expect(serialized.id).toBe("cid");
+    expect((serialized.of as any).kind).toBe("finite");
+    expect((serialized.universe as any).kind).toBe("contiguous");
   });
 });
 

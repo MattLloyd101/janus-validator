@@ -63,6 +63,7 @@ describe("UnionCert", () => {
 
   test("normalize retains union when witnesses differ", () => {
     const otherWitness = {
+      id: "other",
       compare: (a: number, b: number) => a - b,
       succ: (x: number) => x + 1,
       pred: (x: number) => x - 1
@@ -115,6 +116,15 @@ describe("UnionCert", () => {
     const union = new UnionCert(a, b);
     const normalized = certNormalizer.normalize(union);
     expect(normalized instanceof ContiguousCert).toBe(true);
+  });
+
+  test("serialize nests child certs", () => {
+    const union = new UnionCert(left, right, "uid");
+    const serialized = union.serialize();
+    expect(serialized.kind).toBe("union");
+    expect(serialized.id).toBe("uid");
+    expect(serialized.left.kind).toBe("contiguous");
+    expect(serialized.right.kind).toBe("contiguous");
   });
 });
 

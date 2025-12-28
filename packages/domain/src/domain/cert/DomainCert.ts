@@ -1,4 +1,5 @@
 import type { DiscreteOrdered } from "@/domain/witnesses/DiscreteOrdered";
+import type { SerializedDomainCert } from "./Serialize";
 
 export type DomainKind = "finite" | "contiguous" | "complement" | "union" | "intersect";
 
@@ -14,6 +15,7 @@ export abstract class DomainCert<T> {
   abstract contains(value: T): boolean;
   abstract isEmpty(): boolean;
   abstract encapsulates(other: DomainCert<T>): boolean;
+  abstract serialize(): SerializedDomainCert<T>;
 
   equals(other: DomainCert<T>): boolean {
     return this.hash() === other.hash();
@@ -34,25 +36,4 @@ export abstract class DomainCert<T> {
     return values.map((v) => this.renderValue(v)).join(",");
   }
 
-  private static witnessIds = new WeakMap<object, number>();
-  private static witnessIdSeq = 0;
-  protected getWitnessId(obj: object): number {
-    const existing = DomainCert.witnessIds.get(obj);
-    if (existing !== undefined) return existing;
-    DomainCert.witnessIdSeq += 1;
-    DomainCert.witnessIds.set(obj, DomainCert.witnessIdSeq);
-    return DomainCert.witnessIdSeq;
-  }
 }
-
-export type CertProblem =
-  | { code: "INVALID_BOUND_ORDER"; message: string }
-  | { code: "MISSING_WITNESS"; message: string }
-  | { code: "NON_CANONICAL"; message: string }
-  | { code: "UNSUPPORTED"; message: string }
-  | { code: "INVALID_FINITE_VALUES"; message: string };
-
-export type CertCheckResult =
-  | { ok: true; problems?: CertProblem[] }
-  | { ok: false; problems: CertProblem[] };
-

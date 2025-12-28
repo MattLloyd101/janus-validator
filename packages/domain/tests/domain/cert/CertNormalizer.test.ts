@@ -23,6 +23,9 @@ class DummyCert<T> extends DomainCert<T> {
   encapsulates(): boolean {
     return false;
   }
+  serialize() {
+    return { kind: "finite", values: [] as T[] } as any;
+  }
 }
 
 class RawUnion<T> extends UnionCert<T> {
@@ -114,6 +117,14 @@ describe("CertNormalizer", () => {
     expect((normalized as FiniteCert<number>).values.length).toBe(0);
   });
 
+  test("intersect reduceIntersect can return zero-length when all parts drop", () => {
+    const empty = new FiniteCert<number>([]);
+    const inter = new IntersectCert(empty, empty);
+    const normalized = certNormalizer.normalize(inter);
+    expect(normalized).toBeInstanceOf(FiniteCert);
+    expect((normalized as FiniteCert<number>).values.length).toBe(0);
+  });
+
   test("intersect keeps heterogeneous parts when not mergeable", () => {
     const a = new FiniteCert([1]);
     const b = new ContiguousCert(0, 2, w);
@@ -196,6 +207,43 @@ describe("CertNormalizer", () => {
     const normalized = certNormalizer.normalize(outer);
     expect(normalized.isEmpty()).toBe(false);
     expect(normalized.contains(1)).toBe(true);
+  });
+
+  test("normalizeUnion dedupes and sorts deterministically by hash", () => {
+    // hashes: finite:1 < finite:2 lexicographically
+    const one = new FiniteCert([1]);
+    const two = new FiniteCert([2]);
+    const union = new UnionCert(two, new UnionCert(two, one));
+    const normalized = certNormalizer.normalize(union) as UnionCert<number>;
+    expect(normalized).toBeInstanceOf(UnionCert);
+    expect(normalized.left.hash() < normalized.right.hash()).toBe(true);
+  });
+
+  test("normalizeIntersect dedupes and sorts deterministically by hash", () => {
+    const one = new FiniteCert([1]);
+    const two = new FiniteCert([2]);
+    const inter = new IntersectCert(new IntersectCert(two, two), one);
+    const normalized = certNormalizer.normalize(inter) as IntersectCert<number>;
+    expect(normalized).toBeInstanceOf(IntersectCert);
+    expect(normalized.left.hash() < normalized.right.hash()).toBe(true);
+  });
+
+  test("normalizeUnion dedupe keeps single instance when hashes are equal", () => {
+    const left = new FiniteCert([1]);
+    const right = new FiniteCert([1]);
+    const union = new UnionCert(left, right);
+    const normalized = certNormalizer.normalize(union);
+    expect(normalized).toBeInstanceOf(FiniteCert);
+    expect((normalized as FiniteCert<number>).values).toEqual([1]);
+  });
+
+  test("normalizeIntersect dedupe keeps single instance when hashes are equal", () => {
+    const left = new FiniteCert([1]);
+    const right = new FiniteCert([1]);
+    const inter = new IntersectCert(left, right);
+    const normalized = certNormalizer.normalize(inter);
+    expect(normalized).toBeInstanceOf(FiniteCert);
+    expect((normalized as FiniteCert<number>).values).toEqual([1]);
   });
 });
 

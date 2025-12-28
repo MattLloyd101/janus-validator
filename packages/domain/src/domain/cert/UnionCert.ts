@@ -1,4 +1,5 @@
 import { DomainCert } from "./DomainCert";
+import type { SerializedUnionCert } from "./Serialize";
 import type { DiscreteOrdered } from "@/domain/witnesses/DiscreteOrdered";
 
 export class UnionCert<T> extends DomainCert<T> {
@@ -35,6 +36,15 @@ export class UnionCert<T> extends DomainCert<T> {
     }
     // Conservative: both branches must cover the target.
     return this.left.encapsulates(other) && this.right.encapsulates(other);
+  }
+
+  serialize(): SerializedUnionCert<T> {
+    return {
+      kind: "union",
+      id: this.id,
+      left: this.left.serialize(),
+      right: this.right.serialize()
+    };
   }
 }
 
