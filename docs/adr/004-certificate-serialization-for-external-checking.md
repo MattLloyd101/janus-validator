@@ -1,7 +1,7 @@
 # ADR-004: Certificate Serialization for External Checking
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2025-12-28
