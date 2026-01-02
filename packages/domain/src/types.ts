@@ -8,6 +8,8 @@ export enum DomainType {
   STRUCT = "struct",
   QUANTIFIER = "quantifier",
   ALTERNATION = "alternation",
+  SEQUENCE = "sequence",
+  CUSTOM_GENERATOR = "custom_generator",
 }
 
 export type RelationResult =

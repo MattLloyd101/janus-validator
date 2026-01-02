@@ -9,8 +9,11 @@ export * from "./domains/RegexDomain";
 export * from "./domains/StructDomain";
 export * from "./domains/QuantifierDomain";
 export * from "./domains/AlternationDomain";
+export * from "./domains/SequenceDomain";
+export * from "./domains/CustomGeneratorDomain";
 export * from "./relations/encapsulates";
 export * from "./set/operations";
+export * from "./generators";
 
 import { encapsulates } from "./relations/encapsulates";
 import { union, intersect, subtract } from "./set/operations";

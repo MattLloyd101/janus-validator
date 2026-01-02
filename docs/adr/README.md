@@ -11,6 +11,7 @@ This directory contains Architectural Decision Records (ADRs) for the Janus Vali
 | [ADR-003](./003-property-based-testing-for-domain.md) | Property-Based Testing for the Domain Package | Accepted |
 | [ADR-004](./004-regex-parser-and-domain-integration.md) | Regex Parser Extraction and RegexDomain AST Mapping | Accepted |
 | [ADR-005](./005-domain-normalization-invariant.md) | Domain Normalization Invariant at Creation Time | Accepted |
+| [ADR-006](./006-generators-to-domain.md) | Move Generators from Core to Domain Package | Proposed |
 | (removed) | Certificate-Based Domain System / Serialization / Verification | Removed (pivoted to property-based testing) |
 
 ## What is an ADR?

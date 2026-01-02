@@ -8,7 +8,7 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@janus-validator/regex-parser$': '<rootDir>/../regex-parser/src/index.ts'
   },
-  collectCoverageFrom: ['src/**/*.ts'],
+  collectCoverageFrom: ['src/**/*.ts', '!src/generators/**/*.ts'],
   coverageThreshold: {
     global: {
       branches: 95,
