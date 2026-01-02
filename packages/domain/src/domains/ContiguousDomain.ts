@@ -21,9 +21,5 @@ export class ContiguousDomain<T extends number | bigint> extends BaseDomain<T> {
     if (typeof value !== "number" || Number.isNaN(value)) return false;
     return value >= (this.min as number) && value <= (this.max as number);
   }
-
-  normalize(): Domain<T> {
-    return new ContiguousDomain(this.min, this.max);
-  }
 }
 

@@ -1,4 +1,5 @@
-import { RegexDomain } from "@/domains/RegexDomain";
+import { RegexDomain, _RegexMatchVisitorTestOnly } from "@/domains/RegexDomain";
+import { RegexNodeType } from "@janus-validator/regex-parser";
 
 describe("RegexDomain guardrails", () => {
   it("rejects lookarounds and backreferences", () => {
@@ -77,13 +78,33 @@ describe("RegexDomain guardrails", () => {
     expect(domain.contains(123 as any)).toBe(false);
   });
 
-  it("normalize recreates pattern", () => {
-    const domain = new RegexDomain(/^abc$/);
-    const norm = domain.normalize();
-    expect(norm.contains("abc")).toBe(true);
+  it("honors start and end anchors", () => {
+    const startOnly = new RegexDomain(/^abc/);
+    expect(startOnly.contains("abc")).toBe(true);
+    expect(startOnly.contains("zabc")).toBe(false);
+
+    const endOnly = new RegexDomain(/abc$/);
+    expect(endOnly.contains("abc")).toBe(true);
+    expect(endOnly.contains("abcz")).toBe(false);
+  });
+
+  it("supports multi-range character classes", () => {
+    const domain = new RegexDomain(/^[a-cx-z]$/);
+    expect(domain.contains("b")).toBe(true);
+    expect(domain.contains("y")).toBe(true);
+    expect(domain.contains("d")).toBe(false);
   });
 
   it("throws on flags for portability", () => {
     expect(() => new RegexDomain(/abc/i)).toThrow(/Unsupported regex flags/);
+  });
+
+  it("defensive anchor path returns empty for unknown kind", () => {
+    const visitor = new _RegexMatchVisitorTestOnly();
+    const res = visitor.visit(
+      { type: RegexNodeType.ANCHOR, kind: "bogus" as any },
+      { value: "abc", pos: 0 }
+    );
+    expect(res).toEqual([]);
   });
 });

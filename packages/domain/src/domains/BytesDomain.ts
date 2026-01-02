@@ -23,9 +23,5 @@ export class BytesDomain extends BaseDomain<Uint8Array> {
       value.length <= this.maxLength
     );
   }
-
-  normalize(): Domain<Uint8Array> {
-    return new BytesDomain({ minLength: this.minLength, maxLength: this.maxLength });
-  }
 }
 

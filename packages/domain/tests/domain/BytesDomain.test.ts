@@ -12,10 +12,10 @@ describe("BytesDomain", () => {
     expect(() => new BytesDomain({ minLength: 3, maxLength: 2 })).toThrow("Invalid byte length bounds");
   });
 
-  it("normalize clones bounds", () => {
-    const domain = new BytesDomain({ minLength: 1, maxLength: 2 });
-    const norm = domain.normalize() as BytesDomain;
-    expect(norm.contains(new Uint8Array([1, 2]))).toBe(true);
+  it("allows zero-length when minLength is zero", () => {
+    const domain = new BytesDomain({ minLength: 0, maxLength: 1 });
+    expect(domain.contains(new Uint8Array([]))).toBe(true);
+    expect(domain.contains(new Uint8Array([1, 2]))).toBe(false);
   });
 
   it("contains rejects non-Uint8Array", () => {

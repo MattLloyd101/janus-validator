@@ -7,11 +7,10 @@ describe("FiniteDomain", () => {
     expect(domain.contains(4)).toBe(false);
   });
 
-  it("normalize preserves values", () => {
-    const domain = new FiniteDomain([1, 2]);
-    const normalized = domain.normalize() as FiniteDomain<number>;
-    expect(normalized.contains(1)).toBe(true);
-    expect(normalized.contains(3)).toBe(false);
-    expect(normalized.size).toBe(2);
+  it("dedupes values at construction (normalized on create)", () => {
+    const domain = new FiniteDomain([1, 1, 2]);
+    expect(domain.contains(1)).toBe(true);
+    expect(domain.contains(3)).toBe(false);
+    expect(domain.size).toBe(2);
   });
 });

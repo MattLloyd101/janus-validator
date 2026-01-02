@@ -17,6 +17,12 @@ describe("QuantifierDomain", () => {
     );
   });
 
+  it("throws on negative min", () => {
+    expect(() => new QuantifierDomain(new FiniteDomain([1]), { min: -1, max: 1 })).toThrow(
+      "Quantifier min must be >= 0"
+    );
+  });
+
   it("allows unbounded max", () => {
     const domain = new QuantifierDomain(new FiniteDomain([1]), { min: 0 });
     expect(domain.contains([1, 1, 1, 1, 1])).toBe(true);
@@ -27,12 +33,10 @@ describe("QuantifierDomain", () => {
     expect(domain.contains([2])).toBe(false);
   });
 
-  it("normalize clones inner domain", () => {
-    const domain = new QuantifierDomain(new FiniteDomain([1]), { min: 0, max: 1 });
-    const norm = domain.normalize() as QuantifierDomain<number>;
-    expect(norm).not.toBe(domain);
-    expect(norm.inner).not.toBe(domain.inner);
-    expect(norm.contains([1])).toBe(true);
+  it("enforces minimum length when max is undefined", () => {
+    const domain = new QuantifierDomain(new FiniteDomain([1]), { min: 2 });
+    expect(domain.contains([1])).toBe(false);
+    expect(domain.contains([1, 1])).toBe(true);
   });
 
   it("rejects arrays longer than max", () => {

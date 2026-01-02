@@ -23,9 +23,5 @@ export class StringDomain extends BaseDomain<string> {
       value.length <= this.maxLength
     );
   }
-
-  normalize(): Domain<string> {
-    return new StringDomain({ minLength: this.minLength, maxLength: this.maxLength });
-  }
 }
 

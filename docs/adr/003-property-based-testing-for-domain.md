@@ -1,7 +1,7 @@
 # ADR-003: Property-Based Testing for the Domain Package
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-01-02

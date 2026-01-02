@@ -1,7 +1,7 @@
 # ADR-004: Regex Parser Extraction and RegexDomain AST Mapping
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-01-02

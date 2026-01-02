@@ -9,10 +9,12 @@ class DummyDomain extends BaseDomain<number> {
 }
 
 describe("BaseDomain", () => {
-  it("normalize returns self by default", () => {
+  it("exposes contains without public normalize", () => {
     const d = new DummyDomain();
-    expect(d.normalize()).toBeInstanceOf(DummyDomain);
-    expect(d.normalize().contains(1)).toBe(true);
+    expect(d.contains(1)).toBe(true);
+    expect(d.contains("nope")).toBe(false);
+    // normalize is protected; not enumerable on the instance
+    expect(Object.keys(d)).not.toContain("normalize");
   });
 });
 

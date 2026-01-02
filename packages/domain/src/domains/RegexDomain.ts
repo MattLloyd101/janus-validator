@@ -11,7 +11,7 @@ import {
   RegexASTVisitor,
 } from "@janus-validator/regex-parser";
 import { FiniteDomain } from "./FiniteDomain";
-import { AlternationDomain } from "./AlternationDomain";
+import { normalizeAlternation } from "./AlternationDomain";
 import { ContiguousDomain } from "./ContiguousDomain";
 
 type CharDomain = Domain<string>;
@@ -32,9 +32,6 @@ class CharRangeAdapter extends BaseDomain<string> {
     if (typeof value !== "string" || value.length === 0) return false;
     const cp = value.codePointAt(0)!;
     return this.range.contains(cp);
-  }
-  normalize(): Domain<string> {
-    return new CharRangeAdapter(new RangeCharDomain(this.range.min as number, this.range.max as number));
   }
 }
 
@@ -77,14 +74,11 @@ class RegexMatchVisitor extends RegexASTVisitor<MatchPositions, MatchContext> {
   }
 
   protected visitCharClass(node: CharClassNode, ctx: MatchContext): MatchPositions {
-    let domain: CharDomain;
-    if (node.ranges.length === 1) {
-      const [range] = node.ranges;
-      domain = new CharRangeAdapter(new RangeCharDomain(range.min, range.max));
-    } else {
-      const domains = node.ranges.map((r) => new CharRangeAdapter(new RangeCharDomain(r.min, r.max)));
-      domain = new AlternationDomain(domains);
-    }
+    const domain: CharDomain =
+      node.ranges.length === 1
+        ? new CharRangeAdapter(new RangeCharDomain(node.ranges[0].min, node.ranges[0].max))
+        : normalizeAlternation(node.ranges.map((r) => new CharRangeAdapter(new RangeCharDomain(r.min, r.max))));
+
     return domain.contains(ctx.value[ctx.pos]) ? [ctx.pos + 1] : [];
   }
 
@@ -96,6 +90,7 @@ class RegexMatchVisitor extends RegexASTVisitor<MatchPositions, MatchContext> {
   protected visitAnchor(node: any, ctx: MatchContext): MatchPositions {
     if (node.kind === "start") return ctx.pos === 0 ? [ctx.pos] : [];
     if (node.kind === "end") return ctx.pos === ctx.value.length ? [ctx.pos] : [];
+    
     return [];
   }
 
@@ -170,9 +165,8 @@ export class RegexDomain extends BaseDomain<string> {
     const positions = this.matcher.visit(this.ast, { value, pos: 0 });
     return positions.includes(value.length);
   }
-
-  normalize(): Domain<string> {
-    return new RegexDomain(new RegExp(this.source));
-  }
 }
+
+// Exposed only for tests to exercise defensive branches
+export { RegexMatchVisitor as _RegexMatchVisitorTestOnly };
 

@@ -18,12 +18,13 @@ describe("StructDomain", () => {
     expect(domain.contains({})).toBe(false);
   });
 
-  it("normalize normalizes nested domains", () => {
-    const domain = new StructDomain({ fields: { a: new FiniteDomain([1]) }, strict: true });
-    const norm = domain.normalize() as StructDomain<any>;
-    expect(norm).not.toBe(domain);
-    expect(norm.fields.a).not.toBe(domain.fields.a);
-    expect(norm.contains({ a: 1 })).toBe(true);
+  it("validates all fields, not just presence", () => {
+    const domain = new StructDomain({
+      fields: { a: new FiniteDomain([1]), b: new FiniteDomain([2]) },
+      strict: true,
+    });
+    expect(domain.contains({ a: 1, b: 2 })).toBe(true);
+    expect(domain.contains({ a: 1, b: 3 })).toBe(false);
   });
 
   it("rejects non-object inputs", () => {

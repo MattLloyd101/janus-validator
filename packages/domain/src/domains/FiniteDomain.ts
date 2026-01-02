@@ -21,9 +21,5 @@ export class FiniteDomain<T> extends BaseDomain<T> {
   contains(value: unknown): value is T {
     return this.values.has(value as T);
   }
-
-  normalize(): Domain<T> {
-    return new FiniteDomain(this.values);
-  }
 }
 

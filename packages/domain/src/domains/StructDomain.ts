@@ -25,13 +25,5 @@ export class StructDomain<T extends Record<string, unknown>> extends BaseDomain<
     }
     return true;
   }
-
-  normalize(): Domain<T> {
-    const normalizedFields: Record<string, Domain<any>> = {};
-    for (const [k, v] of Object.entries(this.fields)) {
-      normalizedFields[k] = v.normalize();
-    }
-    return new StructDomain({ fields: normalizedFields, strict: this.strict });
-  }
 }
 

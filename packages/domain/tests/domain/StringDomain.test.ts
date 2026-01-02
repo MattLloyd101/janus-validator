@@ -11,10 +11,10 @@ describe("StringDomain", () => {
     expect(() => new StringDomain({ minLength: 3, maxLength: 1 })).toThrow("Invalid string length bounds");
   });
 
-  it("normalize clones bounds", () => {
-    const domain = new StringDomain({ minLength: 1, maxLength: 2 });
-    const norm = domain.normalize() as StringDomain;
-    expect(norm.contains("ab")).toBe(true);
+  it("allows empty string when minLength is zero", () => {
+    const domain = new StringDomain({ minLength: 0, maxLength: 2 });
+    expect(domain.contains("")).toBe(true);
+    expect(domain.contains("abc")).toBe(false);
   });
 });
 

@@ -23,6 +23,14 @@ describe("encapsulates", () => {
     expect(encapsulates(base, relaxed).result).toBe("false");
   });
 
+  it("struct propagates nested relation failures", () => {
+    const sup = new StructDomain({ fields: { a: new ContiguousDomain(0, 5) }, strict: true });
+    const sub = new StructDomain({ fields: { a: new ContiguousDomain(0, 10) }, strict: true });
+    const res = encapsulates(sup, sub);
+    expect(res.result).toBe("false");
+    if (res.result === "false") expect(res.reason).toContain("range");
+  });
+
   it("regex inclusion is unknown when patterns differ", () => {
     const a = new RegexDomain(/^abc$/);
     const b = new RegexDomain(/^abcd$/);

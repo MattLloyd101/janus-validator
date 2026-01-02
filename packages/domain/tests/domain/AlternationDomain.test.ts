@@ -1,4 +1,4 @@
-import { AlternationDomain } from "@/domains/AlternationDomain";
+import { AlternationDomain, normalizeAlternation } from "@/domains/AlternationDomain";
 import { ContiguousDomain } from "@/domains/ContiguousDomain";
 import { FiniteDomain } from "@/domains/FiniteDomain";
 
@@ -7,7 +7,7 @@ describe("AlternationDomain", () => {
     const a = new ContiguousDomain(0, 2);
     const b = new ContiguousDomain(3, 5);
     const nested = new AlternationDomain<number>([new AlternationDomain([a, b])]);
-    const normalized = nested.normalize();
+    const normalized = normalizeAlternation([nested]);
     expect(normalized).toBeInstanceOf(ContiguousDomain);
     const range = normalized as ContiguousDomain<number>;
     expect(range.min).toBe(0);
@@ -15,11 +15,10 @@ describe("AlternationDomain", () => {
   });
 
   it("dedupes identical finite domains", () => {
-    const alt = new AlternationDomain<number>([
+    const normalized = normalizeAlternation<number>([
       new FiniteDomain([1, 2]),
       new FiniteDomain([1, 2]),
-    ]);
-    const normalized = alt.normalize() as AlternationDomain<number> | FiniteDomain<number>;
+    ]) as AlternationDomain<number> | FiniteDomain<number>;
     if (normalized instanceof AlternationDomain) {
       expect(normalized.options.length).toBe(1);
     } else {
@@ -28,22 +27,19 @@ describe("AlternationDomain", () => {
   });
 
   it("merges adjacent contiguous ranges", () => {
-    const alt = new AlternationDomain<number>([new ContiguousDomain(0, 1), new ContiguousDomain(2, 3)]);
-    const normalized = alt.normalize() as ContiguousDomain<number>;
+    const normalized = normalizeAlternation<number>([new ContiguousDomain(0, 1), new ContiguousDomain(2, 3)]) as ContiguousDomain<number>;
     expect(normalized.min).toBe(0);
     expect(normalized.max).toBe(3);
   });
 
   it("handles bigint adjacency", () => {
-    const alt = new AlternationDomain<bigint>([new ContiguousDomain(0n, 1n), new ContiguousDomain(2n, 3n)]);
-    const normalized = alt.normalize() as ContiguousDomain<bigint>;
+    const normalized = normalizeAlternation<bigint>([new ContiguousDomain(0n, 1n), new ContiguousDomain(2n, 3n)]) as ContiguousDomain<bigint>;
     expect(normalized.min).toBe(0n);
     expect(normalized.max).toBe(3n);
   });
 
   it("leaves non-overlapping ranges as alternation", () => {
-    const alt = new AlternationDomain<number>([new ContiguousDomain(0, 1), new ContiguousDomain(10, 11)]);
-    const normalized = alt.normalize() as AlternationDomain<number>;
+    const normalized = normalizeAlternation<number>([new ContiguousDomain(0, 1), new ContiguousDomain(10, 11)]) as AlternationDomain<number>;
     expect(normalized).toBeInstanceOf(AlternationDomain);
     expect(normalized.options.length).toBe(2);
   });
@@ -55,24 +51,28 @@ describe("AlternationDomain", () => {
   });
 
   it("merges overlapping ranges via overlap branch", () => {
-    const alt = new AlternationDomain<number>([new ContiguousDomain(0, 3), new ContiguousDomain(2, 4)]);
-    const normalized = alt.normalize() as ContiguousDomain<number>;
+    const normalized = normalizeAlternation<number>([new ContiguousDomain(0, 3), new ContiguousDomain(2, 4)]) as ContiguousDomain<number>;
     expect(normalized.min).toBe(0);
     expect(normalized.max).toBe(4);
   });
 
-  it("normalizes single option returns option directly", () => {
-    const alt = new AlternationDomain<number>([new ContiguousDomain(1, 2)]);
-    const normalized = alt.normalize();
+  it("returns single option directly during normalization", () => {
+    const normalized = normalizeAlternation<number>([new ContiguousDomain(1, 2)]);
     expect(normalized).toBeInstanceOf(ContiguousDomain);
     expect((normalized as ContiguousDomain<number>).min).toBe(1);
   });
 
   it("merges bigint overlapping ranges", () => {
-    const alt = new AlternationDomain<bigint>([new ContiguousDomain(0n, 2n), new ContiguousDomain(2n, 5n)]);
-    const normalized = alt.normalize() as ContiguousDomain<bigint>;
+    const normalized = normalizeAlternation<bigint>([new ContiguousDomain(0n, 2n), new ContiguousDomain(2n, 5n)]) as ContiguousDomain<bigint>;
     expect(normalized.min).toBe(0n);
     expect(normalized.max).toBe(5n);
+  });
+
+  it("protected normalize can be invoked internally", () => {
+    const alt = new AlternationDomain<number>([new ContiguousDomain(0, 1), new ContiguousDomain(2, 3)]);
+    (alt as any).normalize();
+    expect(alt.options.length).toBe(1);
+    expect((alt.options[0] as ContiguousDomain<number>).max).toBe(3);
   });
 });
 

@@ -23,9 +23,5 @@ export class QuantifierDomain<T> extends BaseDomain<T[]> {
     if (this.max !== undefined && value.length > this.max) return false;
     return value.every((v) => this.inner.contains(v));
   }
-
-  normalize(): Domain<T[]> {
-    return new QuantifierDomain(this.inner.normalize(), { min: this.min, max: this.max });
-  }
 }
 
