@@ -1,7 +1,7 @@
 # ADR-006: Move Generators from Core to Domain Package
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-01-02
