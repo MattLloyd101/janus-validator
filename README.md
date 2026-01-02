@@ -136,6 +136,7 @@ npm test
 # Build/test specific package
 npm run build --workspace=@janus-validator/core
 npm run test --workspace=@janus-validator/core
+
 ```
 
 ## Why Janus?
