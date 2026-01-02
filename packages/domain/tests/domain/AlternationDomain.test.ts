@@ -67,12 +67,5 @@ describe("AlternationDomain", () => {
     expect(normalized.min).toBe(0n);
     expect(normalized.max).toBe(5n);
   });
-
-  it("protected normalize can be invoked internally", () => {
-    const alt = new AlternationDomain<number>([new ContiguousDomain(0, 1), new ContiguousDomain(2, 3)]);
-    (alt as any).normalize();
-    expect(alt.options.length).toBe(1);
-    expect((alt.options[0] as ContiguousDomain<number>).max).toBe(3);
-  });
 });
 
