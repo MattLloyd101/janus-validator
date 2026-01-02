@@ -1,6 +1,3 @@
 # Engineering Notes
 
-- Favor class-based development where it keeps concerns cohesive and testable.
-- Prefer encapsulation over inheritance when it makes sense; compose before extending.
-- Use `protected` over `private` to allow controlled extension without breaking encapsulation.
-
+Guidance has been promoted to rules in `.cursor/rules.md`. Keep notes for future scratch items.

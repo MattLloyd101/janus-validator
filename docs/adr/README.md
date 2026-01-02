@@ -8,9 +8,11 @@ This directory contains Architectural Decision Records (ADRs) for the Janus Vali
 |-----|-------|--------|
 | [ADR-001](./001-avro-map-type-handling.md) | Avro Map Type Handling | Accepted |
 | [ADR-002](./002-domain-relations-and-set-operations.md) | Domain Relations and Set Operations for Schema Compatibility | Accepted |
+| [ADR-003](./003-property-based-testing-for-domain.md) | Property-Based Testing for the Domain Package | Proposed |
+| [ADR-004](./004-regex-parser-and-domain-integration.md) | Regex Parser Extraction and RegexDomain AST Mapping | Proposed |
 | (removed) | Certificate-Based Domain System / Serialization / Verification | Removed (pivoted to property-based testing) |
 
-> Note: ADR-003, ADR-004, and ADR-005 were removed when we dropped the certificate/Coq-based verification track in favor of property-based testing.
+> Note: ADR-004 and ADR-005 were removed when we dropped the certificate/Coq-based verification track in favor of property-based testing (now captured in ADR-003).
 
 ## What is an ADR?
 

@@ -3,7 +3,8 @@
   "references": [
     { "path": "packages/core" },
     { "path": "packages/avro" },
-    { "path": "packages/domain" }
+    { "path": "packages/domain" },
+    { "path": "packages/regex-parser" }
   ]
 }
 

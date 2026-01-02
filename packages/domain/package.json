@@ -4,6 +4,9 @@
   "description": "Domain classes for validation and generation - defines the set of valid values for validators",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "dependencies": {
+    "@janus-validator/regex-parser": "0.0.0"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
