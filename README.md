@@ -101,22 +101,49 @@ const roundTrip = User.validate(fixture);
 
 ## Structured errors (and examples)
 
-Errors can include:
-- `error`: a human readable path-based summary
+Errors include:
+- `error`: a human readable message
+- `path` / `pathString`: exact location of the error (e.g., `['user', 'email']` → `'user.email'`)
+- `code`: optional error code for i18n
 - `results`: recursive per-field/per-element results
-- `example`: a generated value that would pass the validator (useful for debugging and docs)
+- `example`: a generated value that would pass the validator
 
 ```typescript
-import { O, U, I } from '@janus-validator/dsl';
+import { O, U, I, flattenErrors } from '@janus-validator/dsl';
 
 const Profile = O({ name: U(1, 50), age: I(0, 150) });
 const result = Profile.validate({ name: 'Alice', age: 999 });
 
 if (!result.valid) {
-  result.error;   // e.g. "age: Value 999 is greater than maximum 150"
-  result.example; // a generated valid example for the whole validator
-  result.results; // per-field results (recursive)
+  result.error;      // "age: Expected value <= 150, got 999"
+  result.example;    // auto-generated valid example
+  result.results;    // per-field results (recursive)
+  
+  // Flatten all errors for form handling
+  const errors = flattenErrors(result);
+  // [{ path: 'age', message: '...', code: undefined }]
 }
+```
+
+## Modifiers (optional, transforms, refinements)
+
+Chain modifiers for common patterns:
+
+```typescript
+import { O, U, I, B } from '@janus-validator/dsl';
+
+const User = O({
+  name: U(1, 50).trim(),                    // Trim whitespace
+  email: U(5, 100)
+    .trim()
+    .toLowerCase()
+    .refine(s => s.includes('@'), 'Invalid email')
+    .message('Please enter a valid email')  // Custom error message
+    .code('INVALID_EMAIL'),                 // Error code for i18n
+  age: I(0, 150).optional(),                // T | undefined
+  nickname: U(1, 20).nullable(),            // T | null
+  verified: B().default(false),             // Default value
+});
 ```
 
 See the [DSL package README](./packages/dsl/README.md) for the full DSL reference.

@@ -91,20 +91,147 @@ const result = User.validate(sample);
 ## Structured errors (with examples)
 
 When validation fails, you get:
-- `error`: a path-based summary (e.g. `profile.age: Value 999 is greater than maximum 150`)
+- `error`: human-readable error message
+- `path` / `pathString`: exact location (e.g. `['profile', 'age']` → `'profile.age'`)
+- `code`: optional error code for i18n
 - `results`: a recursive structure showing which parts passed/failed
 - `example`: an auto-generated valid value for the failing validator
 
 ```typescript
 import { Struct, UnicodeString, Integer } from '@janus-validator/core/combinators';
+import { flattenErrors, formatErrors, errorsToJson } from '@janus-validator/core';
 
 const Profile = Struct({ name: UnicodeString(1, 50), age: Integer(0, 150) });
 const result = Profile.validate({ name: 'Alice', age: 999 });
 
 if (!result.valid) {
-  result.error;
-  result.results; // per-field ValidationResult
-  result.example; // generated valid Profile
+  result.error;       // "age: Expected value <= 150, got 999"
+  result.path;        // ['age']
+  result.pathString;  // 'age'
+  result.results;     // per-field ValidationResult
+  result.example;     // generated valid Profile
+  
+  // Error formatting utilities
+  const errors = flattenErrors(result);  // [{ path: 'age', message: '...', code: undefined }]
+  const text = formatErrors(result);     // "age: Expected value <= 150, got 999"
+  const json = errorsToJson(result);     // { valid: false, errors: [...] }
+}
+```
+
+## Validator Modifiers
+
+Chain modifiers for common validation patterns:
+
+### Optional / Nullable / Default
+
+```typescript
+import { UnicodeString, Integer, Boolean } from '@janus-validator/core/combinators';
+
+// Accept undefined in addition to the normal type
+const maybeName = UnicodeString(1, 50).optional();     // string | undefined
+
+// Accept null in addition to the normal type  
+const nullableName = UnicodeString(1, 50).nullable();  // string | null
+
+// Accept null or undefined
+const nullishName = UnicodeString(1, 50).nullish();    // string | null | undefined
+
+// Provide default value for undefined inputs
+const port = Integer(1, 65535).default(3000);
+const timestamp = Integer().default(() => Date.now());  // Dynamic default
+```
+
+### Transforms
+
+```typescript
+import { UnicodeString } from '@janus-validator/core/combinators';
+
+// Built-in string transforms
+const normalized = UnicodeString(1, 100)
+  .trim()
+  .toLowerCase();
+
+// Custom transforms
+const toInt = UnicodeString(1, 10)
+  .transform(s => parseInt(s, 10));  // Validator<number>
+```
+
+### Refinements
+
+```typescript
+import { UnicodeString, Integer } from '@janus-validator/core/combinators';
+
+// Simple predicate refinement
+const even = Integer(0, 100).refine(n => n % 2 === 0, 'Must be even');
+
+// Dynamic error message
+const positive = Integer().refine(
+  n => n > 0,
+  n => `Expected positive, got ${n}`
+);
+
+// Multiple refinements
+const password = UnicodeString(8, 100)
+  .refine(s => /[A-Z]/.test(s), 'Must contain uppercase')
+  .refine(s => /[0-9]/.test(s), 'Must contain digit');
+
+// Complex validation with superRefine
+const form = Struct({
+  password: UnicodeString(8, 100),
+  confirm: UnicodeString(8, 100),
+}).superRefine((value, ctx) => {
+  if (value.password !== value.confirm) {
+    ctx.addIssue({ message: 'Passwords must match', path: ['confirm'] });
+  }
+});
+```
+
+### Error Customization
+
+```typescript
+import { UnicodeString } from '@janus-validator/core/combinators';
+
+const email = UnicodeString(5, 100)
+  .refine(s => s.includes('@'))
+  .message('Please enter a valid email')   // Custom error message
+  .code('INVALID_EMAIL')                   // Error code for i18n
+  .describe('User email address');         // Documentation
+
+// Dynamic message
+const count = Integer(1, 100).message((err, val) => 
+  `Count ${val} is invalid: ${err}`
+);
+```
+
+## Error Formatting Utilities
+
+```typescript
+import { 
+  flattenErrors,    // Get all errors as flat array
+  formatErrors,     // Human-readable string
+  errorsToJson,     // JSON for API responses
+  getFirstError,    // Get first error only
+  getErrorAtPath,   // Find error at specific path
+  getErrorsByPath,  // Group errors by path
+} from '@janus-validator/core';
+
+const result = User.validate(data);
+if (!result.valid) {
+  // Flat array for form handling
+  const errors = flattenErrors(result);
+  // [{ path: 'profile.email', message: 'Invalid', code: 'INVALID_EMAIL' }]
+  
+  // Human-readable for logging
+  console.log(formatErrors(result));
+  // "profile.email: Invalid"
+  
+  // JSON for API responses
+  res.status(400).json(errorsToJson(result));
+  // { valid: false, errors: [{ path: '...', message: '...', code: '...' }] }
+  
+  // Form field error
+  const emailError = getErrorAtPath(result, 'profile.email');
+  if (emailError) setFieldError('email', emailError.message);
 }
 ```
 
@@ -293,7 +420,11 @@ type ValidationResult<T> =
   | {
       valid: false;
       error: string;
-      example?: T;
+      path?: (string | number)[];     // Error location: ['user', 'email']
+      pathString?: string;            // Formatted: 'user.email'
+      code?: string;                  // Error code for i18n
+      meta?: Record<string, unknown>; // Additional metadata
+      example?: T;                    // Auto-generated valid example
       results?: { [key: string]: ValidationResult<unknown> } | ValidationResult<unknown>[];
     };
 ```
