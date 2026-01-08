@@ -6,10 +6,11 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "tsc -b packages/domain packages/core packages/dsl packages/avro",
+    "build": "tsc -b packages/domain packages/core packages/lib packages/dsl packages/avro",
     "build:domain": "tsc -b packages/domain",
     "build:core": "tsc -b packages/domain packages/core",
-    "build:dsl": "tsc -b packages/domain packages/core packages/dsl",
+    "build:lib": "tsc -b packages/domain packages/core packages/lib",
+    "build:dsl": "tsc -b packages/domain packages/core packages/lib packages/dsl",
     "build:avro": "tsc -b packages/domain packages/core packages/avro",
     "test": "npm run test --workspaces",
     "test:coverage": "npm run test:coverage:all",
@@ -18,6 +19,7 @@
     "test:coverage:core": "npm -w @janus-validator/core run test:coverage",
     "test:coverage:dsl": "npm -w @janus-validator/dsl run test:coverage",
     "test:coverage:avro": "npm -w @janus-validator/avro run test:coverage",
+    "test:coverage:lib": "npm -w @janus-validator/lib run test:coverage",
     "test:pbt:domain:short": "npm -w @janus-validator/domain run test:pbt:short",
     "test:pbt:domain:long": "npm -w @janus-validator/domain run test:pbt:long",
     "clean": "npm run clean --workspaces && rimraf packages/*/tsconfig.tsbuildinfo && rimraf \"packages/*/src/**/*.d.ts\" \"packages/*/src/**/*.d.ts.map\" \"packages/*/src/**/*.js\" \"packages/*/src/**/*.js.map\"",

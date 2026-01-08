@@ -28,7 +28,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@janus-validator/core": "^0.1.0"
+    "@janus-validator/core": "0.8.1",
+    "@janus-validator/lib": "0.8.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",

@@ -1,0 +1,84 @@
+{
+  "name": "@janus-validator/lib",
+  "version": "0.8.1",
+  "description": "Common validation patterns library for Janus Validator - domain-based validators for emails, URLs, UUIDs, and more",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./network": {
+      "types": "./dist/validators/network.d.ts",
+      "default": "./dist/validators/network.js"
+    },
+    "./identifiers": {
+      "types": "./dist/validators/identifiers.d.ts",
+      "default": "./dist/validators/identifiers.js"
+    },
+    "./contact": {
+      "types": "./dist/validators/contact.d.ts",
+      "default": "./dist/validators/contact.js"
+    },
+    "./credentials": {
+      "types": "./dist/validators/credentials.d.ts",
+      "default": "./dist/validators/credentials.js"
+    },
+    "./datetime": {
+      "types": "./dist/validators/datetime.d.ts",
+      "default": "./dist/validators/datetime.js"
+    },
+    "./finance": {
+      "types": "./dist/validators/finance.d.ts",
+      "default": "./dist/validators/finance.js"
+    },
+    "./location": {
+      "types": "./dist/validators/location.d.ts",
+      "default": "./dist/validators/location.js"
+    },
+    "./presets": {
+      "types": "./dist/validators/presets.d.ts",
+      "default": "./dist/validators/presets.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "validator",
+    "validation",
+    "email",
+    "url",
+    "uuid",
+    "phone",
+    "typescript",
+    "schema",
+    "domain-based"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.11.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "@janus-validator/core": "0.8.1"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}

@@ -17,7 +17,7 @@ This directory contains Architectural Decision Records (ADRs) for the Janus Vali
 | [ADR-009](./009-transform-parse-support.md) | Transform and Parse Support via Composition | Accepted |
 | [ADR-010](./010-refinements.md) | Refinements via Composition | Accepted |
 | [ADR-011](./011-enhanced-error-messages.md) | Enhanced Error Messages via Composition | Accepted |
-| [ADR-012](./012-lib-package-domain-based-validators.md) | Extract Lib Package with Domain-Based Validators | Proposed |
+| [ADR-012](./012-lib-package-domain-based-validators.md) | Extract Lib Package with Domain-Based Validators | Accepted |
 | (removed) | Certificate-Based Domain System / Serialization / Verification | Removed (pivoted to property-based testing) |
 
 ## What is an ADR?

@@ -1,7 +1,7 @@
 # ADR-012: Extract Lib Package with Domain-Based Validators
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-01-08

@@ -19,13 +19,16 @@
     "paths": {
       "@/*": ["src/*"],
       "@janus-validator/core": ["../core/src/index.ts"],
-      "@janus-validator/core/*": ["../core/src/com/techlloyd/janus/*.ts"]
+      "@janus-validator/core/*": ["../core/src/com/techlloyd/janus/*.ts"],
+      "@janus-validator/lib": ["../lib/src/index.ts"],
+      "@janus-validator/lib/*": ["../lib/src/*.ts"]
     }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"],
   "references": [
-    { "path": "../core" }
+    { "path": "../core" },
+    { "path": "../lib" }
   ]
 }
 
