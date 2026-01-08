@@ -1,7 +1,7 @@
 # ADR-009: Transform and Parse Support via Composition
 
 ## Status
-Proposed
+Accepted & Implemented
 
 ## Date
 2026-01-08

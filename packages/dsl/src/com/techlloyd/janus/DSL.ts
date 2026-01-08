@@ -574,6 +574,7 @@ import {
   nullable as nullableModifier,
   nullish as nullishModifier,
   withDefault as withDefaultFn,
+  transform as transformFn,
 } from '@janus-validator/core';
 
 /**
@@ -635,3 +636,32 @@ export const nullish = nullishModifier;
  * ```
  */
 export const withDefault = withDefaultFn;
+
+/**
+ * Transforms the validated value using the provided function.
+ * 
+ * The transform is applied after successful validation. If the transform
+ * throws an error, it becomes a validation error.
+ * 
+ * @param validator The validator to wrap
+ * @param fn The transformation function
+ * @param errorMessage Optional custom error message for transform failures
+ * @returns A new validator that produces transformed values
+ * 
+ * @example
+ * ```typescript
+ * // Basic transform
+ * const trimmed = transform(U(1, 100), s => s.trim());
+ * trimmed.validate("  hello  "); // { valid: true, value: "hello" }
+ * 
+ * // Type-changing transform (string to number)
+ * const toInt = transform(U(), s => parseInt(s, 10));
+ * toInt.validate("42"); // { valid: true, value: 42 }
+ * 
+ * // Or use the fluent method:
+ * const trimmed = U(1, 100).trim();
+ * const lower = U().toLowerCase();
+ * const chained = U().transform(s => s.trim()).transform(s => s.toLowerCase());
+ * ```
+ */
+export { transformFn as transform };

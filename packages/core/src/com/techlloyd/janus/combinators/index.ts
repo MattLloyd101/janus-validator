@@ -62,7 +62,7 @@ export {
   parseRegex,
 } from './regex/index';
 
-// Re-export modifiers for optional, nullable, default, etc.
+// Re-export modifiers for optional, nullable, default, transform, etc.
 export {
   OptionalValidator,
   optional,
@@ -72,4 +72,6 @@ export {
   nullish,
   DefaultValidator,
   withDefault,
+  TransformValidator,
+  transform,
 } from './modifiers/index';

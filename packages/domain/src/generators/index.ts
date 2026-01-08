@@ -12,5 +12,6 @@ export * from "./StructDomainGenerator";
 export * from "./CustomGeneratorDomainGenerator";
 export * from "./BytesDomainGenerator";
 export * from "./BigIntDomainGenerator";
+export * from "./TransformDomainGenerator";
 export * from "./interpolate";
 

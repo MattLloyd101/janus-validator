@@ -11,6 +11,7 @@ export * from "./domains/QuantifierDomain";
 export * from "./domains/AlternationDomain";
 export * from "./domains/SequenceDomain";
 export * from "./domains/CustomGeneratorDomain";
+export * from "./domains/TransformDomain";
 export * from "./relations/encapsulates";
 export * from "./set/operations";
 export * from "./generators";

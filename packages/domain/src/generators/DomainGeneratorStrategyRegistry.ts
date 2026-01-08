@@ -13,6 +13,7 @@ import { StructDomainGenerator } from "./StructDomainGenerator";
 import { CustomGeneratorDomainGenerator } from "./CustomGeneratorDomainGenerator";
 import { BytesDomainGenerator } from "./BytesDomainGenerator";
 import { BigIntDomainGenerator } from "./BigIntDomainGenerator";
+import { TransformDomainGenerator } from "./TransformDomainGenerator";
 
 /**
  * Registry that maps domain types to their corresponding generator strategies.
@@ -35,6 +36,7 @@ import { BigIntDomainGenerator } from "./BigIntDomainGenerator";
  * - `CUSTOM_GENERATOR` → `CustomGeneratorDomainGenerator` (uses custom function)
  * - `BYTES` → `BytesDomainGenerator` (generates binary data)
  * - `BIGINT` → `BigIntDomainGenerator` (generates BigInt values)
+ * - `TRANSFORM` → `TransformDomainGenerator` (generates then transforms)
  * 
  * ## Custom Strategies
  * 
@@ -78,6 +80,7 @@ export class DomainGeneratorStrategyRegistry {
     this.strategies.set(DomainType.CUSTOM_GENERATOR, new CustomGeneratorDomainGenerator());
     this.strategies.set(DomainType.BYTES, new BytesDomainGenerator());
     this.strategies.set(DomainType.BIGINT, new BigIntDomainGenerator());
+    this.strategies.set(DomainType.TRANSFORM, new TransformDomainGenerator(this));
   }
 
   /**

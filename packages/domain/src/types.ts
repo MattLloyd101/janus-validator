@@ -40,6 +40,8 @@ export enum DomainType {
   SEQUENCE = "sequence",
   /** Wrapper domain that provides custom value generation logic */
   CUSTOM_GENERATOR = "custom_generator",
+  /** Wrapper domain that transforms values from an inner domain */
+  TRANSFORM = "transform",
 }
 
 /**
