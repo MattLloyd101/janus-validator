@@ -223,3 +223,12 @@ export {
   FutureDate,
   RealisticPrice,
 } from './validators/presets';
+
+// String utility validators
+export {
+  StartsWith,
+  EndsWith,
+  Contains,
+  StartsWithPattern,
+  EndsWithPattern,
+} from './validators/strings';

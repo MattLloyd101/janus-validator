@@ -186,6 +186,13 @@ import {
   RecentDate,
   FutureDate,
   RealisticPrice,
+  
+  // String utilities
+  StartsWith,
+  EndsWith,
+  Contains,
+  StartsWithPattern,
+  EndsWithPattern,
 } from '../src';
 
 describe('@janus-validator/lib', () => {
@@ -1738,6 +1745,197 @@ describe('@janus-validator/lib', () => {
           const generated = generator.generate(RealisticPrice().domain);
           expect(typeof generated).toBe('number');
           expect(generated).toBeGreaterThanOrEqual(0);
+        }
+      });
+    });
+  });
+
+  // ============================================================================
+  // String utility validators
+  // ============================================================================
+
+  describe('String utility validators', () => {
+    describe('StartsWith', () => {
+      it('validates strings starting with prefix', () => {
+        const validator = StartsWith('http://');
+        expect(validator.validate('http://example.com').valid).toBe(true);
+        expect(validator.validate('http://localhost:3000').valid).toBe(true);
+        expect(validator.validate('http://').valid).toBe(true);
+      });
+
+      it('rejects strings not starting with prefix', () => {
+        const validator = StartsWith('http://');
+        expect(validator.validate('https://example.com').valid).toBe(false);
+        expect(validator.validate('ftp://example.com').valid).toBe(false);
+        expect(validator.validate('example.com').valid).toBe(false);
+      });
+
+      it('respects length constraints', () => {
+        const validator = StartsWith('ID-', 5, 10);
+        expect(validator.validate('ID-42').valid).toBe(true);
+        expect(validator.validate('ID-1234567').valid).toBe(true);
+        expect(validator.validate('ID-').valid).toBe(false); // too short
+        expect(validator.validate('ID-12345678').valid).toBe(false); // too long (11 chars)
+      });
+
+      it('generates valid strings (round-trip)', () => {
+        const validator = StartsWith('PREFIX_', 10, 20);
+        for (let i = 0; i < 10; i++) {
+          const generated = generator.generate(validator.domain);
+          expect(generated.startsWith('PREFIX_')).toBe(true);
+          expect(generated.length).toBeGreaterThanOrEqual(10);
+          expect(generated.length).toBeLessThanOrEqual(20);
+          expect(validator.validate(generated).valid).toBe(true);
+        }
+      });
+
+      it('throws error if minLength < prefix length', () => {
+        expect(() => StartsWith('hello', 3)).toThrow();
+      });
+    });
+
+    describe('EndsWith', () => {
+      it('validates strings ending with suffix', () => {
+        const validator = EndsWith('.js');
+        expect(validator.validate('app.js').valid).toBe(true);
+        expect(validator.validate('index.js').valid).toBe(true);
+        expect(validator.validate('.js').valid).toBe(true);
+      });
+
+      it('rejects strings not ending with suffix', () => {
+        const validator = EndsWith('.js');
+        expect(validator.validate('app.ts').valid).toBe(false);
+        expect(validator.validate('app.jsx').valid).toBe(false);
+        expect(validator.validate('appjs').valid).toBe(false);
+      });
+
+      it('respects length constraints', () => {
+        const validator = EndsWith('.txt', 6, 12);
+        expect(validator.validate('ab.txt').valid).toBe(true);
+        expect(validator.validate('document.txt').valid).toBe(true);
+        expect(validator.validate('a.txt').valid).toBe(false); // too short (5 chars)
+        expect(validator.validate('verylongname.txt').valid).toBe(false); // too long
+      });
+
+      it('generates valid strings (round-trip)', () => {
+        const validator = EndsWith('_SUFFIX', 10, 20);
+        for (let i = 0; i < 10; i++) {
+          const generated = generator.generate(validator.domain);
+          expect(generated.endsWith('_SUFFIX')).toBe(true);
+          expect(generated.length).toBeGreaterThanOrEqual(10);
+          expect(generated.length).toBeLessThanOrEqual(20);
+          expect(validator.validate(generated).valid).toBe(true);
+        }
+      });
+
+      it('throws error if minLength < suffix length', () => {
+        expect(() => EndsWith('hello', 3)).toThrow();
+      });
+    });
+
+    describe('Contains', () => {
+      it('validates strings containing substring', () => {
+        const validator = Contains('error');
+        expect(validator.validate('An error occurred').valid).toBe(true);
+        expect(validator.validate('error').valid).toBe(true);
+        expect(validator.validate('Some error message').valid).toBe(true);
+      });
+
+      it('rejects non-string inputs', () => {
+        const validator = Contains('test');
+        expect(validator.validate(123).valid).toBe(false);
+        expect(validator.validate(null).valid).toBe(false);
+        expect(validator.validate(undefined).valid).toBe(false);
+        expect(validator.validate({}).valid).toBe(false);
+      });
+
+      it('rejects strings not containing substring', () => {
+        const validator = Contains('error');
+        expect(validator.validate('All good').valid).toBe(false);
+        expect(validator.validate('warning').valid).toBe(false);
+        expect(validator.validate('err').valid).toBe(false);
+      });
+
+      it('respects length constraints', () => {
+        const validator = Contains('OK', 5, 15);
+        expect(validator.validate('Is OK now').valid).toBe(true);
+        expect(validator.validate('OK!!!').valid).toBe(true);
+        expect(validator.validate('OK!!').valid).toBe(false); // too short (4 chars)
+        expect(validator.validate('This is definitely OK here').valid).toBe(false); // too long
+      });
+
+      it('generates valid strings (round-trip)', () => {
+        const validator = Contains('MIDDLE', 10, 25);
+        for (let i = 0; i < 10; i++) {
+          const generated = generator.generate(validator.domain);
+          expect(generated.includes('MIDDLE')).toBe(true);
+          expect(generated.length).toBeGreaterThanOrEqual(10);
+          expect(generated.length).toBeLessThanOrEqual(25);
+          expect(validator.validate(generated).valid).toBe(true);
+        }
+      });
+
+      it('throws error if minLength < substring length', () => {
+        expect(() => Contains('hello', 3)).toThrow();
+      });
+    });
+
+    describe('StartsWithPattern', () => {
+      it('validates strings with prefix and pattern suffix', () => {
+        // Import digits from core for this test
+        const { digits } = require('@janus-validator/core');
+        const validator = StartsWithPattern('ID-', digits(4, 8));
+        
+        expect(validator.validate('ID-1234').valid).toBe(true);
+        expect(validator.validate('ID-12345678').valid).toBe(true);
+      });
+
+      it('rejects strings with wrong prefix or pattern', () => {
+        const { digits } = require('@janus-validator/core');
+        const validator = StartsWithPattern('ID-', digits(4, 8));
+        
+        expect(validator.validate('XX-1234').valid).toBe(false);
+        expect(validator.validate('ID-abc').valid).toBe(false);
+        expect(validator.validate('ID-12').valid).toBe(false); // too few digits
+      });
+
+      it('generates valid strings (round-trip)', () => {
+        const { digits } = require('@janus-validator/core');
+        const validator = StartsWithPattern('CODE_', digits(3, 6));
+        
+        for (let i = 0; i < 10; i++) {
+          const generated = generator.generate(validator.domain);
+          expect(generated.startsWith('CODE_')).toBe(true);
+          expect(validator.validate(generated).valid).toBe(true);
+        }
+      });
+    });
+
+    describe('EndsWithPattern', () => {
+      it('validates strings with pattern prefix and literal suffix', () => {
+        const { letters } = require('@janus-validator/core');
+        const validator = EndsWithPattern(letters(1, 20), '.txt');
+        
+        expect(validator.validate('document.txt').valid).toBe(true);
+        expect(validator.validate('a.txt').valid).toBe(true);
+      });
+
+      it('rejects strings with wrong pattern or suffix', () => {
+        const { letters } = require('@janus-validator/core');
+        const validator = EndsWithPattern(letters(1, 20), '.txt');
+        
+        expect(validator.validate('123.txt').valid).toBe(false); // digits not letters
+        expect(validator.validate('document.doc').valid).toBe(false);
+      });
+
+      it('generates valid strings (round-trip)', () => {
+        const { alphanumeric } = require('@janus-validator/core');
+        const validator = EndsWithPattern(alphanumeric(3, 8), '_END');
+        
+        for (let i = 0; i < 10; i++) {
+          const generated = generator.generate(validator.domain);
+          expect(generated.endsWith('_END')).toBe(true);
+          expect(validator.validate(generated).valid).toBe(true);
         }
       });
     });

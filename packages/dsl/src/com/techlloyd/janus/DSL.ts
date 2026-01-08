@@ -1015,3 +1015,12 @@ export {
   FutureDate,
   RealisticPrice,
 } from '@janus-validator/lib';
+
+// String utilities
+export {
+  StartsWith,
+  EndsWith,
+  Contains,
+  StartsWithPattern,
+  EndsWithPattern,
+} from '@janus-validator/lib';
