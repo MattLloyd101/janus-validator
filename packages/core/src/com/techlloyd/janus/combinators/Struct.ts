@@ -1,5 +1,5 @@
 import { Validator, BaseValidator } from '../Validator';
-import { ValidationResult } from '../ValidationResult';
+import { ValidationResult, prependPath } from '../ValidationResult';
 import { StructDomain, Domain } from '../Domain';
 
 /**
@@ -79,7 +79,7 @@ export class StructValidator<S extends StructSchema> extends BaseValidator<Infer
     if (this.strict) {
       const extraKeys = inputKeys.filter(key => !this.schemaKeys.includes(key));
       for (const key of extraKeys) {
-        results[key] = { valid: false, error: 'Unexpected property' };
+        results[key] = prependPath({ valid: false, error: 'Unexpected property' }, key);
         hasErrors = true;
       }
     }
@@ -89,13 +89,14 @@ export class StructValidator<S extends StructSchema> extends BaseValidator<Infer
       if (!(key in inputObj)) {
         // For missing property, validate undefined to get an error with example
         const fieldValidator = this.schema[key];
-        results[key] = fieldValidator.validate(undefined);
-        if (results[key].valid) {
+        const fieldResult = fieldValidator.validate(undefined);
+        if (fieldResult.valid) {
           // Field accepts undefined
-          validatedObj[key] = results[key].value;
+          results[key] = fieldResult;
+          validatedObj[key] = fieldResult.value;
         } else {
-          // Replace error message with "Missing required property"
-          results[key] = { ...results[key], error: 'Missing required property' };
+          // Replace error message with "Missing required property" and prepend path
+          results[key] = prependPath({ ...fieldResult, error: 'Missing required property' }, key);
           hasErrors = true;
         }
         continue;
@@ -103,7 +104,9 @@ export class StructValidator<S extends StructSchema> extends BaseValidator<Infer
 
       const fieldValidator = this.schema[key];
       const result = fieldValidator.validate(inputObj[key]);
-      results[key] = result;
+      
+      // Prepend field key to error path
+      results[key] = result.valid ? result : prependPath(result, key);
 
       if (!result.valid) {
         hasErrors = true;

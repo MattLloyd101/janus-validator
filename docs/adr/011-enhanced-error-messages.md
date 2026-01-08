@@ -1,7 +1,7 @@
 # ADR-011: Enhanced Error Messages via Composition
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-01-08

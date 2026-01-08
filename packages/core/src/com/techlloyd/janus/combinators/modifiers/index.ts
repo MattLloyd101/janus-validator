@@ -10,7 +10,9 @@
  * - .trim(), .toLowerCase(), .toUpperCase() - Common string transforms
  * - refine() / .refine() - Add custom validation predicates
  * - superRefine() / .superRefine() - Complex validation with multiple issues
- * - Convenience refinements: .positive(), .email(), .url(), etc.
+ * - message() / .message() - Override error messages
+ * - code() / .code() - Add error codes for i18n
+ * - describe() / .describe() - Add descriptions for documentation
  * 
  * Each modifier uses composition, wrapping the inner validator without modifying it.
  * 
@@ -26,8 +28,13 @@
  * const maybeName = UnicodeString(1, 50).optional();
  * const port = Integer(1, 65535).default(3000);
  * const normalized = UnicodeString().trim().toLowerCase();
- * const positiveInt = Integer().positive();
- * const validEmail = UnicodeString(5, 100).email();
+ * 
+ * // Error customization
+ * const email = UnicodeString(5, 100)
+ *   .refine(s => s.includes('@'), 'Invalid email')
+ *   .message('Please enter a valid email address')
+ *   .code('INVALID_EMAIL')
+ *   .describe('User email for account recovery');
  * ```
  */
 
@@ -47,6 +54,9 @@ export {
   RefinementContext, 
   RefinementIssue 
 } from './SuperRefine';
+export { MessageValidator, message } from './Message';
+export { CodeValidator, code } from './Code';
+export { DescribeValidator, describe } from './Describe';
 
 // Import for prototype extension
 import { OptionalValidator } from './Optional';
@@ -56,6 +66,9 @@ import { DefaultValidator } from './Default';
 import { TransformValidator } from './Transform';
 import { RefineValidator } from './Refine';
 import { SuperRefineValidator, RefinementContext } from './SuperRefine';
+import { MessageValidator } from './Message';
+import { CodeValidator } from './Code';
+import { DescribeValidator } from './Describe';
 
 // =============================================================================
 // Fluent API via Prototype Extension
@@ -307,6 +320,74 @@ declare module '../../Validator' {
      */
     includes(substring: string, message?: string): T extends string ? RefineValidator<string, D & Domain<string>> : never;
 
+    // =========================================================================
+    // Error Customization
+    // =========================================================================
+
+    /**
+     * Override the error message for this validator.
+     * 
+     * @param msg Static message or function (originalError, value) => message
+     * @returns A new validator with the custom message
+     * 
+     * @example
+     * ```typescript
+     * // Static message
+     * const age = Integer(0, 150).message('Please enter a valid age');
+     * 
+     * // Dynamic message
+     * const count = Integer(1, 100).message((err, val) => 
+     *   `Invalid count "${val}": ${err}`
+     * );
+     * ```
+     */
+    message(msg: string | ((error: string, value: unknown) => string)): MessageValidator<T, D>;
+
+    /**
+     * Add an error code for i18n or programmatic handling.
+     * 
+     * Error codes are useful for:
+     * - Translating error messages to different languages
+     * - Programmatically handling specific error types
+     * - Logging and analytics
+     * 
+     * @param errorCode The error code to attach
+     * @returns A new validator that includes the error code on failure
+     * 
+     * @example
+     * ```typescript
+     * const email = UnicodeString(5, 100)
+     *   .refine(s => s.includes('@'))
+     *   .code('INVALID_EMAIL');
+     * 
+     * const result = email.validate('bad');
+     * if (!result.valid) {
+     *   console.log(result.code); // 'INVALID_EMAIL'
+     * }
+     * ```
+     */
+    code(errorCode: string): CodeValidator<T, D>;
+
+    /**
+     * Add a description for documentation.
+     * 
+     * Descriptions are useful for:
+     * - Auto-generating API documentation
+     * - Showing tooltips or help text in forms
+     * - Understanding what a validator is for
+     * 
+     * @param description Human-readable description
+     * @returns A new validator with the description attached
+     * 
+     * @example
+     * ```typescript
+     * const email = UnicodeString(5, 100)
+     *   .describe('User email address for account recovery');
+     * 
+     * console.log(email.description); // 'User email address...'
+     * ```
+     */
+    describe(description: string): DescribeValidator<T, D>;
   }
 }
 
@@ -411,4 +492,29 @@ BaseValidator.prototype.includes = function<D extends Domain<string>>(
     (s: string) => s.includes(substring),
     message ?? `Must include "${substring}"`
   );
+};
+
+// =============================================================================
+// Error Customization Methods
+// =============================================================================
+
+BaseValidator.prototype.message = function<T, D extends Domain<T>>(
+  this: Validator<T, D>,
+  msg: string | ((error: string, value: unknown) => string)
+): MessageValidator<T, D> {
+  return new MessageValidator(this, msg);
+};
+
+BaseValidator.prototype.code = function<T, D extends Domain<T>>(
+  this: Validator<T, D>,
+  errorCode: string
+): CodeValidator<T, D> {
+  return new CodeValidator(this, errorCode);
+};
+
+BaseValidator.prototype.describe = function<T, D extends Domain<T>>(
+  this: Validator<T, D>,
+  description: string
+): DescribeValidator<T, D> {
+  return new DescribeValidator(this, description);
 };

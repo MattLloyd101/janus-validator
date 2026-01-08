@@ -1,5 +1,5 @@
 import { Validator, BaseValidator } from '../Validator';
-import { ValidationResult } from '../ValidationResult';
+import { ValidationResult, prependPath } from '../ValidationResult';
 import { QuantifierDomain, Domain } from '../Domain';
 
 /**
@@ -57,7 +57,9 @@ export class Quantifier<T, D extends Domain<T> = Domain<T>> extends BaseValidato
 
     for (let i = 0; i < value.length; i++) {
       const result = this.validator.validate(value[i]);
-      results.push(result);
+      
+      // Prepend index to error path
+      results.push(result.valid ? result : prependPath(result, i));
       
       if (!result.valid) {
         hasErrors = true;

@@ -8,10 +8,21 @@
  */
 
 // Core types
-export { ValidationResult } from "./ValidationResult";
+export { ValidationResult, formatPath, prependPath } from "./ValidationResult";
 export { RNG } from "./RNG";
 export { Validator, BaseValidator } from "./Validator";
 export { Generator } from "./Generator";
+
+// Error formatting utilities
+export {
+  flattenErrors,
+  formatErrors,
+  errorsToJson,
+  getFirstError,
+  getErrorAtPath,
+  getErrorsByPath,
+  type FormattedError,
+} from "./errors";
 
 // Domain types (for advanced use cases like schema introspection)
 export {

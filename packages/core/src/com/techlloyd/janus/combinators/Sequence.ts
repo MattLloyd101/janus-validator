@@ -1,5 +1,5 @@
 import { Validator, BaseValidator } from '../Validator';
-import { ValidationResult } from '../ValidationResult';
+import { ValidationResult, prependPath } from '../ValidationResult';
 import { Domain, SequenceDomain } from '../Domain';
 import { TupleOfValidators, DomainsForTuple } from '../Types';
 
@@ -60,7 +60,9 @@ export class Sequence<
 
     for (let i = 0; i < this.validators.length; i++) {
       const result = this.validators[i].validate(value[i]);
-      results.push(result);
+      
+      // Prepend index to error path
+      results.push(result.valid ? result : prependPath(result, i));
       
       if (!result.valid) {
         hasErrors = true;

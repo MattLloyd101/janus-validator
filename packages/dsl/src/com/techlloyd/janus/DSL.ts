@@ -735,3 +735,85 @@ export const refine = refineFn;
  * ```
  */
 export const superRefine = superRefineFn;
+
+// ============================================================================
+// Error Customization
+// ============================================================================
+
+import {
+  message as messageFn,
+  code as codeFn,
+  describe as describeFn,
+} from '@janus-validator/core';
+
+/**
+ * Override the error message for a validator.
+ * 
+ * @param validator The validator to wrap
+ * @param msg Static message or function (originalError, value) => message
+ * @returns A new validator with the custom message
+ * 
+ * @example
+ * ```typescript
+ * const age = message(I(0, 150), 'Please enter a valid age');
+ * 
+ * const count = message(I(1, 100), (err, val) => 
+ *   `Invalid count "${val}": ${err}`
+ * );
+ * 
+ * // Or use the fluent method:
+ * const age = I(0, 150).message('Please enter a valid age');
+ * ```
+ */
+export const message = messageFn;
+
+/**
+ * Add an error code for i18n or programmatic handling.
+ * 
+ * @param validator The validator to wrap
+ * @param errorCode The error code to attach
+ * @returns A new validator with the error code
+ * 
+ * @example
+ * ```typescript
+ * const email = code(
+ *   U(5, 100).refine(s => s.includes('@')),
+ *   'INVALID_EMAIL'
+ * );
+ * 
+ * // Or use the fluent method:
+ * const email = U(5, 100).refine(s => s.includes('@')).code('INVALID_EMAIL');
+ * ```
+ */
+export const code = codeFn;
+
+/**
+ * Add a description for documentation.
+ * 
+ * @param validator The validator to wrap
+ * @param description Human-readable description
+ * @returns A new validator with the description
+ * 
+ * @example
+ * ```typescript
+ * const email = describe(U(5, 100), 'User email for account recovery');
+ * 
+ * // Or use the fluent method:
+ * const email = U(5, 100).describe('User email for account recovery');
+ * ```
+ */
+export const describe = describeFn;
+
+// ============================================================================
+// Error Formatting Utilities
+// ============================================================================
+
+export {
+  flattenErrors,
+  formatErrors,
+  errorsToJson,
+  getFirstError,
+  getErrorAtPath,
+  getErrorsByPath,
+  type FormattedError,
+} from '@janus-validator/core';

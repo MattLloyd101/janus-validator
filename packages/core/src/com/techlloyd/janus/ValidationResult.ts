@@ -3,7 +3,7 @@
  * 
  * A ValidationResult is a discriminated union that represents either:
  * - **Success**: `{ valid: true, value: T }` - validation passed with the validated value
- * - **Failure**: `{ valid: false, error: string, example?: T, results?: ... }` - validation failed
+ * - **Failure**: `{ valid: false, error: string, example?: T, ... }` - validation failed
  * 
  * ## Success Results
  * 
@@ -21,6 +21,10 @@
  * 
  * When validation fails, the result contains:
  * - `error`: A human-readable error message
+ * - `path` (optional): Array of keys/indices showing error location
+ * - `pathString` (optional): Dot-notation path for display
+ * - `code` (optional): Error code for i18n or programmatic handling
+ * - `meta` (optional): Additional metadata attached by validators
  * - `example` (optional): An auto-generated valid example to help users understand the expected format
  * - `results` (optional): For composite types, per-field or per-element sub-results
  * 
@@ -45,7 +49,7 @@
  * 
  * @example
  * ```typescript
- * // Nested struct validation
+ * // Nested struct validation with paths
  * const userValidator = Struct({
  *   name: UnicodeString(1, 100),
  *   age: Integer(0, 150),
@@ -55,27 +59,13 @@
  * // {
  * //   valid: false,
  * //   error: "age: Expected value <= 150, got 200",
+ * //   path: ['age'],
+ * //   pathString: 'age',
  * //   results: {
  * //     name: { valid: true, value: "Alice" },
- * //     age: { valid: false, error: "Expected value <= 150, got 200", example: 42 }
+ * //     age: { valid: false, error: "Expected value <= 150, got 200", path: ['age'], pathString: 'age' }
  * //   },
  * //   example: { name: "Alice", age: 42 }
- * // }
- * ```
- * 
- * @example
- * ```typescript
- * // Array validation with per-element results
- * const listValidator = Quantifier.oneOrMore(Integer(0, 100));
- * const result = listValidator.validate([50, 150, 25]);
- * // {
- * //   valid: false,
- * //   error: "[1]: Expected value <= 100, got 150",
- * //   results: [
- * //     { valid: true, value: 50 },
- * //     { valid: false, error: "Expected value <= 100, got 150", example: 50 },
- * //     { valid: true, value: 25 }
- * //   ]
  * // }
  * ```
  */
@@ -92,6 +82,25 @@ export type ValidationResult<T> =
       /** Human-readable error message describing what went wrong */
       error: string;
       /** 
+       * Path to the error location as array of keys/indices.
+       * Example: ['user', 'address', 0, 'zip'] for user.address[0].zip
+       */
+      path?: (string | number)[];
+      /**
+       * Path as dot-notation string for display.
+       * Example: 'user.address[0].zip'
+       */
+      pathString?: string;
+      /**
+       * Error code for i18n or programmatic handling.
+       * Example: 'INVALID_EMAIL', 'TOO_SHORT', 'REQUIRED'
+       */
+      code?: string;
+      /**
+       * Additional metadata attached by validators.
+       */
+      meta?: Record<string, unknown>;
+      /** 
        * Auto-generated valid example that would pass validation.
        * Useful for showing users the expected format.
        */
@@ -103,3 +112,50 @@ export type ValidationResult<T> =
        */
       results?: { [key: string]: ValidationResult<unknown> } | ValidationResult<unknown>[];
     };
+
+/**
+ * Helper to format a path array as a human-readable string.
+ * 
+ * @example
+ * ```typescript
+ * formatPath(['user', 'addresses', 0, 'zip'])
+ * // => 'user.addresses[0].zip'
+ * ```
+ */
+export function formatPath(path: (string | number)[]): string {
+  if (path.length === 0) return '';
+  
+  return path
+    .map((segment, i) => {
+      if (typeof segment === 'number') {
+        return `[${segment}]`;
+      }
+      return i === 0 ? segment : `.${segment}`;
+    })
+    .join('');
+}
+
+/**
+ * Helper to prepend a segment to an error path.
+ * Used by composite validators to build up full paths.
+ * 
+ * @example
+ * ```typescript
+ * const childResult = { valid: false, error: 'Invalid', path: ['name'] };
+ * prependPath(childResult, 'user');
+ * // => { valid: false, error: 'Invalid', path: ['user', 'name'], pathString: 'user.name' }
+ * ```
+ */
+export function prependPath<T>(
+  result: ValidationResult<T>,
+  segment: string | number
+): ValidationResult<T> {
+  if (result.valid) return result;
+  
+  const newPath = [segment, ...(result.path ?? [])];
+  return {
+    ...result,
+    path: newPath,
+    pathString: formatPath(newPath),
+  };
+}

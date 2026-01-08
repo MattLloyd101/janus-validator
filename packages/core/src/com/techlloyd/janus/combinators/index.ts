@@ -80,4 +80,11 @@ export {
   superRefine,
   RefinementContext,
   RefinementIssue,
+  // Error customization
+  MessageValidator,
+  message,
+  CodeValidator,
+  code,
+  DescribeValidator,
+  describe,
 } from './modifiers/index';

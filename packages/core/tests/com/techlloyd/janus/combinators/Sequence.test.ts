@@ -140,7 +140,7 @@ describe('Sequence (Generic Combinator)', () => {
     it('should handle empty validators', () => {
       const result = Sequence.of();
       expect(result).toBeInstanceOf(Sequence);
-      expect((result as Sequence).validators.length).toBe(0);
+      expect((result as any).validators.length).toBe(0);
     });
 
     it('should return Sequence for any number of validators', () => {

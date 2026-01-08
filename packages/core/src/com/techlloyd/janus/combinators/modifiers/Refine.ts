@@ -38,7 +38,7 @@ export class RefineValidator<T, D extends Domain<T>> extends BaseValidator<T, D>
   constructor(
     private readonly inner: Validator<T, D>,
     private readonly predicate: (value: T) => boolean,
-    private readonly message: string | ((value: T) => string)
+    private readonly errorMessage: string | ((value: T) => string)
   ) {
     super();
     // Domain is unchanged - refinements filter, they don't reshape
@@ -55,9 +55,9 @@ export class RefineValidator<T, D extends Domain<T>> extends BaseValidator<T, D>
     // Run refinement predicate
     const valid = this.predicate(innerResult.value);
     if (!valid) {
-      const errorMsg = typeof this.message === 'function'
-        ? this.message(innerResult.value)
-        : this.message;
+      const errorMsg = typeof this.errorMessage === 'function'
+        ? this.errorMessage(innerResult.value)
+        : this.errorMessage;
       
       return this.error(errorMsg);
     }
