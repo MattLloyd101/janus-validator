@@ -1,7 +1,7 @@
 # ADR-010: Refinements via Composition
 
 ## Status
-Proposed
+Accepted & Implemented
 
 ## Date
 2026-01-08

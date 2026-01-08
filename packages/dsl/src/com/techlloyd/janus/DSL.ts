@@ -665,3 +665,73 @@ export const withDefault = withDefaultFn;
  * ```
  */
 export { transformFn as transform };
+
+// ============================================================================
+// Refinements
+// ============================================================================
+
+import {
+  refine as refineFn,
+  superRefine as superRefineFn,
+} from '@janus-validator/core';
+
+/**
+ * Adds a custom validation predicate to a validator.
+ * 
+ * The refinement runs after the inner validator succeeds.
+ * **Note:** Refinements do NOT affect the domain - generated values may fail refinement.
+ * 
+ * @param validator The validator to wrap
+ * @param predicate Function returning true if valid
+ * @param message Error message (string or function)
+ * @returns A new validator with the additional check
+ * 
+ * @example
+ * ```typescript
+ * // Simple predicate
+ * const even = refine(I(0, 100), n => n % 2 === 0, 'Must be even');
+ * 
+ * // Dynamic message
+ * const positive = refine(N(), n => n > 0, n => `Expected positive, got ${n}`);
+ * 
+ * // Or use the fluent method:
+ * const even = I(0, 100).refine(n => n % 2 === 0, 'Must be even');
+ * const positiveInt = I().positive();
+ * const validEmail = U(5, 100).email();
+ * ```
+ */
+export const refine = refineFn;
+
+/**
+ * Adds complex validation with multiple potential issues.
+ * 
+ * Use this when you need to report multiple validation issues at once
+ * or when validation logic is complex.
+ * 
+ * @param validator The validator to wrap
+ * @param refinement Function that calls ctx.addIssue() for problems
+ * @returns A new validator that collects all issues
+ * 
+ * @example
+ * ```typescript
+ * // Password strength validation
+ * const password = superRefine(U(8, 100), (value, ctx) => {
+ *   if (!/[A-Z]/.test(value)) ctx.addIssue({ message: 'Need uppercase' });
+ *   if (!/[0-9]/.test(value)) ctx.addIssue({ message: 'Need digit' });
+ * });
+ * 
+ * // Cross-field validation
+ * const registration = superRefine(
+ *   O({ password: U(8, 100), confirm: U(8, 100) }),
+ *   (value, ctx) => {
+ *     if (value.password !== value.confirm) {
+ *       ctx.addIssue({ message: 'Passwords must match', path: ['confirm'] });
+ *     }
+ *   }
+ * );
+ * 
+ * // Or use the fluent method:
+ * const password = U(8, 100).superRefine((s, ctx) => { ... });
+ * ```
+ */
+export const superRefine = superRefineFn;

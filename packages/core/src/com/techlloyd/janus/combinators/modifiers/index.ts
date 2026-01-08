@@ -8,6 +8,9 @@
  * - withDefault() / .default() - Provide a default value when input is undefined
  * - transform() / .transform() - Transform the validated value
  * - .trim(), .toLowerCase(), .toUpperCase() - Common string transforms
+ * - refine() / .refine() - Add custom validation predicates
+ * - superRefine() / .superRefine() - Complex validation with multiple issues
+ * - Convenience refinements: .positive(), .email(), .url(), etc.
  * 
  * Each modifier uses composition, wrapping the inner validator without modifying it.
  * 
@@ -17,11 +20,14 @@
  * const maybeName = optional(UnicodeString(1, 50));
  * const port = withDefault(Integer(1, 65535), 3000);
  * const trimmed = transform(UnicodeString(), s => s.trim());
+ * const even = refine(Integer(0, 100), n => n % 2 === 0, 'Must be even');
  * 
  * // Fluent methods (ergonomic)
  * const maybeName = UnicodeString(1, 50).optional();
  * const port = Integer(1, 65535).default(3000);
  * const normalized = UnicodeString().trim().toLowerCase();
+ * const positiveInt = Integer().positive();
+ * const validEmail = UnicodeString(5, 100).email();
  * ```
  */
 
@@ -34,6 +40,13 @@ export { NullableValidator, nullable } from './Nullable';
 export { NullishValidator, nullish } from './Nullish';
 export { DefaultValidator, withDefault } from './Default';
 export { TransformValidator, transform } from './Transform';
+export { RefineValidator, refine } from './Refine';
+export { 
+  SuperRefineValidator, 
+  superRefine, 
+  RefinementContext, 
+  RefinementIssue 
+} from './SuperRefine';
 
 // Import for prototype extension
 import { OptionalValidator } from './Optional';
@@ -41,6 +54,8 @@ import { NullableValidator } from './Nullable';
 import { NullishValidator } from './Nullish';
 import { DefaultValidator } from './Default';
 import { TransformValidator } from './Transform';
+import { RefineValidator } from './Refine';
+import { SuperRefineValidator, RefinementContext } from './SuperRefine';
 
 // =============================================================================
 // Fluent API via Prototype Extension
@@ -197,6 +212,101 @@ declare module '../../Validator' {
      * ```
      */
     toUpperCase(): T extends string ? TransformValidator<string, string, D & Domain<string>> : never;
+
+    // =========================================================================
+    // Refinements
+    // =========================================================================
+
+    /**
+     * Adds a custom validation predicate.
+     * 
+     * The refinement runs after the inner validator succeeds.
+     * **Note:** Refinements do NOT affect the domain - generated values may fail refinement.
+     * 
+     * @param predicate Function returning true if valid
+     * @param message Error message (string or function)
+     * @returns A new validator with the additional check
+     * 
+     * @example
+     * ```typescript
+     * // Simple predicate
+     * const even = Integer(0, 100).refine(n => n % 2 === 0, 'Must be even');
+     * 
+     * // Dynamic message
+     * const positive = Float().refine(
+     *   n => n > 0,
+     *   n => `Expected positive, got ${n}`
+     * );
+     * 
+     * // Chained refinements
+     * const password = UnicodeString(8, 100)
+     *   .refine(s => /[A-Z]/.test(s), 'Must contain uppercase')
+     *   .refine(s => /[0-9]/.test(s), 'Must contain digit');
+     * ```
+     */
+    refine(
+      predicate: (value: T) => boolean,
+      message?: string | ((value: T) => string)
+    ): RefineValidator<T, D>;
+
+    /**
+     * Adds complex validation with multiple potential issues.
+     * 
+     * Use this when you need to report multiple validation issues at once
+     * or when validation logic is complex.
+     * 
+     * @param check Function that calls ctx.addIssue() for problems
+     * @returns A new validator that collects all issues
+     * 
+     * @example
+     * ```typescript
+     * const password = UnicodeString(8, 100).superRefine((s, ctx) => {
+     *   if (!/[A-Z]/.test(s)) ctx.addIssue({ message: 'Need uppercase' });
+     *   if (!/[0-9]/.test(s)) ctx.addIssue({ message: 'Need digit' });
+     * });
+     * 
+     * // Cross-field validation
+     * const form = Struct({
+     *   password: UnicodeString(8, 100),
+     *   confirm: UnicodeString(8, 100),
+     * }).superRefine((value, ctx) => {
+     *   if (value.password !== value.confirm) {
+     *     ctx.addIssue({ message: 'Passwords must match', path: ['confirm'] });
+     *   }
+     * });
+     * ```
+     */
+    superRefine(check: (value: T, ctx: RefinementContext) => void): SuperRefineValidator<T, D>;
+
+    // =========================================================================
+    // Convenience Refinements - Numbers
+    // =========================================================================
+
+    /**
+     * Requires the number to be a multiple of n.
+     * Only available on number validators.
+     * 
+     * @param n The divisor
+     * @param message Optional custom error message
+     * @example Integer(0, 100).multipleOf(5) // 0, 5, 10, 15...
+     */
+    multipleOf(n: number, message?: string): T extends number ? RefineValidator<number, D & Domain<number>> : never;
+
+
+    // =========================================================================
+    // Convenience Refinements - Strings
+    // =========================================================================
+
+    /**
+     * Validates the string includes a substring.
+     * Only available on string validators.
+     * 
+     * @param substring The required substring
+     * @param message Optional custom error message
+     * @example UnicodeString().includes('@')
+     */
+    includes(substring: string, message?: string): T extends string ? RefineValidator<string, D & Domain<string>> : never;
+
   }
 }
 
@@ -250,4 +360,55 @@ BaseValidator.prototype.toUpperCase = function<D extends Domain<string>>(
   this: Validator<string, D>
 ): TransformValidator<string, string, D> {
   return new TransformValidator(this, (s: string) => s.toUpperCase());
+};
+
+// =============================================================================
+// Refinement Methods
+// =============================================================================
+
+BaseValidator.prototype.refine = function<T, D extends Domain<T>>(
+  this: Validator<T, D>,
+  predicate: (value: T) => boolean,
+  message: string | ((value: T) => string) = 'Refinement failed'
+): RefineValidator<T, D> {
+  return new RefineValidator(this, predicate, message);
+};
+
+BaseValidator.prototype.superRefine = function<T, D extends Domain<T>>(
+  this: Validator<T, D>,
+  check: (value: T, ctx: RefinementContext) => void
+): SuperRefineValidator<T, D> {
+  return new SuperRefineValidator(this, check);
+};
+
+// =============================================================================
+// Numeric Refinements
+// =============================================================================
+
+BaseValidator.prototype.multipleOf = function<D extends Domain<number>>(
+  this: Validator<number, D>,
+  n: number,
+  message?: string
+): RefineValidator<number, D> {
+  return new RefineValidator(
+    this, 
+    (v: number) => v % n === 0, 
+    message ?? `Must be a multiple of ${n}`
+  );
+};
+
+// =============================================================================
+// String Refinements
+// =============================================================================
+
+BaseValidator.prototype.includes = function<D extends Domain<string>>(
+  this: Validator<string, D>,
+  substring: string,
+  message?: string
+): RefineValidator<string, D> {
+  return new RefineValidator(
+    this,
+    (s: string) => s.includes(substring),
+    message ?? `Must include "${substring}"`
+  );
 };
