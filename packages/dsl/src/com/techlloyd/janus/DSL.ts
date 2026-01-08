@@ -906,8 +906,6 @@ export {
   UsernameWithDots,
   Handle,
   Password,
-  StrongPassword,
-  MediumPassword,
   PIN,
   PIN4,
   PIN6,

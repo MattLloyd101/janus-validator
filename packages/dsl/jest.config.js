@@ -7,6 +7,14 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@janus-validator/core$': '<rootDir>/../core/src/index.ts',
   },
+  coverageThreshold: {
+    global: {
+      branches: 95,
+      functions: 95,
+      lines: 100,
+      statements: 95,
+    },
+  },
   testMatch: ['**/*.test.ts'],
   transform: {
     '^.+\\.tsx?$': [

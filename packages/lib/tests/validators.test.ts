@@ -32,7 +32,7 @@ import {
   
   // Credentials
   Username,
-  StrongPassword,
+  Password,
   PIN4,
   JWT,
   
@@ -261,11 +261,11 @@ describe('@janus-validator/lib', () => {
       });
     });
 
-    describe('StrongPassword', () => {
-      it('generates valid strong passwords (round-trip)', () => {
+    describe('Password', () => {
+      it('generates valid passwords (round-trip)', () => {
         for (let i = 0; i < 10; i++) {
-          const generated = generator.generate(StrongPassword().domain);
-          const result = StrongPassword().validate(generated);
+          const generated = generator.generate(Password().domain);
+          const result = Password().validate(generated);
           expect(result.valid).toBe(true);
         }
       });

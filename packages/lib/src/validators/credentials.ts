@@ -50,27 +50,6 @@ export const Handle = () => Regex(/^@[a-zA-Z][a-zA-Z0-9_]{0,14}$/);
 export const Password = () => UnicodeString(8, 128);
 
 /**
- * Strong password: 8-128 chars, requires uppercase, lowercase, digit, special char
- * Pattern: Upper + lower(2-6) + digits(2-4) + special(1-2) + trailing alphanumeric
- */
-export const StrongPassword = () => S(
-  upper(1),
-  lower(2, 6),
-  digits(2, 4),
-  chars('!@#$%^&*', 1, 2),
-  alphanumeric(0, 50)
-);
-
-/**
- * Medium password: 8-64 chars with at least letters and numbers
- */
-export const MediumPassword = () => S(
-  letters(2, 8),
-  digits(2, 4),
-  alphanumeric(4, 50)
-);
-
-/**
  * PIN: exactly 4 digits
  */
 export const PIN4 = () => S(digits(4));
