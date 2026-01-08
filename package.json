@@ -20,7 +20,7 @@
     "test:coverage:avro": "npm -w @janus-validator/avro run test:coverage",
     "test:pbt:domain:short": "npm -w @janus-validator/domain run test:pbt:short",
     "test:pbt:domain:long": "npm -w @janus-validator/domain run test:pbt:long",
-    "clean": "npm run clean --workspaces && rm -rf packages/*/tsconfig.tsbuildinfo && find packages/*/src -name '*.d.ts' -delete && find packages/*/src -name '*.d.ts.map' -delete && find packages/*/src -name '*.js' -delete && find packages/*/src -name '*.js.map' -delete",
+    "clean": "npm run clean --workspaces && rimraf packages/*/tsconfig.tsbuildinfo && rimraf \"packages/*/src/**/*.d.ts\" \"packages/*/src/**/*.d.ts.map\" \"packages/*/src/**/*.js\" \"packages/*/src/**/*.js.map\"",
     "lint": "eslint 'packages/*/src/**/*.ts' 'packages/*/tests/**/*.ts'",
     "lint:fix": "eslint 'packages/*/src/**/*.ts' 'packages/*/tests/**/*.ts' --fix",
     "version:patch": "npm version patch --workspaces --no-git-tag-version && npm version patch --no-git-tag-version",
@@ -37,6 +37,7 @@
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
     "eslint-plugin-unused-imports": "^4.0.0",
+    "rimraf": "^6.1.2",
     "typescript": "^5.3.0"
   }
 }

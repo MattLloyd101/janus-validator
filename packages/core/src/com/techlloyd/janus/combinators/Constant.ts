@@ -12,7 +12,7 @@ import { FiniteDomain } from '../Domain';
  * fortyTwo.validate(43);   // invalid
  * ```
  */
-export class ConstantValidator<T> extends BaseValidator<T> {
+export class ConstantValidator<T> extends BaseValidator<T, FiniteDomain<T>> {
   public readonly domain: FiniteDomain<T>;
 
   constructor(

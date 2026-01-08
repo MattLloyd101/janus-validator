@@ -32,9 +32,10 @@
 
 import {
   Validator,
+  Domain,
   Boolean as BooleanValidator,
   UnicodeString as UnicodeStringValidator,
-  String as StringValidator,
+  CompoundString as CompoundStringValidator,
   digits as digitsValidator,
   lower as lowerValidator,
   upper as upperValidator,
@@ -44,7 +45,7 @@ import {
   hexUpper as hexUpperValidator,
   chars as charsValidator,
   Integer as IntegerValidator,
-  Number as NumberValidator,
+  Float as FloatValidator,
   Regex as RegexValidator,
   Struct as StructValidator,
   StructSchema,
@@ -62,6 +63,7 @@ import {
   Typed as TypedValidator,
   As as AsValidator,
   caseInsensitive as caseInsensitiveValidator,
+  FiniteDomain,
 } from '@janus-validator/core';
 
 // ============================================================================
@@ -76,22 +78,22 @@ type Primitive = string | number | boolean;
 /**
  * Input that can be either a Validator or a primitive (auto-wrapped in Constant)
  */
-export type ValidatorOrPrimitive<T> = Validator<T> | T;
+export type ValidatorOrPrimitive<T> = Validator<T, Domain<T>> | T;
 
 /**
  * Infer the type from a ValidatorOrPrimitive
  */
-type InferType<T> = T extends Validator<infer U> ? U : T;
+type InferType<T> = T extends Validator<infer U, Domain<infer U>> ? U : T;
 
 /**
  * Infer union type from array of ValidatorOrPrimitive
  */
-type UnionOfInputs<Ts extends readonly (Validator<any> | Primitive)[]> = InferType<Ts[number]>;
+type UnionOfInputs<Ts extends readonly (Validator<any, Domain<any>> | Primitive)[]> = InferType<Ts[number]>;
 
 /**
  * Infer tuple type from array of ValidatorOrPrimitive
  */
-type TupleOfInputs<Ts extends readonly (Validator<any> | Primitive)[]> = {
+type TupleOfInputs<Ts extends readonly (Validator<any, Domain<any>> | Primitive)[]> = {
   [K in keyof Ts]: InferType<Ts[K]>;
 };
 
@@ -103,13 +105,13 @@ type EnumObject = Record<string, string | number>;
 /**
  * Schema where values can be validators, primitives, or enums
  */
-type SchemaInput = { [key: string]: Validator<any> | Primitive | EnumObject };
+type SchemaInput = { [key: string]: Validator<any, Domain<any>> | Primitive | EnumObject };
 
 /**
  * Infer the validated type from a schema value
  */
 type InferSchemaValue<T> = 
-  T extends Validator<infer U> ? U :
+  T extends Validator<infer U, Domain<infer U>> ? U :
   T extends Record<string, string | number> ? T[keyof T] :  // Enum: extract value types
   T;  // Primitive
 
@@ -143,10 +145,10 @@ function isEnumObject(obj: unknown): obj is Record<string, string | number> {
  * 
  * Used internally by O(), Or(), and Seq() to auto-wrap values.
  */
-function v<T>(input: Validator<T> | T | Record<string, T>): Validator<T> {
+function v<T>(input: Validator<T, Domain<T>> | T | Record<string, T>): Validator<T, Domain<T>> {
   // Check if it's already a validator
   if (input !== null && typeof input === 'object' && 'validate' in input && 'domain' in input) {
-    return input as Validator<T>;
+    return input as Validator<T, Domain<T>>;
   }
   // Check if it's an enum object
   if (isEnumObject(input)) {
@@ -157,11 +159,11 @@ function v<T>(input: Validator<T> | T | Record<string, T>): Validator<T> {
     
     if (values.length > 0) {
       const validators = values.map(val => ConstantValidator(val));
-      return AlternationValidator.of(...validators) as Validator<T>;
+      return AlternationValidator.of(...validators) as unknown as Validator<T, Domain<T>>;
     }
   }
   // Otherwise wrap as constant
-  return ConstantValidator(input as T) as Validator<T>;
+  return ConstantValidator(input as T) as unknown as Validator<T, Domain<T>>;
 }
 
 // ============================================================================
@@ -172,13 +174,13 @@ function v<T>(input: Validator<T> | T | Record<string, T>): Validator<T> {
  * Boolean validator
  * @example B()
  */
-export const B = (): Validator<boolean> => BooleanValidator();
+export const B = (): Validator<boolean, FiniteDomain<boolean>> => BooleanValidator();
 
 /**
  * U - UnicodeString validator for simple strings with length constraints
  * @example U(), U(1, 100)
  */
-export const U = (minLength?: number, maxLength?: number): Validator<string> =>
+export const U = (minLength?: number, maxLength?: number): Validator<string, Domain<string>> =>
   UnicodeStringValidator(minLength, maxLength);
 
 // ============================================================================
@@ -204,8 +206,8 @@ export const U = (minLength?: number, maxLength?: number): Validator<string> =>
  * // Or with short alias: S(H(8), '-', H(4), '-', H(4), '-', H(4), '-', H(12))
  * ```
  */
-export const S = (...parts: Parameters<typeof StringValidator>): Validator<string> =>
-  StringValidator(...parts);
+export const S = (...parts: Parameters<typeof CompoundStringValidator>): Validator<string, Domain<string>> =>
+  CompoundStringValidator(...parts);
 
 // ============================================================================
 // Character Set Validators
@@ -247,7 +249,7 @@ export const chars = charsValidator;
  * @param max Maximum value (default: MAX_SAFE_INTEGER)
  * @example I(), I(0, 100)
  */
-export const I = (min?: number, max?: number): Validator<number> =>
+export const I = (min?: number, max?: number): Validator<number, Domain<number>> =>
   IntegerValidator(min, max);
 
 /**
@@ -256,8 +258,8 @@ export const I = (min?: number, max?: number): Validator<number> =>
  * @param max Maximum value (default: MAX_VALUE)
  * @example N(), N(0, 1)
  */
-export const N = (min?: number, max?: number): Validator<number> =>
-  NumberValidator(min, max);
+export const N = (min?: number, max?: number): Validator<number, Domain<number>> =>
+  FloatValidator(min, max);
 
 /**
  * Long (bigint) validator - for 64-bit integers
@@ -265,7 +267,7 @@ export const N = (min?: number, max?: number): Validator<number> =>
  * @param max Maximum value (default: 2^63-1)
  * @example L(), L(0n, 1000000000000n)
  */
-export const L = (min?: bigint, max?: bigint): Validator<bigint> =>
+export const L = (min?: bigint, max?: bigint): Validator<bigint, Domain<bigint>> =>
   LongValidator(min, max);
 
 /**
@@ -274,7 +276,7 @@ export const L = (min?: bigint, max?: bigint): Validator<bigint> =>
  * @param maxLength Maximum byte length (default: 1024)
  * @example Bytes(), Bytes(16, 16) // fixed 16 bytes
  */
-export const Bytes = (minLength?: number, maxLength?: number): Validator<Uint8Array> =>
+export const Bytes = (minLength?: number, maxLength?: number): Validator<Uint8Array, Domain<Uint8Array>> =>
   BytesValidator(minLength, maxLength);
 
 /**
@@ -282,7 +284,7 @@ export const Bytes = (minLength?: number, maxLength?: number): Validator<Uint8Ar
  * @param pattern Regular expression pattern
  * @example R(/^hello$/), R(/\d{3}-\d{4}/)
  */
-export const R = (pattern: RegExp): Validator<string> =>
+export const R = (pattern: RegExp): Validator<string, Domain<string>> =>
   RegexValidator(pattern);
 
 /**
@@ -303,12 +305,12 @@ export const R = (pattern: RegExp): Validator<string> =>
 export const O = <T extends SchemaInput>(
   schema: T,
   strict: boolean = false
-): Validator<InferSchemaInput<T>> => {
+): Validator<InferSchemaInput<T>, Domain<InferSchemaInput<T>>> => {
   const wrappedSchema: StructSchema = {};
   for (const [key, value] of Object.entries(schema)) {
     wrappedSchema[key] = v(value);
   }
-  return StructValidator(wrappedSchema, strict) as Validator<InferSchemaInput<T>>;
+  return StructValidator(wrappedSchema, strict) as Validator<InferSchemaInput<T>, Domain<InferSchemaInput<T>>>;
 };
 
 /**
@@ -322,7 +324,7 @@ export const C = <T>(
   value: T,
   comparator?: (input: unknown, value: T) => boolean,
   displayName?: string
-): Validator<T> =>
+): Validator<T, Domain<T>> =>
   ConstantValidator(value, comparator, displayName);
 
 // ============================================================================
@@ -345,13 +347,13 @@ export { UndefinedValidator as Undefined };
  * Positive Infinity validator
  * @example Inf()
  */
-export const Inf = (): Validator<number> => InfinityValidator();
+export const Inf = (): Validator<number, Domain<number>> => InfinityValidator();
 
 /**
  * Negative Infinity validator
  * @example NInf()
  */
-export const NInf = (): Validator<number> => NegativeInfinityValidator();
+export const NInf = (): Validator<number, Domain<number>> => NegativeInfinityValidator();
 
 /**
  * NaN validator
@@ -378,11 +380,11 @@ export { NaNValidator as NaN };
  * const status = Or(200, 201, 204, 404, 500);
  * ```
  */
-export const Or = <Vs extends readonly (Validator<any> | Primitive)[]>(
+export const Or = <Vs extends readonly (Validator<any, Domain<any>> | Primitive)[]>(
   ...inputs: Vs
-): Validator<UnionOfInputs<Vs>> => {
+): Validator<UnionOfInputs<Vs>, Domain<UnionOfInputs<Vs>>> => {
   const validators = inputs.map(input => v(input));
-  return AlternationValidator.of(...validators) as Validator<UnionOfInputs<Vs>>;
+  return AlternationValidator.of(...validators) as Validator<UnionOfInputs<Vs>, Domain<UnionOfInputs<Vs>>>;
 };
 
 /**
@@ -412,7 +414,7 @@ export const Or = <Vs extends readonly (Validator<any> | Primitive)[]>(
  */
 export const Enum = <T extends string | number>(
   enumObj: Record<string, T>
-): Validator<T> => {
+): Validator<T, Domain<T>> => {
   // Extract enum values, filtering out reverse mappings from numeric enums
   const values = Object.entries(enumObj)
     .filter(([key]) => isNaN(Number(key))) // Filter out numeric keys (reverse mappings)
@@ -423,7 +425,7 @@ export const Enum = <T extends string | number>(
   }
   
   const validators = values.map(val => ConstantValidator(val));
-  return AlternationValidator.of(...validators) as Validator<T>;
+  return AlternationValidator.of(...validators) as Validator<T, Domain<T>>;
 };
 
 /**
@@ -441,11 +443,11 @@ export const Enum = <T extends string | number>(
  * // Type: Validator<['v1', number, 'end']>
  * ```
  */
-export const Seq = <Vs extends readonly (Validator<any> | Primitive)[]>(
+export const Seq = <Vs extends readonly (Validator<any, Domain<any>> | Primitive)[]>(
   ...inputs: Vs
-): Validator<TupleOfInputs<Vs>> => {
+): Validator<TupleOfInputs<Vs>, Domain<TupleOfInputs<Vs>>> => {
   const validators = inputs.map(input => v(input));
-  return SequenceValidator.of(...validators) as Validator<TupleOfInputs<Vs>>;
+  return SequenceValidator.of(...validators) as Validator<TupleOfInputs<Vs>, Domain<TupleOfInputs<Vs>>>;
 };
 
 // ============================================================================
@@ -457,7 +459,7 @@ export const Seq = <Vs extends readonly (Validator<any> | Primitive)[]>(
  * @param validator Validator for each element
  * @example zeroOrMore(S())
  */
-export const zeroOrMore = <T>(validator: Validator<T>): Validator<T[]> =>
+export const zeroOrMore = <T, D extends Domain<T>>(validator: Validator<T, D>): Validator<T[], Domain<T[]>> =>
   QuantifierValidator.zeroOrMore(validator);
 
 /**
@@ -465,7 +467,7 @@ export const zeroOrMore = <T>(validator: Validator<T>): Validator<T[]> =>
  * @param validator Validator for each element
  * @example oneOrMore(I(0, 100))
  */
-export const oneOrMore = <T>(validator: Validator<T>): Validator<T[]> =>
+export const oneOrMore = <T, D extends Domain<T>>(validator: Validator<T, D>): Validator<T[], Domain<T[]>> =>
   QuantifierValidator.oneOrMore(validator);
 
 /**
@@ -473,7 +475,7 @@ export const oneOrMore = <T>(validator: Validator<T>): Validator<T[]> =>
  * @param validator Validator for the optional element
  * @example optional(S())
  */
-export const optional = <T>(validator: Validator<T>): Validator<T[]> =>
+export const optional = <T, D extends Domain<T>>(validator: Validator<T, D>): Validator<T[], Domain<T[]>> =>
   QuantifierValidator.optional(validator);
 
 /**
@@ -482,7 +484,7 @@ export const optional = <T>(validator: Validator<T>): Validator<T[]> =>
  * @param n Exact number of elements required
  * @example exactly(I(), 3)
  */
-export const exactly = <T>(validator: Validator<T>, n: number): Validator<T[]> =>
+export const exactly = <T, D extends Domain<T>>(validator: Validator<T, D>, n: number): Validator<T[], Domain<T[]>> =>
   QuantifierValidator.exactly(validator, n);
 
 /**
@@ -491,7 +493,7 @@ export const exactly = <T>(validator: Validator<T>, n: number): Validator<T[]> =
  * @param n Minimum number of elements
  * @example atLeast(S(), 2)
  */
-export const atLeast = <T>(validator: Validator<T>, n: number): Validator<T[]> =>
+export const atLeast = <T, D extends Domain<T>>(validator: Validator<T, D>, n: number): Validator<T[], Domain<T[]>> =>
   QuantifierValidator.atLeast(validator, n);
 
 /**
@@ -501,7 +503,7 @@ export const atLeast = <T>(validator: Validator<T>, n: number): Validator<T[]> =
  * @param max Maximum number of elements
  * @example between(I(), 1, 5)
  */
-export const between = <T>(validator: Validator<T>, min: number, max: number): Validator<T[]> =>
+export const between = <T, D extends Domain<T>>(validator: Validator<T, D>, min: number, max: number): Validator<T[], Domain<T[]>> =>
   QuantifierValidator.between(validator, min, max);
 
 // ============================================================================
@@ -556,3 +558,80 @@ export const As = AsValidator;
  * ```
  */
 export const caseInsensitive = caseInsensitiveValidator;
+
+// ============================================================================
+// Value Modifiers (Nullable, Nullish, Default)
+// ============================================================================
+// 
+// Note: For making a value accept `undefined`, use the fluent method `.optional()`:
+//   const maybeName = U(1, 50).optional();  // string | undefined
+// 
+// The standalone `optional()` function in this DSL is for array quantifiers (0 or 1 elements).
+// This follows the established naming convention in the DSL.
+
+// Import and re-export modifier functions
+import {
+  nullable as nullableModifier,
+  nullish as nullishModifier,
+  withDefault as withDefaultFn,
+} from '@janus-validator/core';
+
+/**
+ * Makes a validator accept null in addition to its normal type.
+ * 
+ * @param validator The validator to wrap
+ * @returns A new validator that accepts T | null
+ * 
+ * @example
+ * ```typescript
+ * const nullableName = nullable(U(1, 50));
+ * nullableName.validate("Alice");  // valid
+ * nullableName.validate(null);     // valid
+ * 
+ * // Or use the fluent method:
+ * const nullableName = U(1, 50).nullable();
+ * ```
+ */
+export const nullable = nullableModifier;
+
+/**
+ * Makes a validator accept null or undefined in addition to its normal type.
+ * 
+ * @param validator The validator to wrap
+ * @returns A new validator that accepts T | null | undefined
+ * 
+ * @example
+ * ```typescript
+ * const nullishName = nullish(U(1, 50));
+ * nullishName.validate("Alice");    // valid
+ * nullishName.validate(null);       // valid
+ * nullishName.validate(undefined);  // valid
+ * 
+ * // Or use the fluent method:
+ * const nullishName = U(1, 50).nullish();
+ * ```
+ */
+export const nullish = nullishModifier;
+
+/**
+ * Provides a default value when input is undefined.
+ * 
+ * @param validator The validator to wrap
+ * @param value Default value (static) or factory function (dynamic)
+ * @returns A new validator that uses the default for undefined inputs
+ * 
+ * @example
+ * ```typescript
+ * // Static default
+ * const port = withDefault(I(1, 65535), 3000);
+ * port.validate(8080);      // { valid: true, value: 8080 }
+ * port.validate(undefined); // { valid: true, value: 3000 }
+ * 
+ * // Dynamic default
+ * const timestamp = withDefault(I(), () => Date.now());
+ * 
+ * // Or use the fluent method:
+ * const port = I(1, 65535).default(3000);
+ * ```
+ */
+export const withDefault = withDefaultFn;

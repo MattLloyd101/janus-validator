@@ -9,7 +9,7 @@ describe("Set operations", () => {
   it("union merges overlapping contiguous domains", () => {
     const left = new ContiguousDomain(0, 5);
     const right = new ContiguousDomain(3, 10);
-    const unioned = Domains.set.union(left, right);
+    const unioned = Domains.set.union<unknown>(left, right);
     expect(unioned).toBeInstanceOf(ContiguousDomain);
     const d = unioned as ContiguousDomain<number>;
     expect(d.min).toBe(0);
@@ -50,7 +50,7 @@ describe("Set operations", () => {
   it("union of disjoint ranges yields alternation", () => {
     const left = new ContiguousDomain(0, 1);
     const right = new ContiguousDomain(5, 6);
-    const unioned = Domains.set.union(left, right);
+    const unioned = Domains.set.union<unknown>(left, right);
     expect(unioned).toBeInstanceOf(AlternationDomain);
   });
 
@@ -88,7 +88,7 @@ describe("Set operations", () => {
   it("union fallback creates alternation for mixed kinds", () => {
     const left = new FiniteDomain([1]);
     const right = new StringDomain({ minLength: 1, maxLength: 1 });
-    const unioned = Domains.set.union(left, right);
+    const unioned = Domains.set.union<unknown>(left, right);
     expect(unioned).toBeInstanceOf(AlternationDomain);
   });
 
@@ -120,7 +120,7 @@ describe("Set operations", () => {
   it("intersect unsupported kinds yields empty finite", () => {
     const a = new StringDomain({ minLength: 1, maxLength: 2 });
     const b = new BytesDomain({ minLength: 1, maxLength: 2 });
-    const result = Domains.set.intersect(a, b);
+    const result = Domains.set.intersect<unknown>(a, b);
     expect(result).toBeInstanceOf(FiniteDomain);
     expect((result as FiniteDomain<any>).all.length).toBe(0);
   });

@@ -100,7 +100,7 @@ describe('Any', () => {
   describe('domain', () => {
     it('should expose a regex domain with "." source', () => {
       const any = new Any();
-      expect(any.domain.type).toBe(DomainType.REGEX_DOMAIN);
+      expect(any.domain.kind).toBe(DomainType.REGEX);
       expect(any.domain.source).toBe('.');
     });
   });

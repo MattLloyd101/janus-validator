@@ -61,11 +61,11 @@ export class LongValidator extends BaseValidator<bigint> {
     }
 
     if (value < this.min) {
-      return this.error(`Value ${value} is less than minimum ${this.min}`);
+      return this.error(`Expected value >= ${this.min}, got ${value}`);
     }
 
     if (value > this.max) {
-      return this.error(`Value ${value} is greater than maximum ${this.max}`);
+      return this.error(`Expected value <= ${this.max}, got ${value}`);
     }
 
     return this.success(value);

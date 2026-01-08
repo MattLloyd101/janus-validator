@@ -1,6 +1,6 @@
 import { Validator, BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { SequenceDomain } from '../Domain';
+import { Domain, SequenceDomain } from '../Domain';
 import { TupleOfValidators, DomainsForTuple } from '../Types';
 
 /**
@@ -29,18 +29,16 @@ import { TupleOfValidators, DomainsForTuple } from '../Types';
  * ```
  */
 export class Sequence<
-  Vs extends readonly Validator<unknown>[] = readonly Validator<unknown>[]
-> extends BaseValidator<TupleOfValidators<Vs>> {
+  Vs extends readonly Validator<unknown, Domain<unknown>>[] = readonly Validator<unknown, Domain<unknown>>[]
+> extends BaseValidator<TupleOfValidators<Vs>, SequenceDomain<TupleOfValidators<Vs>>> {
   public readonly validators: Vs;
   public readonly domain: SequenceDomain<TupleOfValidators<Vs>>;
 
   constructor(...validators: [...Vs]) {
     super();
     this.validators = validators as Vs;
-    // The mapped domains preserve the tuple structure - cast is safe
-    this.domain = new SequenceDomain(
-      validators.map(v => v.domain) as DomainsForTuple<TupleOfValidators<Vs>>
-    );
+    const parts = validators.map((v) => v.domain as Domain<unknown>);
+    this.domain = new SequenceDomain(parts);
   }
 
   /**
@@ -87,7 +85,7 @@ export class Sequence<
    * const v = Sequence.of(UnicodeString(), Integer(), Boolean());
    * ```
    */
-  static of<Vs extends readonly Validator<unknown>[]>(
+  static of<Vs extends readonly Validator<unknown, Domain<unknown>>[]>(
     ...validators: Vs
   ): Sequence<Vs> {
     return new Sequence<Vs>(...validators);

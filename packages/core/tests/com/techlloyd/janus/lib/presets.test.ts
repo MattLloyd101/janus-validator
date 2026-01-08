@@ -33,6 +33,7 @@ import {
 import { Generator } from '@/com/techlloyd/janus/Generator';
 import { RNG } from '@/com/techlloyd/janus/RNG';
 import { Validator } from '@/com/techlloyd/janus/Validator';
+import { Domain } from '@/com/techlloyd/janus/Domain';
 
 class DefaultRNG implements RNG {
   random(): number {
@@ -388,7 +389,7 @@ describe('Presets - Money', () => {
 });
 
 describe('Presets - Property-based tests', () => {
-  const presets: { name: string; factory: () => Validator<any> }[] = [
+  const presets: { name: string; factory: () => Validator<any, Domain<any>> }[] = [
     { name: 'FirstName', factory: FirstName },
     { name: 'LastName', factory: LastName },
     { name: 'FullName', factory: FullName },

@@ -11,12 +11,12 @@ export interface MatchResult {
 }
 
 /**
- * RegexValidator extends Validator<string> with a match() method for parsing.
+ * RegexValidator extends Validator<string, RegexDomain> with a match() method for parsing.
  * 
  * This allows regex validators to be composed - each validator can try to match
  * from a position in the string and report how many characters it consumed.
  */
-export interface RegexValidator extends Validator<string> {
+export interface RegexValidator extends Validator<string, RegexDomain> {
   /**
    * Try to match this pattern starting at the given position in the input string.
    * Returns the number of characters consumed if matched, or null if no match.
@@ -27,7 +27,7 @@ export interface RegexValidator extends Validator<string> {
 /**
  * Base implementation of RegexValidator that provides common functionality
  */
-export abstract class BaseRegexValidator extends BaseValidator<string> implements RegexValidator {
+export abstract class BaseRegexValidator extends BaseValidator<string, RegexDomain> implements RegexValidator {
   abstract match(input: string, position: number): MatchResult;
   abstract readonly domain: RegexDomain;
 
@@ -44,7 +44,7 @@ export abstract class BaseRegexValidator extends BaseValidator<string> implement
       return this.success(value);
     }
 
-    return this.error(`String "${value}" does not match pattern`);
+    return this.error(`Expected string matching pattern, got "${value}"`);
   }
 
 }

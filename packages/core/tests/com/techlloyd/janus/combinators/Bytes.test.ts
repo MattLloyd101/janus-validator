@@ -36,7 +36,7 @@ describe('Bytes', () => {
       const result = validator.validate(new Uint8Array([1, 2, 3]));
       expect(result.valid).toBe(false);
       if (!result.valid) {
-        expect(result.error).toContain('less than minimum');
+        expect(result.error).toMatch(/>=\s*10|less than minimum/);
       }
     });
 
@@ -45,7 +45,7 @@ describe('Bytes', () => {
       const result = validator.validate(new Uint8Array(10));
       expect(result.valid).toBe(false);
       if (!result.valid) {
-        expect(result.error).toContain('greater than maximum');
+        expect(result.error).toMatch(/<=\s*5|greater than maximum/);
       }
     });
 
@@ -78,9 +78,9 @@ describe('Bytes', () => {
   });
 
   describe('domain', () => {
-    it('should have BYTES_DOMAIN type', () => {
+    it('should have BYTES domain kind', () => {
       const validator = Bytes(10, 50);
-      expect(validator.domain.type).toBe(DomainType.BYTES_DOMAIN);
+      expect(validator.domain.kind).toBe(DomainType.BYTES);
     });
 
     it('should store minLength and maxLength in domain', () => {

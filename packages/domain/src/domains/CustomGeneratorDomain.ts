@@ -6,12 +6,12 @@ import type { RNG } from "../generators";
  * Custom generator domain - semantically equivalent to its inner domain,
  * but carries a custom generate function.
  */
-export class CustomGeneratorDomain<T> extends BaseDomain<T> {
+export class CustomGeneratorDomain<T, D extends Domain<T>> extends BaseDomain<T> {
   readonly kind = DomainType.CUSTOM_GENERATOR;
-  readonly inner: Domain<T>;
+  readonly inner: D;
   readonly generate: (rng: RNG) => T;
 
-  constructor(inner: Domain<T>, generate: (rng: RNG) => T) {
+  constructor(inner: D, generate: (rng: RNG) => T) {
     super();
     this.inner = inner;
     this.generate = generate;

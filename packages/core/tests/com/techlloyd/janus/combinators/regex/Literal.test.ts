@@ -83,7 +83,7 @@ describe('Literal', () => {
   describe('domain', () => {
     it('should expose a regex domain', () => {
       const literal = new Literal('a');
-      expect(literal.domain.type).toBe(DomainType.REGEX_DOMAIN);
+      expect(literal.domain.kind).toBe(DomainType.REGEX);
       expect(literal.domain.source).toBe('a');
     });
 

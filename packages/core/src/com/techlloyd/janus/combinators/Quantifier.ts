@@ -1,6 +1,6 @@
 import { Validator, BaseValidator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
-import { QuantifierDomain } from '../Domain';
+import { QuantifierDomain, Domain } from '../Domain';
 
 /**
  * Generic Quantifier combinator that validates arrays of values.
@@ -21,16 +21,17 @@ import { QuantifierDomain } from '../Domain';
  * validator.validate([10, 200, 30]);   // invalid (200 out of range)
  * ```
  */
-export class Quantifier<T> extends BaseValidator<T[]> {
+export class Quantifier<T, D extends Domain<T> = Domain<T>> extends BaseValidator<T[], QuantifierDomain<T>> {
   public readonly domain: QuantifierDomain<T>;
 
   constructor(
-    public readonly validator: Validator<T>,
+    public readonly validator: Validator<T, D>,
     public readonly min: number,
     public readonly max: number
   ) {
     super();
-    this.domain = new QuantifierDomain(validator.domain, min, max);
+    const domainMax = max === Infinity ? min + 5 : max;
+    this.domain = new QuantifierDomain(validator.domain, { min, max: domainMax });
   }
 
   /**
@@ -75,27 +76,27 @@ export class Quantifier<T> extends BaseValidator<T[]> {
   /**
    * Factory methods for common quantifiers
    */
-  static zeroOrMore<T>(validator: Validator<T>): Quantifier<T> {
+  static zeroOrMore<T, D extends Domain<T>>(validator: Validator<T, D>): Quantifier<T, D> {
     return new Quantifier(validator, 0, Infinity);
   }
 
-  static oneOrMore<T>(validator: Validator<T>): Quantifier<T> {
+  static oneOrMore<T, D extends Domain<T>>(validator: Validator<T, D>): Quantifier<T, D> {
     return new Quantifier(validator, 1, Infinity);
   }
 
-  static optional<T>(validator: Validator<T>): Quantifier<T> {
+  static optional<T, D extends Domain<T>>(validator: Validator<T, D>): Quantifier<T, D> {
     return new Quantifier(validator, 0, 1);
   }
 
-  static exactly<T>(validator: Validator<T>, n: number): Quantifier<T> {
+  static exactly<T, D extends Domain<T>>(validator: Validator<T, D>, n: number): Quantifier<T, D> {
     return new Quantifier(validator, n, n);
   }
 
-  static atLeast<T>(validator: Validator<T>, n: number): Quantifier<T> {
+  static atLeast<T, D extends Domain<T>>(validator: Validator<T, D>, n: number): Quantifier<T, D> {
     return new Quantifier(validator, n, Infinity);
   }
 
-  static between<T>(validator: Validator<T>, min: number, max: number): Quantifier<T> {
+  static between<T, D extends Domain<T>>(validator: Validator<T, D>, min: number, max: number): Quantifier<T, D> {
     return new Quantifier(validator, min, max);
   }
 }

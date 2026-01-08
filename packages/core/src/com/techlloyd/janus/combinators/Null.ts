@@ -1,5 +1,4 @@
-import { Validator } from '../index';
-import { Constant } from './Constant';
+import { ConstantValidator, Constant } from './Constant';
 
 /**
  * Creates a validator for null
@@ -13,6 +12,6 @@ import { Constant } from './Constant';
  * validator.validate('');         // invalid
  * ```
  */
-export function Null(): Validator<null> {
+export function Null(): ConstantValidator<null> {
   return Constant(null, (input) => input === null, 'null');
 }

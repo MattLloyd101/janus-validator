@@ -17,11 +17,9 @@ export { Generator } from "./Generator";
 export {
   Domain,
   DomainType,
-  RelationResult,
   // Domain classes
   FiniteDomain,
   StringDomain,
-  CharSetDomain,
   ContiguousDomain,
   RegexDomain,
   AlternationDomain,
@@ -31,12 +29,6 @@ export {
   CustomGeneratorDomain,
   BytesDomain,
   BigIntDomain,
-  // CharRange utilities for creating character sets
-  CharRange,
-  charRange,
-  charsToRanges,
-  // ContiguousType for creating ContiguousDomains
-  ContiguousType,
 } from "./Domain";
 
 // Type utilities for inference

@@ -153,7 +153,7 @@ describe('Alternation', () => {
         new Literal('b'),
         new Literal('c')
       );
-      expect(alt.domain.type).toBe(DomainType.REGEX_DOMAIN);
+      expect(alt.domain.kind).toBe(DomainType.REGEX);
       expect(alt.domain.source).toBe('a|b|c');
     });
   });

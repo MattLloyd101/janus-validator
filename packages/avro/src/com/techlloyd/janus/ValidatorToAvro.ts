@@ -2,7 +2,7 @@
  * Converts Janus validators to Avro schemas
  */
 
-import type { Validator } from '@janus-validator/core';
+import type { Validator, Domain } from '@janus-validator/core';
 import type { AvroSchema, AvroType } from './types';
 
 /**
@@ -52,7 +52,7 @@ export interface ValidatorToAvroOptions {
  * ```
  */
 export function validatorToAvro(
-  validator: Validator<unknown>,
+  validator: Validator<unknown, Domain<unknown>>,
   options: ValidatorToAvroOptions = {}
 ): AvroSchema {
   // TODO: Implement conversion logic
@@ -62,7 +62,7 @@ export function validatorToAvro(
 /**
  * Determines the Avro type for a validator based on its domain
  */
-function domainToAvroType(validator: Validator<unknown>): AvroType {
+function domainToAvroType(validator: Validator<unknown, Domain<unknown>>): AvroType {
   // TODO: Implement domain to type mapping
   throw new Error('Not yet implemented');
 }
@@ -70,7 +70,7 @@ function domainToAvroType(validator: Validator<unknown>): AvroType {
 /**
  * Extracts Janus extension fields from a validator's domain
  */
-function extractExtensions(validator: Validator<unknown>): Record<string, unknown> {
+function extractExtensions(validator: Validator<unknown, Domain<unknown>>): Record<string, unknown> {
   // TODO: Extract min, max, pattern, etc. from domain
   throw new Error('Not yet implemented');
 }

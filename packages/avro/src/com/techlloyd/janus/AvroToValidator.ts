@@ -4,11 +4,12 @@
 
 import {
   Validator,
+  Domain,
   Null,
   Boolean,
   Integer,
   Long,
-  Number,
+  Float,
   UnicodeString,
   Bytes,
   Regex,
@@ -62,7 +63,7 @@ export interface AvroToValidatorOptions {
 export function avroToValidator(
   schema: AvroSchema,
   options: AvroToValidatorOptions = {}
-): Validator<unknown> {
+): Validator<unknown, Domain<unknown>> {
   return typeToValidator(schema, extractExtensions(schema), options);
 }
 
@@ -112,7 +113,7 @@ function typeToValidator(
   type: AvroType,
   extensions: JanusAvroExtensions,
   options: AvroToValidatorOptions
-): Validator<unknown> {
+): Validator<unknown, Domain<unknown>> {
   // Handle union types (arrays of types)
   if (Array.isArray(type)) {
     return unionToValidator(type, options);
@@ -152,7 +153,7 @@ function typeToValidator(
 function primitiveToValidator(
   type: string,
   extensions: JanusAvroExtensions
-): Validator<unknown> {
+): Validator<unknown, Domain<unknown>> {
   // If x-janus-enum is present, use Constant/Alternation for finite values
   if (extensions['x-janus-enum'] && extensions['x-janus-enum'].length > 0) {
     const values = extensions['x-janus-enum'];
@@ -187,7 +188,7 @@ function primitiveToValidator(
 
     case 'float':
     case 'double':
-      return Number(
+      return Float(
         extensions['x-janus-min'] ?? undefined,
         extensions['x-janus-max'] ?? undefined
       );
@@ -220,8 +221,8 @@ function primitiveToValidator(
 function recordToValidator(
   record: AvroRecordType,
   options: AvroToValidatorOptions
-): Validator<unknown> {
-  const schema: Record<string, Validator<unknown>> = {};
+): Validator<unknown, Domain<unknown>> {
+  const schema: Record<string, Validator<unknown, Domain<unknown>>> = {};
 
   for (const field of record.fields) {
     schema[field.name] = fieldToValidator(field, options);
@@ -236,7 +237,7 @@ function recordToValidator(
 function fieldToValidator(
   field: AvroField,
   options: AvroToValidatorOptions
-): Validator<unknown> {
+): Validator<unknown, Domain<unknown>> {
   const extensions = extractExtensions(field);
 
   // Handle optional fields (union with null)
@@ -261,7 +262,7 @@ function fieldToValidator(
 function unionToValidator(
   types: AvroType[],
   options: AvroToValidatorOptions
-): Validator<unknown> {
+): Validator<unknown, Domain<unknown>> {
   if (types.length === 0) {
     throw new Error('Empty union type is not allowed');
   }
@@ -281,7 +282,7 @@ function arrayToValidator(
   arrayType: AvroArrayType,
   extensions: JanusAvroExtensions,
   options: AvroToValidatorOptions
-): Validator<unknown> {
+): Validator<unknown, Domain<unknown>> {
   const itemValidator = typeToValidator(arrayType.items, {}, options);
 
   const minItems = extensions['x-janus-minItems'] ?? 0;
@@ -301,7 +302,7 @@ function arrayToValidator(
 function mapToValidator(
   _mapType: AvroMapType,
   _options: AvroToValidatorOptions
-): Validator<unknown> {
+): Validator<unknown, Domain<unknown>> {
   // Per ADR-001: Map types become empty non-strict structs
   // This accepts any object but doesn't validate values
   return Struct({}, false);
@@ -310,7 +311,7 @@ function mapToValidator(
 /**
  * Converts an Avro enum to an Alternation of Constants
  */
-function enumToValidator(enumType: AvroEnumType): Validator<unknown> {
+function enumToValidator(enumType: AvroEnumType): Validator<unknown, Domain<unknown>> {
   if (enumType.symbols.length === 0) {
     throw new Error('Enum must have at least one symbol');
   }
@@ -325,7 +326,7 @@ function enumToValidator(enumType: AvroEnumType): Validator<unknown> {
 /**
  * Converts an Avro fixed type to a Bytes validator with exact length
  */
-function fixedToValidator(fixedType: AvroFixedType): Validator<unknown> {
+function fixedToValidator(fixedType: AvroFixedType): Validator<unknown, Domain<unknown>> {
   // Fixed is bytes with exact length
   return Bytes(fixedType.size, fixedType.size);
 }

@@ -70,8 +70,8 @@ describe('Constant', () => {
     it('should expose a FiniteDomain with the constant value', () => {
       const validator = Constant(42);
       
-      expect(validator.domain.type).toBe(DomainType.FINITE_DOMAIN);
-      expect((validator.domain as any).values).toEqual([42]);
+      expect(validator.domain.kind).toBe(DomainType.FINITE);
+      expect(validator.domain.all).toEqual([42]);
     });
   });
 

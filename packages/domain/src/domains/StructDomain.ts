@@ -3,10 +3,10 @@ import { DomainType } from "../types";
 
 export class StructDomain<T extends Record<string, unknown>> extends BaseDomain<T> {
   readonly kind = DomainType.STRUCT;
-  readonly fields: Record<string, Domain<any>>;
+  readonly fields: { [K in keyof T]: Domain<T[K]> };
   readonly strict: boolean;
 
-  constructor(opts: { fields: Record<string, Domain<any>>; strict: boolean }) {
+  constructor(opts: { fields: { [K in keyof T]: Domain<T[K]> }; strict: boolean }) {
     super();
     this.fields = opts.fields;
     this.strict = opts.strict;
@@ -14,13 +14,14 @@ export class StructDomain<T extends Record<string, unknown>> extends BaseDomain<
 
   contains(value: unknown): value is T {
     if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
-    const keys = Object.keys(this.fields);
+    const obj = value as Record<string, unknown>;
+    const keys = Object.keys(this.fields) as (keyof T)[];
     for (const key of keys) {
-      if (!(key in (value as any))) return false;
-      if (!this.fields[key].contains((value as any)[key])) return false;
+      if (!(key in obj)) return false;
+      if (!this.fields[key].contains(obj[key as string])) return false;
     }
     if (this.strict) {
-      const extraKeys = Object.keys(value as any).filter((k) => !keys.includes(k));
+      const extraKeys = Object.keys(obj).filter((k) => !keys.includes(k as keyof T));
       if (extraKeys.length > 0) return false;
     }
     return true;

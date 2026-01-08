@@ -1,5 +1,4 @@
-import { Validator } from '../index';
-import { Constant } from './Constant';
+import { ConstantValidator, Constant } from './Constant';
 
 /**
  * Creates a validator for positive Infinity
@@ -12,7 +11,7 @@ import { Constant } from './Constant';
  * validator.validate(1000);       // invalid
  * ```
  */
-export function Infinity(): Validator<number> {
+export function Infinity(): ConstantValidator<number> {
   return Constant(Number.POSITIVE_INFINITY, (input, val) => input === val, 'Infinity');
 }
 
@@ -27,6 +26,6 @@ export function Infinity(): Validator<number> {
  * validator.validate(-1000);      // invalid
  * ```
  */
-export function NegativeInfinity(): Validator<number> {
+export function NegativeInfinity(): ConstantValidator<number> {
   return Constant(Number.NEGATIVE_INFINITY, (input, val) => input === val, '-Infinity');
 }

@@ -97,7 +97,7 @@ describe('Anchor', () => {
   describe('domain', () => {
     it('should expose a regex domain', () => {
       const start = new Anchor('start');
-      expect(start.domain.type).toBe(DomainType.REGEX_DOMAIN);
+      expect(start.domain.kind).toBe(DomainType.REGEX);
     });
   });
 });

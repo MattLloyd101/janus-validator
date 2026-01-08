@@ -12,7 +12,7 @@ import { BytesDomain } from '../Domain';
  * binaryData.validate(Buffer.from([1, 2, 3]));    // valid (Node.js Buffer)
  * ```
  */
-export class BytesValidator extends BaseValidator<Uint8Array> {
+export class BytesValidator extends BaseValidator<Uint8Array, BytesDomain> {
   public readonly domain: BytesDomain;
 
   constructor(
@@ -26,7 +26,7 @@ export class BytesValidator extends BaseValidator<Uint8Array> {
     if (maxLength < minLength) {
       throw new Error('maxLength must be greater than or equal to minLength');
     }
-    this.domain = new BytesDomain(minLength, maxLength);
+    this.domain = new BytesDomain({ minLength, maxLength });
   }
 
   /**
@@ -41,10 +41,10 @@ export class BytesValidator extends BaseValidator<Uint8Array> {
     if (input instanceof Uint8Array) {
       const length = input.length;
       if (length < this.minLength) {
-        return this.error(`Byte array length ${length} is less than minimum ${this.minLength}`);
+        return this.error(`Expected byte array length >= ${this.minLength}, got ${length}`);
       }
       if (length > this.maxLength) {
-        return this.error(`Byte array length ${length} is greater than maximum ${this.maxLength}`);
+        return this.error(`Expected byte array length <= ${this.maxLength}, got ${length}`);
       }
       return this.success(input);
     }
@@ -54,10 +54,10 @@ export class BytesValidator extends BaseValidator<Uint8Array> {
       const uint8 = new Uint8Array(input);
       const length = uint8.length;
       if (length < this.minLength) {
-        return this.error(`Byte array length ${length} is less than minimum ${this.minLength}`);
+        return this.error(`Expected byte array length >= ${this.minLength}, got ${length}`);
       }
       if (length > this.maxLength) {
-        return this.error(`Byte array length ${length} is greater than maximum ${this.maxLength}`);
+        return this.error(`Expected byte array length <= ${this.maxLength}, got ${length}`);
       }
       return this.success(uint8);
     }

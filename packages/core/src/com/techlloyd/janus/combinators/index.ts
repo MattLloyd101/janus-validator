@@ -4,8 +4,8 @@
 export { Boolean } from './Boolean';
 export { UnicodeString } from './UnicodeString';
 export {
-  String,
   CompoundString,
+  CompoundStringValidator,
   StringPart,
   CompoundStringDomain,
   digits,
@@ -16,9 +16,9 @@ export {
   hex,
   hexUpper,
   chars,
-} from './String';
+} from './CompoundString';
 export { Integer } from './Integer';
-export { Number } from './Number';
+export { Float, FloatValidator } from './Float';
 export { Bytes } from './Bytes';
 export { Long } from './Long';
 export { Constant } from './Constant';
@@ -61,3 +61,15 @@ export {
   Group,
   parseRegex,
 } from './regex/index';
+
+// Re-export modifiers for optional, nullable, default, etc.
+export {
+  OptionalValidator,
+  optional,
+  NullableValidator,
+  nullable,
+  NullishValidator,
+  nullish,
+  DefaultValidator,
+  withDefault,
+} from './modifiers/index';

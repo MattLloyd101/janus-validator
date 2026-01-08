@@ -1,5 +1,5 @@
-import { CharClass, CharClasses } from '@/com/techlloyd/janus/combinators/regex/CharClass';
-import { DomainType, charRange, CharRange } from '@/com/techlloyd/janus/Domain';
+import { CharClass, CharClasses, charRange, CharRange } from '@/com/techlloyd/janus/combinators/regex/CharClass';
+import { DomainType } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
 import { Generator } from '@/com/techlloyd/janus/Generator';
 
@@ -37,19 +37,9 @@ describe('CharClass', () => {
     });
   });
 
-  describe('negated matching', () => {
-    it('should match characters NOT in the negated class', () => {
-      const negatedClass = new CharClass([charRange('0', '9')], true);
-      expect(negatedClass.match('a', 0).matched).toBe(true);
-      expect(negatedClass.match('Z', 0).matched).toBe(true);
-      expect(negatedClass.match('!', 0).matched).toBe(true);
-    });
-
-    it('should NOT match characters in the negated class', () => {
-      const negatedClass = new CharClass([charRange('0', '9')], true);
-      expect(negatedClass.match('0', 0).matched).toBe(false);
-      expect(negatedClass.match('5', 0).matched).toBe(false);
-      expect(negatedClass.match('9', 0).matched).toBe(false);
+  describe('negated classes', () => {
+    it('should fail fast for unsupported negated character classes', () => {
+      expect(() => new CharClass([charRange('0', '9')], true)).toThrow('Unsupported regex construct');
     });
   });
 
@@ -92,19 +82,6 @@ describe('CharClass', () => {
       expect(generated.size).toBeGreaterThan(1);
     });
 
-    it('should generate from negated class', () => {
-      const negatedClass = new CharClass([charRange('a', 'c')], true);
-      const rng: RNG = { random: () => Math.random() };
-      const generator = new Generator(rng);
-
-      for (let i = 0; i < 50; i++) {
-        const value = generator.generate(negatedClass.domain);
-        expect(value).not.toBe('a');
-        expect(value).not.toBe('b');
-        expect(value).not.toBe('c');
-      }
-    });
-
     it('should select specific character based on RNG', () => {
       const charClass = new CharClass([charRange('x', 'z')]);
       
@@ -118,13 +95,8 @@ describe('CharClass', () => {
   describe('domain', () => {
     it('should expose a regex domain', () => {
       const charClass = new CharClass([charRange('a', 'c')]);
-      expect(charClass.domain.type).toBe(DomainType.REGEX_DOMAIN);
+      expect(charClass.domain.kind).toBe(DomainType.REGEX);
       expect(charClass.domain.source).toBe('[a-c]');
-    });
-
-    it('should format negated class correctly', () => {
-      const negatedClass = new CharClass([charRange('a', 'b')], true);
-      expect(negatedClass.domain.source).toBe('[^a-b]');
     });
   });
 });
@@ -142,21 +114,6 @@ describe('CharClasses factory', () => {
       const digit = CharClasses.digit();
       expect(digit.match('a', 0).matched).toBe(false);
       expect(digit.match('!', 0).matched).toBe(false);
-    });
-  });
-
-  describe('nonDigit()', () => {
-    it('should NOT match digits', () => {
-      const nonDigit = CharClasses.nonDigit();
-      for (let i = 0; i <= 9; i++) {
-        expect(nonDigit.match(String(i), 0).matched).toBe(false);
-      }
-    });
-
-    it('should match non-digits', () => {
-      const nonDigit = CharClasses.nonDigit();
-      expect(nonDigit.match('a', 0).matched).toBe(true);
-      expect(nonDigit.match('!', 0).matched).toBe(true);
     });
   });
 

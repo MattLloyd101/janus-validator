@@ -3,7 +3,7 @@
  */
 
 import { Regex } from '../combinators/Regex';
-import { String as S, digits, hex, chars } from '../combinators/String';
+import { CompoundString as S, digits, hex, chars } from '../combinators/CompoundString';
 import { Integer } from '../combinators/Integer';
 import { Struct } from '../combinators/Struct';
 import { Alternation } from '../combinators/Alternation';
@@ -22,7 +22,8 @@ export const URL = () => Regex(/^https?:\/\/[a-zA-Z0-9][-a-zA-Z0-9]*(\.[a-zA-Z0-
  * Simple URL (less strict, more permissive)
  * Note: Uses explicit non-whitespace character class for portability
  */
-export const SimpleURL = () => Regex(/^https?:\/\/[^ \t\r\n]+$/);
+export const SimpleURL = () =>
+  Regex(/^https?:\/\/[A-Za-z0-9._~:/?#@!$&'()*+,;=%-]+$/);
 
 /**
  * Secure URL (HTTPS only)

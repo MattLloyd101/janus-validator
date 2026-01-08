@@ -5,28 +5,4 @@
  * For internal code, import directly from `./domains`.
  */
 
-export {
-  // Public types
-  DomainType,
-  RelationResult,
-  CharRange,
-  charsToRanges,
-  charRange,
-  // Base class
-  Domain,
-  // Concrete domain classes
-  FiniteDomain,
-  StringDomain,
-  CharSetDomain,
-  ContiguousDomain,
-  RegexDomain,
-  AlternationDomain,
-  SequenceDomain,
-  QuantifierDomain,
-  BytesDomain,
-  BigIntDomain,
-  StructDomain,
-  CustomGeneratorDomain,
-  // ContiguousType needed to create ContiguousDomains
-  ContiguousType,
-} from './domains';
+export * from "@janus-validator/domain";

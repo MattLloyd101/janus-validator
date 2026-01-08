@@ -8,15 +8,15 @@ import { StructDomain } from "../domains/StructDomain";
 import { QuantifierDomain } from "../domains/QuantifierDomain";
 import { AlternationDomain } from "../domains/AlternationDomain";
 
-export function encapsulates(sup: Domain<any>, sub: Domain<any>): RelationResult {
+export function encapsulates(sup: Domain<unknown>, sub: Domain<unknown>): RelationResult {
   if (sup.kind === DomainType.FINITE && sub.kind === DomainType.FINITE) {
-    const missing = (sub as FiniteDomain<any>).all.filter((v) => !(sup as FiniteDomain<any>).contains(v));
+    const missing = (sub as FiniteDomain<unknown>).all.filter((v) => !(sup as FiniteDomain<unknown>).contains(v));
     return missing.length === 0 ? { result: "true" } : { result: "false", reason: "finite missing elements" };
   }
 
   if (sup.kind === DomainType.CONTIGUOUS && sub.kind === DomainType.CONTIGUOUS) {
-    const s = sup as ContiguousDomain<any>;
-    const t = sub as ContiguousDomain<any>;
+    const s = sup as ContiguousDomain<number | bigint>;
+    const t = sub as ContiguousDomain<number | bigint>;
     return s.min <= t.min && s.max >= t.max ? { result: "true" } : { result: "false", reason: "range not covered" };
   }
 
@@ -37,8 +37,8 @@ export function encapsulates(sup: Domain<any>, sub: Domain<any>): RelationResult
   }
 
   if (sup.kind === DomainType.STRUCT && sub.kind === DomainType.STRUCT) {
-    const s = sup as StructDomain<any>;
-    const t = sub as StructDomain<any>;
+    const s = sup as StructDomain<Record<string, unknown>>;
+    const t = sub as StructDomain<Record<string, unknown>>;
     const sKeys = Object.keys(s.fields);
     const tKeys = Object.keys(t.fields);
     for (const key of tKeys) {
@@ -54,8 +54,8 @@ export function encapsulates(sup: Domain<any>, sub: Domain<any>): RelationResult
   }
 
   if (sup.kind === DomainType.QUANTIFIER && sub.kind === DomainType.QUANTIFIER) {
-    const s = sup as QuantifierDomain<any>;
-    const t = sub as QuantifierDomain<any>;
+    const s = sup as QuantifierDomain<unknown>;
+    const t = sub as QuantifierDomain<unknown>;
     if (s.min > t.min) return { result: "false", reason: "min length not covered" };
     if (s.max !== undefined && (t.max === undefined || s.max < t.max)) {
       return { result: "false", reason: "max length not covered" };
@@ -65,9 +65,9 @@ export function encapsulates(sup: Domain<any>, sub: Domain<any>): RelationResult
   }
 
   if (sup.kind === DomainType.ALTERNATION) {
-    const supOpts = (sup as AlternationDomain<any>).options;
+    const supOpts = (sup as AlternationDomain<unknown>).options;
     if (sub.kind === DomainType.ALTERNATION) {
-      const subOpts = (sub as AlternationDomain<any>).options;
+      const subOpts = (sub as AlternationDomain<unknown>).options;
       const allCovered = subOpts.every((subOpt) =>
         supOpts.some((supOpt) => encapsulates(supOpt, subOpt).result === "true")
       );
@@ -78,8 +78,8 @@ export function encapsulates(sup: Domain<any>, sub: Domain<any>): RelationResult
   }
 
   if (sup.kind === DomainType.CONTIGUOUS && sub.kind === DomainType.FINITE) {
-    const s = sup as ContiguousDomain<any>;
-    const allInside = (sub as FiniteDomain<any>).all.every((v) => s.contains(v));
+    const s = sup as ContiguousDomain<number | bigint>;
+    const allInside = (sub as FiniteDomain<unknown>).all.every((v) => s.contains(v));
     return allInside ? { result: "true" } : { result: "false", reason: "finite value outside range" };
   }
 

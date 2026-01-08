@@ -3,7 +3,7 @@
  */
 
 import { Regex } from '../combinators/Regex';
-import { String as S, digits, chars } from '../combinators/String';
+import { CompoundString as S, digits, chars } from '../combinators/CompoundString';
 import { Integer } from '../combinators/Integer';
 import { Struct } from '../combinators/Struct';
 import { UnicodeString } from '../combinators/UnicodeString';

@@ -16,11 +16,11 @@ export class UnicodeStringValidator extends BaseValidator<string> {
   public readonly domain: StringDomain;
 
   constructor(
-    public readonly minLength?: number,
-    public readonly maxLength?: number
+    public readonly minLength: number = 0,
+    public readonly maxLength: number = Number.MAX_SAFE_INTEGER
   ) {
     super();
-    this.domain = new StringDomain(minLength, maxLength);
+    this.domain = new StringDomain({ minLength, maxLength });
   }
 
   /**
@@ -55,15 +55,15 @@ export class UnicodeStringValidator extends BaseValidator<string> {
     }
 
     if (!this.isValidUnicodeString(input)) {
-      return this.error('Invalid string: contains unpaired surrogates');
+      return this.error('Expected valid Unicode string, got string with unpaired surrogates');
     }
 
     const length = input.length;
-    if (this.minLength !== undefined && length < this.minLength) {
-      return this.error(`String length ${length} is less than minimum ${this.minLength}`);
+    if (length < this.minLength) {
+      return this.error(`Expected string length >= ${this.minLength}, got ${length}`);
     }
-    if (this.maxLength !== undefined && length > this.maxLength) {
-      return this.error(`String length ${length} is greater than maximum ${this.maxLength}`);
+    if (length > this.maxLength) {
+      return this.error(`Expected string length <= ${this.maxLength}, got ${length}`);
     }
 
     return this.success(input);

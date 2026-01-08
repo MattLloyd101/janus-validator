@@ -6,14 +6,14 @@ import { StructDomain, Domain } from '../Domain';
  * Schema definition for Struct validator - maps property names to validators
  */
 export type StructSchema = {
-  [key: string]: Validator<unknown>;
+  [key: string]: Validator<unknown, Domain<unknown>>;
 };
 
 /**
  * Infer the validated type from a StructSchema
  */
 export type InferStructType<S extends StructSchema> = {
-  [K in keyof S]: S[K] extends Validator<infer T> ? T : never;
+  [K in keyof S]: S[K] extends Validator<infer T, Domain<infer T>> ? T : never;
 };
 
 /**
@@ -42,20 +42,23 @@ export type InferStructType<S extends StructSchema> = {
  * strictUser.validate({ name: 'Alice', extra: 123 }); // invalid (extra property)
  * ```
  */
-export class StructValidator<S extends StructSchema> extends BaseValidator<InferStructType<S>> {
+export class StructValidator<S extends StructSchema> extends BaseValidator<InferStructType<S>, StructDomain<InferStructType<S>>> {
   public readonly domain: StructDomain<InferStructType<S>>;
-  private readonly schemaKeys: string[];
+  private readonly schemaKeys: (keyof S & string)[];
 
   constructor(
     public readonly schema: S,
     public readonly strict: boolean = false
   ) {
     super();
-    this.schemaKeys = Object.keys(schema);
-    this.domain = new StructDomain(
-      Object.fromEntries(this.schemaKeys.map(key => [key, schema[key].domain])),
-      strict
-    ) as any;
+    this.schemaKeys = Object.keys(schema) as (keyof S & string)[];
+    // Build fields object with proper typing - the domain for each key K
+    // corresponds to the domain of the validator at schema[K]
+    const fields = {} as { [K in keyof InferStructType<S>]: Domain<InferStructType<S>[K]> };
+    for (const key of this.schemaKeys) {
+      fields[key] = schema[key].domain as Domain<InferStructType<S>[typeof key]>;
+    }
+    this.domain = new StructDomain<InferStructType<S>>({ fields, strict });
   }
 
   validate(input: unknown): ValidationResult<InferStructType<S>> {

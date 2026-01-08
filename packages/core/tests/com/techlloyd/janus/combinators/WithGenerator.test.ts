@@ -10,7 +10,7 @@ import { UnicodeString } from '@/com/techlloyd/janus/combinators/UnicodeString';
 import { Integer } from '@/com/techlloyd/janus/combinators/Integer';
 import { Generator } from '@/com/techlloyd/janus/Generator';
 import { RNG } from '@/com/techlloyd/janus/RNG';
-import { DomainType } from '@/com/techlloyd/janus/Domain';
+import { DomainType, CustomGeneratorDomain, Domain } from '@/com/techlloyd/janus/Domain';
 
 class DefaultRNG implements RNG {
   random(): number {
@@ -53,16 +53,18 @@ describe('withGenerator', () => {
     }
   });
 
-  it('should expose CUSTOM_GENERATOR_DOMAIN type', () => {
+  it('should expose CUSTOM_GENERATOR domain kind', () => {
     const validator = withGenerator(UnicodeString(), () => 'test');
-    expect(validator.domain.type).toBe(DomainType.CUSTOM_GENERATOR_DOMAIN);
+    expect(validator.domain.kind).toBe(DomainType.CUSTOM_GENERATOR);
   });
 
   it('should preserve inner domain', () => {
     const original = UnicodeString(5, 10);
     const custom = withGenerator(original, () => 'hello');
     
-    expect((custom.domain as any).innerDomain).toBe(original.domain);
+    const domain = custom.domain as CustomGeneratorDomain<string, Domain<string>>;
+    expect(domain.kind).toBe(DomainType.CUSTOM_GENERATOR);
+    expect(domain.inner).toBe(original.domain);
   });
 });
 

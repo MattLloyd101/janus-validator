@@ -5,12 +5,14 @@ import { RNG } from "./RNG";
 
 const PRINTABLE_ASCII_MIN = 32;
 const PRINTABLE_ASCII_MAX = 126;
+/** Cap generated string length to avoid OOM when domain has unbounded maxLength */
+const DEFAULT_MAX_GENERATED_LENGTH = 1000;
 
 export class StringDomainGenerator implements DomainGeneratorStrategy<string> {
   generate(domain: Domain<string>, rng: RNG): string {
     const stringDomain = domain as StringDomain;
     const minLength = stringDomain.minLength;
-    const maxLength = stringDomain.maxLength;
+    const maxLength = Math.min(stringDomain.maxLength, Math.max(minLength, DEFAULT_MAX_GENERATED_LENGTH));
     const targetLength =
       minLength + Math.floor(rng.random() * (maxLength - minLength + 1));
 

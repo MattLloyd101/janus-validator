@@ -66,8 +66,8 @@ describe('Boolean validator', () => {
     const validator = Boolean();
     expect(validator.domain).toBeDefined();
     const finiteDomain = validator.domain as FiniteDomain<boolean>;
-    expect(finiteDomain.type).toBe(DomainType.FINITE_DOMAIN);
-    expect(finiteDomain.values).toEqual([true, false]);
+    expect(finiteDomain.kind).toBe(DomainType.FINITE);
+    expect(finiteDomain.all).toEqual([true, false]);
   });
 });
 
@@ -76,10 +76,10 @@ describe('Boolean domain', () => {
     const validator = Boolean();
     const finiteDomain = validator.domain as FiniteDomain<boolean>;
     
-    expect(finiteDomain.type).toBe(DomainType.FINITE_DOMAIN);
-    expect(finiteDomain.values).toContain(true);
-    expect(finiteDomain.values).toContain(false);
-    expect(finiteDomain.values.length).toBe(2);
+    expect(finiteDomain.kind).toBe(DomainType.FINITE);
+    expect(finiteDomain.all).toContain(true);
+    expect(finiteDomain.all).toContain(false);
+    expect(finiteDomain.all.length).toBe(2);
   });
 
   it('should generate boolean values using Generator', () => {

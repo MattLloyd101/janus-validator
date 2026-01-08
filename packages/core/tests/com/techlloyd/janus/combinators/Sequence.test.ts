@@ -82,7 +82,7 @@ describe('Sequence (Generic Combinator)', () => {
   describe('domain', () => {
     it('should expose a SequenceDomain type', () => {
       const sequence = new Sequence(Integer(0, 10), UnicodeString(1, 5));
-      expect(sequence.domain.type).toBe(DomainType.SEQUENCE_DOMAIN);
+    expect(sequence.domain.kind).toBe(DomainType.SEQUENCE);
     });
 
     it('should contain the domains of its child validators as parts', () => {
@@ -103,7 +103,7 @@ describe('Sequence (Generic Combinator)', () => {
 
       const rng: RNG = { random: () => 0.5 };
       const generator = new Generator(rng);
-      const value = generator.generate(sequence.domain) as any[];
+      const value = generator.generate(sequence.domain) as [number, string, boolean];
 
       expect(Array.isArray(value)).toBe(true);
       expect(value.length).toBe(3);

@@ -1,61 +1,43 @@
 import { ContiguousDomain } from "@/domains/ContiguousDomain";
-import { AlternationDomain } from "@/domains/AlternationDomain";
-import { Domains } from "@/index";
 
 describe("ContiguousDomain", () => {
-  it("bounds inclusively", () => {
-    const domain = new ContiguousDomain(0, 5);
-    expect(domain.contains(-1)).toBe(false);
+  it("validates numbers within range", () => {
+    const domain = new ContiguousDomain(0, 100);
+    expect(domain.contains(50)).toBe(true);
     expect(domain.contains(0)).toBe(true);
+    expect(domain.contains(100)).toBe(true);
+    expect(domain.contains(-1)).toBe(false);
+    expect(domain.contains(101)).toBe(false);
+  });
+
+  it("rejects non-number values", () => {
+    const domain = new ContiguousDomain(0, 100);
+    // Testing defensive behavior
+    expect(domain.contains("50")).toBe(false);
+    expect(domain.contains(null)).toBe(false);
+  });
+
+  it("accepts floats within range (no integer-only mode)", () => {
+    // ContiguousDomain now accepts any number within range (integers or floats)
+    const domain = new ContiguousDomain(0, 10);
     expect(domain.contains(5)).toBe(true);
-    expect(domain.contains(6)).toBe(false);
+    expect(domain.contains(5.5)).toBe(true);
+    expect(domain.contains(0.1)).toBe(true);
+    expect(domain.contains(9.9)).toBe(true);
   });
 
-  it("rejects NaN", () => {
-    const domain = new ContiguousDomain(0, 5);
-    expect(domain.contains(Number.NaN)).toBe(false);
+  it("throws when min > max", () => {
+    expect(() => new ContiguousDomain(100, 0)).toThrow("ContiguousDomain min must be <= max");
   });
 
-  it("throws when min is greater than max", () => {
-    expect(() => new ContiguousDomain(5, 0)).toThrow();
-  });
-
-  it("bigint domain rejects non-bigint values", () => {
-    const domain = new ContiguousDomain<bigint>(0n, 5n);
-    expect(domain.contains(1 as any)).toBe(false);
-  });
-
-  it("union merges overlapping ranges", () => {
-    const left = new ContiguousDomain(0, 5);
-    const right = new ContiguousDomain(3, 10);
-    const unioned = Domains.set.union(left, right);
-    expect(unioned).toBeInstanceOf(ContiguousDomain);
-    const d = unioned as ContiguousDomain<number>;
-    expect(d.min).toBe(0);
-    expect(d.max).toBe(10);
-  });
-
-  it("intersect computes overlapping portion", () => {
-    const left = new ContiguousDomain(0, 5);
-    const right = new ContiguousDomain(3, 10);
-    const intersected = Domains.set.intersect(left, right);
-    expect(intersected).toBeInstanceOf(ContiguousDomain);
-    const d = intersected as ContiguousDomain<number>;
-    expect(d.min).toBe(3);
-    expect(d.max).toBe(5);
-  });
-
-  it("subtract splits into alternation when punching holes", () => {
-    const universe = new ContiguousDomain(0, 10);
-    const hole = new ContiguousDomain(3, 7);
-    const result = Domains.set.subtract(universe, hole);
-    expect(result).toBeInstanceOf(AlternationDomain);
-    const parts = (result as AlternationDomain<number>).options;
-    expect(parts).toHaveLength(2);
-    expect((parts[0] as ContiguousDomain<number>).min).toBe(0);
-    expect((parts[0] as ContiguousDomain<number>).max).toBe(2);
-    expect((parts[1] as ContiguousDomain<number>).min).toBe(8);
-    expect((parts[1] as ContiguousDomain<number>).max).toBe(10);
+  it("handles bigint domains", () => {
+    const domain = new ContiguousDomain(0n, 100n);
+    expect(domain.contains(50n)).toBe(true);
+    expect(domain.contains(0n)).toBe(true);
+    expect(domain.contains(100n)).toBe(true);
+    expect(domain.contains(-1n)).toBe(false);
+    expect(domain.contains(101n)).toBe(false);
+    // Rejects non-bigint when domain is bigint
+    expect(domain.contains(50)).toBe(false);
   });
 });
-

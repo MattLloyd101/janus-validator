@@ -3,8 +3,8 @@
  */
 
 import { Regex } from '../combinators/Regex';
-import { String as S, digits, upper, alphanumeric, letters, chars } from '../combinators/String';
-import { Number as Num } from '../combinators/Number';
+import { CompoundString as S, digits, upper, alphanumeric, letters, chars } from '../combinators/CompoundString';
+import { Float } from '../combinators/Float';
 import { Struct } from '../combinators/Struct';
 import { Alternation } from '../combinators/Alternation';
 import { UnicodeString } from '../combinators/UnicodeString';
@@ -56,12 +56,12 @@ export const PostalCode = () => S(alphanumeric(3, 10));
 /**
  * Latitude (-90 to 90)
  */
-export const Latitude = () => Num(-90, 90);
+export const Latitude = () => Float(-90, 90);
 
 /**
  * Longitude (-180 to 180)
  */
-export const Longitude = () => Num(-180, 180);
+export const Longitude = () => Float(-180, 180);
 
 /**
  * Geographic coordinates
@@ -77,7 +77,7 @@ export const Coordinates = () => Struct({
 export const Coordinates3D = () => Struct({
   latitude: Latitude(),
   longitude: Longitude(),
-  altitude: Num(-500, 100000), // meters, Dead Sea to space
+  altitude: Float(-500, 100000), // meters, Dead Sea to space
 });
 
 // ============================================================================

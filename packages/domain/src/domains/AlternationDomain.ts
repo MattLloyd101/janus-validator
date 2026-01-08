@@ -3,6 +3,14 @@ import { DomainType } from "../types";
 import { ContiguousDomain } from "./ContiguousDomain";
 import { FiniteDomain } from "./FiniteDomain";
 
+/** Increment a number or bigint by 1 */
+function increment(value: number | bigint): number | bigint {
+  if (typeof value === "bigint") {
+    return value + 1n;
+  }
+  return value + 1;
+}
+
 export class AlternationDomain<T> extends BaseDomain<T> {
   readonly kind = DomainType.ALTERNATION;
   readonly options: Domain<T>[];
@@ -29,23 +37,27 @@ function normalizeAlternationOptions<T>(options: Domain<T>[]): Domain<T>[] {
     }
   }
 
-  const contiguous: ContiguousDomain<any>[] = [];
+  // Contiguous domains hold numeric values (number or bigint)
+  const contiguous: ContiguousDomain<number | bigint>[] = [];
   const others: Domain<T>[] = [];
   for (const opt of flattened) {
-    if (opt.kind === DomainType.CONTIGUOUS) contiguous.push(opt as ContiguousDomain<any>);
-    else others.push(opt);
+    if (opt.kind === DomainType.CONTIGUOUS) {
+      // Safe cast: CONTIGUOUS domains are always ContiguousDomain<number | bigint>
+      contiguous.push(opt as unknown as ContiguousDomain<number | bigint>);
+    } else {
+      others.push(opt);
+    }
   }
   contiguous.sort((a, b) => (a.min < b.min ? -1 : a.min > b.min ? 1 : 0));
-  const merged: ContiguousDomain<any>[] = [];
+  const merged: ContiguousDomain<number | bigint>[] = [];
   for (const c of contiguous) {
     const last = merged[merged.length - 1];
     if (!last) {
       merged.push(c);
       continue;
     }
-    const isBigInt = typeof last.max === "bigint";
     const overlap = c.min <= last.max;
-    const adjacent = isBigInt ? (c.min as any) === (last.max as any) + 1n : (c.min as any) === (last.max as any) + 1;
+    const adjacent = c.min === increment(last.max);
     if (overlap || adjacent) {
       const max = c.max > last.max ? c.max : last.max;
       merged[merged.length - 1] = new ContiguousDomain(last.min, max);
@@ -54,18 +66,23 @@ function normalizeAlternationOptions<T>(options: Domain<T>[]): Domain<T>[] {
     }
   }
 
-  const uniqueFinite = new Map<string, FiniteDomain<any>>();
+  const uniqueFinite = new Map<string, FiniteDomain<unknown>>();
   const dedupedOthers: Domain<T>[] = [];
   for (const opt of others) {
     if (opt.kind === DomainType.FINITE) {
-      const key = JSON.stringify((opt as FiniteDomain<any>).all);
-      if (!uniqueFinite.has(key)) uniqueFinite.set(key, opt as FiniteDomain<any>);
+      const key = JSON.stringify((opt as FiniteDomain<unknown>).all);
+      if (!uniqueFinite.has(key)) uniqueFinite.set(key, opt as FiniteDomain<unknown>);
     } else {
       dedupedOthers.push(opt);
     }
   }
 
-  const normalized: Domain<T>[] = [...merged, ...uniqueFinite.values(), ...dedupedOthers];
+  // Cast merged contiguous domains back to Domain<T> - safe because T includes the numeric types
+  const normalized: Domain<T>[] = [
+    ...(merged as unknown as Domain<T>[]),
+    ...(Array.from(uniqueFinite.values()) as unknown as Domain<T>[]),
+    ...dedupedOthers,
+  ];
   return normalized;
 }
 

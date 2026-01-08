@@ -3,8 +3,8 @@
  */
 
 import { Regex } from '../combinators/Regex';
-import { String as S, digits, upper, alphanumeric } from '../combinators/String';
-import { Number as Num } from '../combinators/Number';
+import { CompoundString as S, digits, upper, alphanumeric } from '../combinators/CompoundString';
+import { Float } from '../combinators/Float';
 import { Struct } from '../combinators/Struct';
 import { Alternation } from '../combinators/Alternation';
 import { Constant } from '../combinators/Constant';
@@ -87,13 +87,13 @@ export const Price = () => Regex(/^-?[0-9]+(\.[0-9]{1,2})?$/);
 /**
  * Percentage (0-100 with up to 2 decimals)
  */
-export const Percentage = () => Num(0, 100);
+export const Percentage = () => Float(0, 100);
 
 /**
  * Money with currency
  */
 export const Money = () => Struct({
-  amount: Num(0, Number.MAX_SAFE_INTEGER),
+  amount: Float(0, Number.MAX_SAFE_INTEGER),
   currency: CurrencyCode(),
 });
 

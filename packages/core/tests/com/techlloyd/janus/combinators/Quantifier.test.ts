@@ -81,7 +81,7 @@ describe('Quantifier (Generic Combinator)', () => {
   describe('domain', () => {
     it('should expose a QuantifierDomain type', () => {
       const quantifier = new Quantifier(Integer(0, 100), 1, 5);
-      expect(quantifier.domain.type).toBe(DomainType.QUANTIFIER_DOMAIN);
+    expect(quantifier.domain.kind).toBe(DomainType.QUANTIFIER);
     });
 
     it('should contain the inner validator domain', () => {

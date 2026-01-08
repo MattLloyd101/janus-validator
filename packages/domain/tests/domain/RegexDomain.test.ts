@@ -1,5 +1,5 @@
 import { RegexDomain, _RegexMatchVisitorTestOnly } from "@/domains/RegexDomain";
-import { RegexNodeType } from "@janus-validator/regex-parser";
+import { RegexNodeType, AnchorNode } from "@janus-validator/regex-parser";
 
 describe("RegexDomain guardrails", () => {
   it("rejects lookarounds and backreferences", () => {
@@ -75,7 +75,8 @@ describe("RegexDomain guardrails", () => {
 
   it("returns false for non-string inputs", () => {
     const domain = new RegexDomain(/^[a]+$/);
-    expect(domain.contains(123 as any)).toBe(false);
+    // Testing defensive behavior - domain.contains should handle non-strings
+    expect(domain.contains(123)).toBe(false);
   });
 
   it("honors start and end anchors", () => {
@@ -101,10 +102,12 @@ describe("RegexDomain guardrails", () => {
 
   it("defensive anchor path returns empty for unknown kind", () => {
     const visitor = new _RegexMatchVisitorTestOnly();
-    const res = visitor.visit(
-      { type: RegexNodeType.ANCHOR, kind: "bogus" as any },
-      { value: "abc", pos: 0 }
-    );
+    // Test defensive behavior with an invalid anchor kind
+    const invalidAnchor: AnchorNode = {
+      type: RegexNodeType.ANCHOR,
+      kind: "bogus" as "start" | "end"
+    };
+    const res = visitor.visit(invalidAnchor, { value: "abc", pos: 0 });
     expect(res).toEqual([]);
   });
 });

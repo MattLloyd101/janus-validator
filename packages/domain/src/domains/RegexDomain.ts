@@ -8,6 +8,10 @@ import {
   QuantifierNode,
   AlternationNode,
   SequenceNode,
+  LiteralNode,
+  AnchorNode,
+  EmptyNode,
+  AnyNode,
   RegexASTVisitor,
 } from "@janus-validator/regex-parser";
 import { FiniteDomain } from "./FiniteDomain";
@@ -69,7 +73,7 @@ class RegexMatchVisitor extends RegexASTVisitor<MatchPositions, MatchContext> {
    * per JS string index (UTF-16 code units); if we later need full code-point semantics, both
    * traversal and the end check must switch to code-point iteration.
    */
-  protected visitLiteral(node: any, ctx: MatchContext): MatchPositions {
+  protected visitLiteral(node: LiteralNode, ctx: MatchContext): MatchPositions {
     return new FiniteDomain([node.char]).contains(ctx.value[ctx.pos]) ? [ctx.pos + 1] : [];
   }
 
@@ -82,19 +86,19 @@ class RegexMatchVisitor extends RegexASTVisitor<MatchPositions, MatchContext> {
     return domain.contains(ctx.value[ctx.pos]) ? [ctx.pos + 1] : [];
   }
 
-  protected visitAny(_node: any, ctx: MatchContext): MatchPositions {
+  protected visitAny(_node: AnyNode, ctx: MatchContext): MatchPositions {
     const domain = new CharRangeAdapter(new RangeCharDomain(32, 126));
     return domain.contains(ctx.value[ctx.pos]) ? [ctx.pos + 1] : [];
   }
 
-  protected visitAnchor(node: any, ctx: MatchContext): MatchPositions {
+  protected visitAnchor(node: AnchorNode, ctx: MatchContext): MatchPositions {
     if (node.kind === "start") return ctx.pos === 0 ? [ctx.pos] : [];
     if (node.kind === "end") return ctx.pos === ctx.value.length ? [ctx.pos] : [];
     
     return [];
   }
 
-  protected visitEmpty(_node: any, ctx: MatchContext): MatchPositions {
+  protected visitEmpty(_node: EmptyNode, ctx: MatchContext): MatchPositions {
     return [ctx.pos];
   }
 

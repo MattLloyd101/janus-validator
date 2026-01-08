@@ -77,8 +77,8 @@ describe('Generic Alternation combinator', () => {
         Integer(100, 200)
       );
       
-      expect(alt.domain.type).toBe(DomainType.ALTERNATION_DOMAIN);
-      expect(alt.domain.alternatives).toHaveLength(2);
+      expect(alt.domain.kind).toBe(DomainType.ALTERNATION);
+      expect(alt.domain.options).toHaveLength(2);
     });
 
     it('should contain child domains', () => {
@@ -86,8 +86,8 @@ describe('Generic Alternation combinator', () => {
       const int2 = Integer(100, 200);
       const alt = new Alternation(int1, int2);
       
-      expect(alt.domain.alternatives[0]).toBe(int1.domain);
-      expect(alt.domain.alternatives[1]).toBe(int2.domain);
+      expect(alt.domain.options[0]).toBe(int1.domain);
+      expect(alt.domain.options[1]).toBe(int2.domain);
     });
   });
 

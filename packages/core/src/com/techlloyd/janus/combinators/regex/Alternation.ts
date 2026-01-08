@@ -21,17 +21,15 @@ export class RegexAlternation extends GenericAlternation<string, RegexDomain> im
   private readonly regexValidators: RegexValidator[];
 
   constructor(...validators: RegexValidator[]) {
-    super(...validators);
-    this.regexValidators = validators;
-    
     const source = validators.map(v => {
       // Wrap in non-capturing group if needed to preserve precedence
       const s = (v.domain as RegexDomain).source;
       return s.includes('|') ? `(?:${s})` : s;
     }).join('|');
     
-    // Override the domain with RegexDomain
-    (this as any).domain = new RegexDomain(new RegExp(source));
+    // Use the domain override constructor
+    super(validators, new RegexDomain(new RegExp(source)));
+    this.regexValidators = validators;
   }
 
   /**
@@ -47,7 +45,7 @@ export class RegexAlternation extends GenericAlternation<string, RegexDomain> im
       return this.success(value);
     }
 
-    return this.error(`String "${value}" does not match pattern`);
+    return this.error(`Expected string matching pattern, got "${value}"`);
   }
 
   /**

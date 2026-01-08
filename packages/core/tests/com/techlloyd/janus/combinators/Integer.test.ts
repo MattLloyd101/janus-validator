@@ -1,5 +1,6 @@
 import { Integer } from '@/com/techlloyd/janus/combinators/Integer';
-import { Generator, RNG, DomainType, ContiguousDomain, ContiguousType } from '@/com/techlloyd/janus/index';
+import { Generator, RNG, ContiguousDomain } from '@/com/techlloyd/janus/index';
+import { DomainType } from '@janus-validator/domain';
 
 describe('Integer validator', () => {
   it('should validate valid integers', () => {
@@ -62,12 +63,10 @@ describe('Integer validator', () => {
   it('should expose a contiguous domain', () => {
     const validator = Integer(0, 100);
     expect(validator.domain).toBeDefined();
-    expect(validator.domain.type).toBe(DomainType.CONTIGUOUS_DOMAIN);
-    const domain = validator.domain as ContiguousDomain;
+    expect(validator.domain.kind).toBe(DomainType.CONTIGUOUS);
+    const domain = validator.domain as ContiguousDomain<number>;
     expect(domain.min).toBe(0);
     expect(domain.max).toBe(100);
-    expect(domain.contiguousType).toBe(ContiguousType.INTEGER);
-    expect(domain.contiguousType.strategy).toBeDefined();
   });
 
   // Edge cases

@@ -20,10 +20,10 @@ import { Domain } from '../Domain';
  * hexColor.validate('#AaBbCc'); // valid (mixed case)
  * ```
  */
-export class CaseInsensitiveValidator extends BaseValidator<string> {
-  public readonly domain: Domain<string>;
+export class CaseInsensitiveValidator<D extends Domain<string> = Domain<string>> extends BaseValidator<string, D> {
+  public readonly domain: D;
 
-  constructor(private readonly innerValidator: Validator<string>) {
+  constructor(private readonly innerValidator: Validator<string, D>) {
     super();
     this.domain = innerValidator.domain;
   }
@@ -49,6 +49,6 @@ export class CaseInsensitiveValidator extends BaseValidator<string> {
 /**
  * Makes a string validator case-insensitive by normalizing input to lowercase before validation.
  */
-export function caseInsensitive(innerValidator: Validator<string>): CaseInsensitiveValidator {
+export function caseInsensitive<D extends Domain<string>>(innerValidator: Validator<string, D>): CaseInsensitiveValidator<D> {
   return new CaseInsensitiveValidator(innerValidator);
 }

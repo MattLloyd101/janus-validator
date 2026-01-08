@@ -250,7 +250,7 @@ describe('Quantifier', () => {
   describe('domain', () => {
     it('should expose a regex domain', () => {
       const q = new Quantifier(new Literal('a'), 1, 3);
-      expect(q.domain.type).toBe(DomainType.REGEX_DOMAIN);
+      expect(q.domain.kind).toBe(DomainType.REGEX);
     });
 
     it('should wrap multi-char sequences in non-capturing group', () => {

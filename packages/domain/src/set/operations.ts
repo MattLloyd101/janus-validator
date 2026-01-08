@@ -4,6 +4,26 @@ import { ContiguousDomain } from "../domains/ContiguousDomain";
 import { FiniteDomain } from "../domains/FiniteDomain";
 import { AlternationDomain, normalizeAlternation } from "../domains/AlternationDomain";
 
+/**
+ * Increment a number or bigint by 1, preserving the type.
+ */
+function increment<T extends number | bigint>(value: T): T {
+  if (typeof value === "bigint") {
+    return (value + 1n) as T;
+  }
+  return ((value as number) + 1) as T;
+}
+
+/**
+ * Decrement a number or bigint by 1, preserving the type.
+ */
+function decrement<T extends number | bigint>(value: T): T {
+  if (typeof value === "bigint") {
+    return (value - 1n) as T;
+  }
+  return ((value as number) - 1) as T;
+}
+
 function intersectContiguous<T extends number | bigint>(
   left: ContiguousDomain<T>,
   right: ContiguousDomain<T>
@@ -21,10 +41,7 @@ function unionContiguous<T extends number | bigint>(
   right: ContiguousDomain<T>
 ): Domain<T> {
   const overlaps = !(left.max < right.min || right.max < left.min);
-  const adjacent =
-    typeof left.max === "bigint"
-      ? left.max + (1n as any) === right.min || right.max + (1n as any) === left.min
-      : (left.max as number) + 1 === (right.min as number) || (right.max as number) + 1 === (left.min as number);
+  const adjacent = increment(left.max) === right.min || increment(right.max) === left.min;
   if (overlaps || adjacent) {
     const min = left.min < right.min ? left.min : right.min;
     const max = left.max > right.max ? left.max : right.max;
@@ -43,12 +60,10 @@ function subtractContiguous<T extends number | bigint>(
   }
   const parts: ContiguousDomain<T>[] = [];
   if (b.min > a.min) {
-    const beforeMax = (typeof b.min === "bigint" ? (b.min - (1n as any)) : ((b.min as number) - 1)) as T;
-    parts.push(new ContiguousDomain(a.min, beforeMax));
+    parts.push(new ContiguousDomain(a.min, decrement(b.min)));
   }
   if (b.max < a.max) {
-    const afterMin = (typeof b.max === "bigint" ? (b.max + (1n as any)) : ((b.max as number) + 1)) as T;
-    parts.push(new ContiguousDomain(afterMin, a.max));
+    parts.push(new ContiguousDomain(increment(b.max), a.max));
   }
   if (parts.length === 1) return parts[0];
   return normalizeAlternation(parts);
@@ -71,42 +86,51 @@ function subtractFinite<T>(a: FiniteDomain<T>, b: FiniteDomain<T>): Domain<T> {
   return new FiniteDomain(remaining);
 }
 
-export function union(a: Domain<any>, b: Domain<any>): Domain<any> {
+export function union<T>(a: Domain<T>, b: Domain<T>): Domain<T> {
   if (a.kind === DomainType.CONTIGUOUS && b.kind === DomainType.CONTIGUOUS) {
-    return unionContiguous(a as ContiguousDomain<any>, b as ContiguousDomain<any>);
+    return unionContiguous(
+      a as ContiguousDomain<T & (number | bigint)>,
+      b as ContiguousDomain<T & (number | bigint)>
+    ) as Domain<T>;
   }
   if (a.kind === DomainType.FINITE && b.kind === DomainType.FINITE) {
-    return unionFinite(a as FiniteDomain<any>, b as FiniteDomain<any>);
+    return unionFinite(a as FiniteDomain<T>, b as FiniteDomain<T>);
   }
   return normalizeAlternation([a, b]);
 }
 
-export function intersect(a: Domain<any>, b: Domain<any>): Domain<any> {
+export function intersect<T>(a: Domain<T>, b: Domain<T>): Domain<T> {
   if (a.kind === DomainType.CONTIGUOUS && b.kind === DomainType.CONTIGUOUS) {
-    return intersectContiguous(a as ContiguousDomain<any>, b as ContiguousDomain<any>);
+    return intersectContiguous(
+      a as ContiguousDomain<T & (number | bigint)>,
+      b as ContiguousDomain<T & (number | bigint)>
+    ) as Domain<T>;
   }
   if (a.kind === DomainType.FINITE && b.kind === DomainType.FINITE) {
-    return intersectFinite(a as FiniteDomain<any>, b as FiniteDomain<any>);
+    return intersectFinite(a as FiniteDomain<T>, b as FiniteDomain<T>);
   }
   if (a.kind === DomainType.ALTERNATION) {
-    const options = (a as AlternationDomain<any>).options.map((opt) => intersect(opt, b));
+    const options = (a as AlternationDomain<T>).options.map((opt) => intersect(opt, b));
     return normalizeAlternation(options);
   }
   if (b.kind === DomainType.ALTERNATION) {
     return intersect(b, a);
   }
-  return new FiniteDomain([]); // exact-first: unsupported combo → empty set instead of approximation
+  return new FiniteDomain<T>([]); // exact-first: unsupported combo → empty set instead of approximation
 }
 
-export function subtract(a: Domain<any>, b: Domain<any>): Domain<any> {
+export function subtract<T>(a: Domain<T>, b: Domain<T>): Domain<T> {
   if (a.kind === DomainType.CONTIGUOUS && b.kind === DomainType.CONTIGUOUS) {
-    return subtractContiguous(a as ContiguousDomain<any>, b as ContiguousDomain<any>);
+    return subtractContiguous(
+      a as ContiguousDomain<T & (number | bigint)>,
+      b as ContiguousDomain<T & (number | bigint)>
+    ) as Domain<T>;
   }
   if (a.kind === DomainType.FINITE && b.kind === DomainType.FINITE) {
-    return subtractFinite(a as FiniteDomain<any>, b as FiniteDomain<any>);
+    return subtractFinite(a as FiniteDomain<T>, b as FiniteDomain<T>);
   }
   if (a.kind === DomainType.ALTERNATION) {
-    const options = (a as AlternationDomain<any>).options.map((opt) => subtract(opt, b));
+    const options = (a as AlternationDomain<T>).options.map((opt) => subtract(opt, b));
     return normalizeAlternation(options);
   }
   throw new Error("Unsupported subtract combination");

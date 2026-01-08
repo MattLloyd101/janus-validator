@@ -138,7 +138,7 @@ describe('Sequence', () => {
         new Literal('b'),
         new Literal('c')
       );
-      expect(seq.domain.type).toBe(DomainType.REGEX_DOMAIN);
+      expect(seq.domain.kind).toBe(DomainType.REGEX);
       expect(seq.domain.source).toBe('abc');
     });
   });

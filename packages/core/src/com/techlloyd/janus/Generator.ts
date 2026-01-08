@@ -1,6 +1,5 @@
 import { Domain } from './Domain';
-import { RNG } from './RNG';
-import { DomainGeneratorStrategyRegistry } from './generators/DomainGeneratorStrategyRegistry';
+import { RNG, DomainGeneratorStrategyRegistry } from "@janus-validator/domain";
 
 /**
  * Generator class that generates values from a domain using an RNG

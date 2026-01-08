@@ -12,12 +12,12 @@ import type { Domain } from './Domain';
 // ============================================================================
 
 /**
- * Extract the value type T from a Validator<T>
+ * Extract the value type T from a Validator<T, D>
  * 
  * @example
- * type S = InferValidatorType<Validator<string>>; // string
+ * type S = InferValidatorType<Validator<string, Domain<string>>>; // string
  */
-export type InferValidatorType<V> = V extends Validator<infer T> ? T : never;
+export type InferValidatorType<V> = V extends Validator<infer T, Domain<infer T>> ? T : never;
 
 // ============================================================================
 // Core Type Extraction - Domains
@@ -39,9 +39,9 @@ export type InferDomainType<D> = D extends Domain<infer T> ? T : never;
  * Extract union type from a tuple/array of validators
  * 
  * @example
- * type U = UnionOfValidators<[Validator<string>, Validator<number>]>; // string | number
+ * type U = UnionOfValidators<[Validator<string, Domain<string>>, Validator<number, Domain<number>>]>; // string | number
  */
-export type UnionOfValidators<Vs extends readonly Validator<any>[]> = 
+export type UnionOfValidators<Vs extends readonly Validator<any, Domain<any>>[]> = 
   InferValidatorType<Vs[number]>;
 
 /**
@@ -61,9 +61,9 @@ export type UnionOfDomains<Ds extends readonly Domain<any>[]> =
  * Map a tuple of validators to a tuple of their value types
  * 
  * @example
- * type T = TupleOfValidators<[Validator<string>, Validator<number>]>; // [string, number]
+ * type T = TupleOfValidators<[Validator<string, Domain<string>>, Validator<number, Domain<number>>]>; // [string, number]
  */
-export type TupleOfValidators<Vs extends readonly Validator<any>[]> = {
+export type TupleOfValidators<Vs extends readonly Validator<any, Domain<any>>[]> = {
   [K in keyof Vs]: InferValidatorType<Vs[K]>;
 };
 
@@ -96,7 +96,7 @@ export type DomainsForTuple<T extends readonly unknown[]> = {
  * Schema definition for Struct validator - maps property names to validators
  */
 export type ValidatorSchema = {
-  [key: string]: Validator<unknown>;
+  [key: string]: Validator<unknown, Domain<unknown>>;
 };
 
 /**

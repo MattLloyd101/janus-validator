@@ -4,9 +4,10 @@ import { DomainType } from "@/types";
 import { DomainGeneratorStrategy } from "@/generators/DomainGeneratorStrategy";
 import { rngFromSequence } from "./helpers";
 import { Domain } from "@/Domain";
+import { RNG } from "@/generators/RNG";
 
 class DummyStrategy implements DomainGeneratorStrategy<string> {
-  generate(_domain: Domain<string>, _rng: any): string {
+  generate(_domain: Domain<string>, _rng: RNG): string {
     return "dummy";
   }
 }
@@ -29,8 +30,7 @@ describe("DomainGeneratorStrategyRegistry", () => {
 
   it("throws when strategy missing", () => {
     const registry = new DomainGeneratorStrategyRegistry();
-    const fakeType = 999 as any;
+    const fakeType = "unknown_type" as DomainType;
     expect(() => registry.get(fakeType)).toThrow();
   });
 });
-

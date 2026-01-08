@@ -47,7 +47,7 @@ export function Regex(pattern: RegExp | string, flags?: string): RegexValidator 
 /**
  * Wrapper class that combines a parsed RegexValidator with the original RegExp
  */
-class RegexWrapper extends BaseValidator<string> implements RegexValidator {
+class RegexWrapper extends BaseValidator<string, RegexDomain> implements RegexValidator {
   public readonly domain: RegexDomain;
 
   constructor(
@@ -65,7 +65,7 @@ class RegexWrapper extends BaseValidator<string> implements RegexValidator {
 
     // Use the original regex for validation (handles flags correctly)
     if (!this.regex.test(value)) {
-      return this.error(`String "${value}" does not match pattern ${this.regex.source}`);
+      return this.error(`Expected string matching /${this.regex.source}/, got "${value}"`);
     }
 
     return this.success(value);

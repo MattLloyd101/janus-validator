@@ -1,12 +1,29 @@
-import { RegexDomain, CharRange, charRange } from '../../Domain';
+import { CharRange } from '@janus-validator/regex-parser';
+import { RegexDomain } from '../../Domain';
 import { BaseRegexValidator, MatchResult } from './RegexValidator';
 
 /**
+ * Build a CharRange (inclusive) from two characters.
+ */
+function charRange(start: string, end: string): CharRange {
+  const min = start.codePointAt(0);
+  const max = end.codePointAt(0);
+  if (min === undefined || max === undefined) {
+    throw new Error('charRange requires non-empty strings');
+  }
+  if (min > max) {
+    throw new Error('charRange start must be <= end');
+  }
+  return { min, max };
+}
+
+/**
  * Validator that matches one character from a set of character ranges.
- * Supports both positive [abc] and negated [^abc] character classes.
  * 
  * Uses contiguous code point ranges for efficient containment checks,
  * avoiding the need to enumerate all characters in the class.
+ * 
+ * Note: Negated character classes [^...] are not supported.
  * 
  * @example
  * ```ts
@@ -27,9 +44,12 @@ export class CharClass extends BaseRegexValidator {
 
   constructor(
     public readonly ranges: readonly CharRange[],
-    public readonly negated: boolean = false
+    negated: boolean = false
   ) {
     super();
+    if (negated) {
+      throw new Error("Unsupported regex construct: negated character class");
+    }
     const source = this.buildSource();
     this._domain = new RegexDomain(new RegExp(source));
   }
@@ -44,8 +64,7 @@ export class CharClass extends BaseRegexValidator {
     }
 
     const codePoint = input.codePointAt(position)!;
-    const inRanges = this.containsCodePoint(codePoint);
-    const matched = this.negated ? !inRanges : inRanges;
+    const matched = this.containsCodePoint(codePoint);
 
     return { matched, consumed: matched ? 1 : 0 };
   }
@@ -64,15 +83,15 @@ export class CharClass extends BaseRegexValidator {
 
   private buildSource(): string {
     const parts = this.ranges.map(r => {
-      const minChar = globalThis.String.fromCodePoint(r.min);
-      const maxChar = globalThis.String.fromCodePoint(r.max);
+      const minChar = String.fromCodePoint(r.min);
+      const maxChar = String.fromCodePoint(r.max);
       if (r.min === r.max) {
         return this.escapeForCharClass(minChar);
       }
       return `${this.escapeForCharClass(minChar)}-${this.escapeForCharClass(maxChar)}`;
     });
     const inner = parts.join('');
-    return this.negated ? `[^${inner}]` : `[${inner}]`;
+    return `[${inner}]`;
   }
 
   private escapeForCharClass(char: string): string {
@@ -113,29 +132,14 @@ export const CharClasses = {
     return new CharClass([DIGIT_RANGE]);
   },
 
-  /** Matches any non-digit [^0-9] */
-  nonDigit(): CharClass {
-    return new CharClass([DIGIT_RANGE], true);
-  },
-
   /** Matches any word character [a-zA-Z0-9_] */
   word(): CharClass {
     return new CharClass(WORD_RANGES);
   },
 
-  /** Matches any non-word character [^a-zA-Z0-9_] */
-  nonWord(): CharClass {
-    return new CharClass(WORD_RANGES, true);
-  },
-
   /** Matches any whitespace character [ \t\n\r\f\v] */
   whitespace(): CharClass {
     return new CharClass(WHITESPACE_RANGES);
-  },
-
-  /** Matches any non-whitespace character [^ \t\n\r\f\v] */
-  nonWhitespace(): CharClass {
-    return new CharClass(WHITESPACE_RANGES, true);
   },
 
   /** Creates a character range, e.g., 'a' to 'z' */
@@ -144,8 +148,11 @@ export const CharClasses = {
   },
 
   /** Creates a CharClass from explicit ranges */
-  fromRanges(ranges: readonly CharRange[], negated: boolean = false): CharClass {
-    return new CharClass(ranges, negated);
+  fromRanges(ranges: readonly CharRange[]): CharClass {
+    return new CharClass(ranges);
   },
 };
+
+export { charRange };
+export type { CharRange };
 

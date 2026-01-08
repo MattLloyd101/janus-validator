@@ -2,7 +2,7 @@ import { Struct } from '@/com/techlloyd/janus/combinators/Struct';
 import { Integer } from '@/com/techlloyd/janus/combinators/Integer';
 import { UnicodeString } from '@/com/techlloyd/janus/combinators/UnicodeString';
 import { Boolean } from '@/com/techlloyd/janus/combinators/Boolean';
-import { Number } from '@/com/techlloyd/janus/combinators/Number';
+import { Float } from '@/com/techlloyd/janus/combinators/Float';
 import { DomainType, RNG, Generator } from '@/com/techlloyd/janus/index';
 
 describe('Struct', () => {
@@ -144,7 +144,7 @@ describe('Struct', () => {
     it('should return validated values', () => {
       const validator = Struct({
         count: Integer(0, 100),
-        ratio: Number(0, 1),
+        ratio: Float(0, 1),
       });
 
       const result = validator.validate({ count: 42, ratio: 0.5 });
@@ -191,8 +191,8 @@ describe('Struct', () => {
         expect(results.name.valid).toBe(false);
         expect(results.age.valid).toBe(false);
         expect(results.email.valid).toBe(false);
-        expect(results.name.error).toContain('less than minimum');
-        expect(results.age.error).toContain('greater than maximum');
+        expect(results.name.error).toMatch(/>=\s*1|less than minimum/);
+        expect(results.age.error).toMatch(/<=\s*150|greater than maximum/);
       }
     });
 
@@ -244,7 +244,7 @@ describe('Struct', () => {
         age: Integer(),
       });
 
-      expect(validator.domain.type).toBe(DomainType.STRUCT_DOMAIN);
+      expect(validator.domain.kind).toBe(DomainType.STRUCT);
     });
 
     it('should include schema domains', () => {
@@ -253,17 +253,16 @@ describe('Struct', () => {
         age: Integer(0, 150),
       });
 
-      const domain = validator.domain as any;
-      expect(domain.schema.name).toBeDefined();
-      expect(domain.schema.age).toBeDefined();
+      expect(validator.domain.fields.name).toBeDefined();
+      expect(validator.domain.fields.age).toBeDefined();
     });
 
     it('should include strict flag', () => {
       const nonStrict = Struct({ name: UnicodeString() }, false);
       const strict = Struct({ name: UnicodeString() }, true);
 
-      expect((nonStrict.domain as any).strict).toBe(false);
-      expect((strict.domain as any).strict).toBe(true);
+      expect(nonStrict.domain.strict).toBe(false);
+      expect(strict.domain.strict).toBe(true);
     });
   });
 
@@ -279,7 +278,7 @@ describe('Struct', () => {
       const generator = new Generator(rng);
 
       for (let i = 0; i < 50; i++) {
-        const value = generator.generate(validator.domain) as any;
+        const value = generator.generate(validator.domain);
         
         expect(typeof value).toBe('object');
         expect(typeof value.name).toBe('string');
@@ -296,7 +295,7 @@ describe('Struct', () => {
     it('should generate values that pass validation', () => {
       const validator = Struct({
         id: Integer(1, 1000),
-        score: Number(0, 100),
+        score: Float(0, 100),
         label: UnicodeString(1, 10),
       });
 
@@ -321,7 +320,7 @@ describe('Struct', () => {
 
       const rng: RNG = { random: () => Math.random() };
       const generator = new Generator(rng);
-      const value = generator.generate(validator.domain) as any;
+      const value = generator.generate(validator.domain);
 
       expect(typeof value.user).toBe('object');
       expect(typeof value.user.name).toBe('string');

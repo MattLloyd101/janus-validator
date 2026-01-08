@@ -95,7 +95,7 @@ describe('Long', () => {
       const result = validator.validate(-1n);
       expect(result.valid).toBe(false);
       if (!result.valid) {
-        expect(result.error).toContain('less than minimum');
+        expect(result.error).toMatch(/>=\s*0|less than minimum/);
       }
     });
 
@@ -104,7 +104,7 @@ describe('Long', () => {
       const result = validator.validate(101n);
       expect(result.valid).toBe(false);
       if (!result.valid) {
-        expect(result.error).toContain('greater than maximum');
+        expect(result.error).toMatch(/<=\s*100|greater than maximum/);
       }
     });
 
@@ -152,9 +152,9 @@ describe('Long', () => {
   });
 
   describe('domain', () => {
-    it('should have BIGINT_DOMAIN type', () => {
+    it('should have contiguous domain kind', () => {
       const validator = Long();
-      expect(validator.domain.type).toBe(DomainType.BIGINT_DOMAIN);
+      expect(validator.domain.kind).toBe(DomainType.CONTIGUOUS);
     });
   });
 

@@ -7,6 +7,7 @@
 
 import { Generator } from '@/com/techlloyd/janus/Generator';
 import { Validator } from '@/com/techlloyd/janus/Validator';
+import { Domain as DomainType } from '@/com/techlloyd/janus/Domain';
 import { RNG } from '@/com/techlloyd/janus/RNG';
 
 /**
@@ -60,7 +61,7 @@ import {
 /**
  * Helper function to test that a validator can generate valid values
  */
-function testGeneration<T>(name: string, validator: Validator<T>, iterations: number = 100): void {
+function testGeneration<T>(name: string, validator: Validator<T, DomainType<T>>, iterations: number = 100): void {
   const generator = new Generator(new DefaultRNG());
   
   for (let i = 0; i < iterations; i++) {

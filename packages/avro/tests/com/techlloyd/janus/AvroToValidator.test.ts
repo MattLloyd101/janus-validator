@@ -1,6 +1,6 @@
 import { avroToValidator } from '../../../../src/com/techlloyd/janus/AvroToValidator';
 import { Generator, RNG } from '@janus-validator/core';
-import type { AvroRecordType, AvroEnumType, AvroArrayType } from '../../../../src/com/techlloyd/janus/types';
+import type { AvroRecordType, AvroEnumType, AvroArrayType, AvroFixedType } from '../../../../src/com/techlloyd/janus/types';
 
 describe('avroToValidator', () => {
   // Helper to create a seeded RNG for deterministic tests
@@ -319,13 +319,13 @@ describe('avroToValidator', () => {
 
   describe('fixed type', () => {
     it('converts fixed to exact-length bytes', () => {
-      const schema = {
+      const schema: AvroFixedType = {
         type: 'fixed',
         name: 'MD5',
         size: 16,
       };
 
-      const validator = avroToValidator(schema as any);
+      const validator = avroToValidator(schema);
       expect(validator.validate(new Uint8Array(16)).valid).toBe(true);
       expect(validator.validate(new Uint8Array(15)).valid).toBe(false);
       expect(validator.validate(new Uint8Array(17)).valid).toBe(false);

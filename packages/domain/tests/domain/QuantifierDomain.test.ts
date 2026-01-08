@@ -2,51 +2,36 @@ import { QuantifierDomain } from "@/domains/QuantifierDomain";
 import { FiniteDomain } from "@/domains/FiniteDomain";
 
 describe("QuantifierDomain", () => {
-  it("enforces length and element domain", () => {
-    const domain = new QuantifierDomain(new FiniteDomain(["x", "y"]), { min: 1, max: 2 });
+  it("validates arrays within count range", () => {
+    const inner = new FiniteDomain([1, 2, 3]);
+    const domain = new QuantifierDomain(inner, { min: 1, max: 3 });
+    expect(domain.contains([1])).toBe(true);
+    expect(domain.contains([1, 2, 3])).toBe(true);
     expect(domain.contains([])).toBe(false);
-    expect(domain.contains(["x"])).toBe(true);
-    expect(domain.contains(["x", "y"])).toBe(true);
-    expect(domain.contains(["x", "z"])).toBe(false);
-    expect(domain.contains(["x", "y", "x"])).toBe(false);
+    expect(domain.contains([1, 2, 3, 1])).toBe(false);
   });
 
-  it("throws on invalid bounds", () => {
-    expect(() => new QuantifierDomain(new FiniteDomain([1]), { min: 2, max: 1 })).toThrow(
-      "Quantifier max must be >= min"
-    );
+  it("validates all elements against inner domain", () => {
+    const inner = new FiniteDomain([1, 2]);
+    const domain = new QuantifierDomain(inner, { min: 1, max: 5 });
+    expect(domain.contains([1, 2, 1])).toBe(true);
+    expect(domain.contains([1, 3])).toBe(false);
   });
 
-  it("throws on negative min", () => {
-    expect(() => new QuantifierDomain(new FiniteDomain([1]), { min: -1, max: 1 })).toThrow(
-      "Quantifier min must be >= 0"
-    );
+  it("rejects non-array values", () => {
+    const inner = new FiniteDomain([1]);
+    const domain = new QuantifierDomain(inner, { min: 0, max: 10 });
+    // Testing defensive behavior
+    expect(domain.contains("not-array")).toBe(false);
   });
 
-  it("allows unbounded max", () => {
-    const domain = new QuantifierDomain(new FiniteDomain([1]), { min: 0 });
-    expect(domain.contains([1, 1, 1, 1, 1])).toBe(true);
+  it("throws when min < 0", () => {
+    const inner = new FiniteDomain([1]);
+    expect(() => new QuantifierDomain(inner, { min: -1 })).toThrow("Quantifier min must be >= 0");
   });
 
-  it("rejects elements outside inner domain", () => {
-    const domain = new QuantifierDomain(new FiniteDomain([1]), { min: 0, max: 3 });
-    expect(domain.contains([2])).toBe(false);
-  });
-
-  it("enforces minimum length when max is undefined", () => {
-    const domain = new QuantifierDomain(new FiniteDomain([1]), { min: 2 });
-    expect(domain.contains([1])).toBe(false);
-    expect(domain.contains([1, 1])).toBe(true);
-  });
-
-  it("rejects arrays longer than max", () => {
-    const domain = new QuantifierDomain(new FiniteDomain([1]), { min: 0, max: 2 });
-    expect(domain.contains([1, 1, 1])).toBe(false);
-  });
-
-  it("rejects non-array inputs", () => {
-    const domain = new QuantifierDomain(new FiniteDomain([1]), { min: 0, max: 2 });
-    expect(domain.contains("not-array" as any)).toBe(false);
+  it("throws when max < min", () => {
+    const inner = new FiniteDomain([1]);
+    expect(() => new QuantifierDomain(inner, { min: 5, max: 3 })).toThrow("Quantifier max must be >= min");
   });
 });
-

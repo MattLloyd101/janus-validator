@@ -7,16 +7,24 @@ import {
   isAnchor,
   isLiteral,
   isCharClass,
+  LiteralNode,
+  CharClassNode,
+  AnyNode,
+  AnchorNode,
+  EmptyNode,
+  GroupNode,
+  QuantifierNode,
+  AnchorKind,
 } from "@/com/techlloyd/janus/regex-parser";
 
 describe("RegexAST type guards", () => {
-  const anchorNode = { type: RegexNodeType.ANCHOR, kind: "start" } as any;
-  const emptyNode = { type: RegexNodeType.EMPTY } as any;
-  const groupNode = { type: RegexNodeType.GROUP, node: emptyNode, capturing: true } as any;
-  const anyNode = { type: RegexNodeType.ANY } as any;
-  const literalNode = { type: RegexNodeType.LITERAL, char: "a" } as any;
-  const charClassNode = { type: RegexNodeType.CHAR_CLASS, ranges: [], negated: false } as any;
-  const quantNode = { type: RegexNodeType.QUANTIFIER, node: literalNode, min: 0, max: 1 } as any;
+  const anchorNode: AnchorNode = { type: RegexNodeType.ANCHOR, kind: AnchorKind.START };
+  const emptyNode: EmptyNode = { type: RegexNodeType.EMPTY };
+  const groupNode: GroupNode = { type: RegexNodeType.GROUP, node: emptyNode, capturing: true };
+  const anyNode: AnyNode = { type: RegexNodeType.ANY };
+  const literalNode: LiteralNode = { type: RegexNodeType.LITERAL, char: "a" };
+  const charClassNode: CharClassNode = { type: RegexNodeType.CHAR_CLASS, ranges: [], negated: false };
+  const quantNode: QuantifierNode = { type: RegexNodeType.QUANTIFIER, node: literalNode, min: 0, max: 1 };
 
   it("identifies anchors and empty", () => {
     expect(isAnchor(anchorNode)).toBe(true);
@@ -34,4 +42,3 @@ describe("RegexAST type guards", () => {
     expect(isQuantifier(quantNode)).toBe(true);
   });
 });
-

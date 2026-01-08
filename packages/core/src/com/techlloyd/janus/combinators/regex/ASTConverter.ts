@@ -8,7 +8,20 @@ import { RegexSequence } from './Sequence';
 import { RegexAlternation } from './Alternation';
 import { Quantifier } from './Quantifier';
 import { Group } from './Group';
-import { parseRegexToAST, RegexASTNode, RegexNodeType } from '../../regex';
+import {
+  parseRegexToAST,
+  RegexASTNode,
+  RegexASTVisitor,
+  LiteralNode,
+  CharClassNode,
+  AnyNode,
+  AnchorNode,
+  EmptyNode,
+  SequenceNode,
+  AlternationNode,
+  QuantifierNode,
+  GroupNode,
+} from '@janus-validator/regex-parser';
 
 /**
  * Converts a RegexAST node into a composed RegexValidator.
@@ -28,35 +41,50 @@ import { parseRegexToAST, RegexASTNode, RegexNodeType } from '../../regex';
  * validator.validate('hello'); // valid
  * ```
  */
-export function astToValidator(node: RegexASTNode): RegexValidator {
-  switch (node.type) {
-    case RegexNodeType.LITERAL:
-      return new Literal(node.char);
-
-    case RegexNodeType.CHAR_CLASS:
-      return new CharClass(node.ranges, node.negated);
-
-    case RegexNodeType.ANY:
-      return new Any();
-
-    case RegexNodeType.ANCHOR:
-      return new Anchor(node.kind);
-
-    case RegexNodeType.EMPTY:
-      return new Empty();
-
-    case RegexNodeType.SEQUENCE:
-      return RegexSequence.create(...node.nodes.map(n => astToValidator(n)));
-
-    case RegexNodeType.ALTERNATION:
-      return RegexAlternation.create(...node.options.map(n => astToValidator(n)));
-
-    case RegexNodeType.QUANTIFIER:
-      return new Quantifier(astToValidator(node.node), node.min, node.max);
-
-    case RegexNodeType.GROUP:
-      return new Group(astToValidator(node.node), node.capturing);
+class RegexValidatorBuilder extends RegexASTVisitor<RegexValidator, void> {
+  protected visitLiteral(node: LiteralNode): RegexValidator {
+    return new Literal(node.char);
   }
+
+  protected visitCharClass(node: CharClassNode): RegexValidator {
+    return new CharClass(node.ranges, node.negated);
+  }
+
+  protected visitAny(_node: AnyNode): RegexValidator {
+    return new Any();
+  }
+
+  protected visitAnchor(node: AnchorNode): RegexValidator {
+    return new Anchor(node.kind);
+  }
+
+  protected visitEmpty(_node: EmptyNode): RegexValidator {
+    return new Empty();
+  }
+
+  protected visitSequence(node: SequenceNode): RegexValidator {
+    const parts = node.nodes.map((n: RegexASTNode) => this.visit(n, undefined));
+    return RegexSequence.create(...parts);
+  }
+
+  protected visitAlternation(node: AlternationNode): RegexValidator {
+    const options = node.options.map((n: RegexASTNode) => this.visit(n, undefined));
+    return RegexAlternation.create(...options);
+  }
+
+  protected visitQuantifier(node: QuantifierNode): RegexValidator {
+    return new Quantifier(this.visit(node.node, undefined), node.min, node.max);
+  }
+
+  protected visitGroup(node: GroupNode): RegexValidator {
+    return new Group(this.visit(node.node, undefined), node.capturing);
+  }
+}
+
+const builder = new RegexValidatorBuilder();
+
+export function astToValidator(node: RegexASTNode): RegexValidator {
+  return builder.visit(node, undefined);
 }
 
 /**

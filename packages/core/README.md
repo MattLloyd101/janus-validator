@@ -283,9 +283,9 @@ describe('UserService', () => {
 ### Validator Interface
 
 ```typescript
-interface Validator<T> {
+interface Validator<T, D extends Domain<T>> {
   validate(input: unknown): ValidationResult<T>;
-  domain: Domain<T>;
+  domain: D;
 }
 
 type ValidationResult<T> =
@@ -294,8 +294,17 @@ type ValidationResult<T> =
       valid: false;
       error: string;
       example?: T;
-      results?: { [key: string]: ValidationResult<any> } | ValidationResult<any>[];
+      results?: { [key: string]: ValidationResult<unknown> } | ValidationResult<unknown>[];
     };
+```
+
+### Domain Interface
+
+```typescript
+interface Domain<T> {
+  readonly kind: DomainType;
+  contains(value: unknown): value is T;
+}
 ```
 
 ### Type Utilities
@@ -304,11 +313,11 @@ Helper types for working with validators:
 
 ```typescript
 import {
-  InferValidatorType,   // Extract T from Validator<T>
-  UnionOfValidators,    // [Validator<A>, Validator<B>] => A | B
-  TupleOfValidators,    // [Validator<A>, Validator<B>] => [A, B]
-  ValidatorSchema,      // { [key: string]: Validator<any> }
-  InferSchemaType,      // { a: Validator<A> } => { a: A }
+  InferValidatorType,   // Extract T from Validator<T, D>
+  UnionOfValidators,    // [Validator<A, DA>, Validator<B, DB>] => A | B
+  TupleOfValidators,    // [Validator<A, DA>, Validator<B, DB>] => [A, B]
+  ValidatorSchema,      // { [key: string]: Validator<unknown, Domain<unknown>> }
+  InferSchemaType,      // { a: Validator<A, DA> } => { a: A }
 } from '@janus-validator/core';
 
 // Example: Infer type from any validator

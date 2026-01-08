@@ -46,7 +46,7 @@ describe('Null', () => {
   describe('domain', () => {
     it('should expose a FiniteDomain', () => {
       const validator = Null();
-      expect(validator.domain.type).toBe(DomainType.FINITE_DOMAIN);
+      expect(validator.domain.kind).toBe(DomainType.FINITE);
     });
   });
 

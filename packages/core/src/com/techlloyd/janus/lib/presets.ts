@@ -5,8 +5,8 @@
  */
 
 import { Regex } from '../combinators/Regex';
-import { String as S, digits, upper, letters } from '../combinators/String';
-import { Number as Num } from '../combinators/Number';
+import { CompoundString as S, digits, upper, letters } from '../combinators/CompoundString';
+import { Float } from '../combinators/Float';
 import { UnicodeString } from '../combinators/UnicodeString';
 import { fromValues, templateGenerator, combineGenerators } from '../combinators/WithGenerator';
 
@@ -305,7 +305,7 @@ export const FutureDate = () => templateGenerator(
  * Realistic price (weighted toward common price points)
  */
 export const RealisticPrice = () => combineGenerators(
-  Num(0, 10000),
+  Float(0, 10000),
   [
     (rng) => Math.floor(rng.random() * 20) + 0.99, // $0.99 - $19.99
     (rng) => Math.floor(rng.random() * 50) + 19.99, // $19.99 - $69.99

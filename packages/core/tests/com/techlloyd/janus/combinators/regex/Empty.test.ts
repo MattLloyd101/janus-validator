@@ -59,7 +59,7 @@ describe('Empty', () => {
   describe('domain', () => {
     it('should expose a regex domain', () => {
       const empty = new Empty();
-      expect(empty.domain.type).toBe(DomainType.REGEX_DOMAIN);
+      expect(empty.domain.kind).toBe(DomainType.REGEX);
       // Source is (?:) - a non-capturing group matching empty string
       expect(empty.domain.source).toBe('(?:)');
     });

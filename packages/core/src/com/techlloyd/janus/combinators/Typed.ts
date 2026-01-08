@@ -1,5 +1,6 @@
 import { Validator } from '../Validator';
 import { ValidationResult } from '../ValidationResult';
+import { Domain } from '../Domain';
 
 /**
  * Wraps a validator and asserts its output type as T.
@@ -41,7 +42,7 @@ export function Typed<T>() {
    * must be assignable to T. This two-step approach allows TypeScript
    * to check the constraint properly.
    */
-  return <V extends Validator<T>>(validator: V): Validator<T> => {
+  return <V extends Validator<T, Domain<T>>>(validator: V): Validator<T, Domain<T>> => {
     return {
       validate: (input: unknown): ValidationResult<T> => {
         return validator.validate(input);

@@ -121,7 +121,7 @@ describe('Group', () => {
   describe('domain', () => {
     it('should expose a regex domain', () => {
       const group = new Group(new Literal('x'));
-      expect(group.domain.type).toBe(DomainType.REGEX_DOMAIN);
+      expect(group.domain.kind).toBe(DomainType.REGEX);
     });
 
     it('should wrap complex inner in parentheses', () => {

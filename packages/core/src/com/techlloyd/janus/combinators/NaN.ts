@@ -1,5 +1,4 @@
-import { Validator } from '../index';
-import { Constant } from './Constant';
+import { ConstantValidator, Constant } from './Constant';
 
 /**
  * Creates a validator for NaN (Not a Number)
@@ -15,7 +14,7 @@ import { Constant } from './Constant';
  * validator.validate(0);          // invalid
  * ```
  */
-export function NaN(): Validator<number> {
+export function NaN(): ConstantValidator<number> {
   return Constant(
     Number.NaN,
     (input) => typeof input === 'number' && Number.isNaN(input),

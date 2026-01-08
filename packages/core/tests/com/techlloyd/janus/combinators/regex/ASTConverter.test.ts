@@ -46,10 +46,8 @@ describe('ASTConverter', () => {
       expect(validator.match('A', 0).matched).toBe(false);
     });
 
-    it('should parse negated character class', () => {
-      const validator = parseRegex('[^abc]');
-      expect(validator.match('a', 0).matched).toBe(false);
-      expect(validator.match('d', 0).matched).toBe(true);
+    it('should reject negated character classes as unsupported', () => {
+      expect(() => parseRegex('[^abc]')).toThrow('Unsupported regex construct');
     });
 
     // Non-portable escapes are rejected - use explicit character classes instead

@@ -5,17 +5,17 @@
 import { BaseValidator, Validator } from '../Validator';
 import { RNG } from '../RNG';
 import { ValidationResult } from '../ValidationResult';
-import { CustomGeneratorDomain } from '../Domain';
+import { CustomGeneratorDomain, Domain } from '../Domain';
 
-class WithGeneratorValidator<T> extends BaseValidator<T> {
-  public readonly domain: CustomGeneratorDomain<T>;
+class WithGeneratorValidator<T, D extends Domain<T>, V extends Validator<T, D>> extends BaseValidator<T, CustomGeneratorDomain<T, D>> {
+  public readonly domain: CustomGeneratorDomain<T, D>;
 
   constructor(
-    private readonly inner: Validator<T>,
+    private readonly inner: V,
     generate: GeneratorFn<T>
   ) {
     super();
-    this.domain = new CustomGeneratorDomain(inner.domain, generate) as any;
+    this.domain = new CustomGeneratorDomain<T, D>(inner.domain, generate);
   }
 
   validate(value: unknown): ValidationResult<T> {
@@ -82,10 +82,10 @@ export type SelectorFn<T> = (values: T[], rng: RNG) => T;
  * );
  * ```
  */
-export function withGenerator<T>(
-  validator: Validator<T>,
+export function withGenerator<T, D extends Domain<T>>(
+  validator: Validator<T, D>,
   generate: GeneratorFn<T>
-): Validator<T> {
+): Validator<T, CustomGeneratorDomain<T, D>> {
   return new WithGeneratorValidator(validator, generate);
 }
 
@@ -104,10 +104,10 @@ export function withGenerator<T>(
  * ]);
  * ```
  */
-export function fromValues<T>(
-  validator: Validator<T>,
+export function fromValues<T, D extends Domain<T>>(
+  validator: Validator<T, D>,
   values: T[]
-): Validator<T> {
+): Validator<T, CustomGeneratorDomain<T, D>> {
   if (values.length === 0) {
     throw new Error('fromValues requires at least one value');
   }
@@ -134,10 +134,10 @@ export function fromValues<T>(
  * ]);
  * ```
  */
-export function fromWeightedValues<T>(
-  validator: Validator<T>,
+export function fromWeightedValues<T, D extends Domain<T>>(
+  validator: Validator<T, D>,
   weightedValues: [T, number][]
-): Validator<T> {
+): Validator<T, CustomGeneratorDomain<T, D>> {
   if (weightedValues.length === 0) {
     throw new Error('fromWeightedValues requires at least one value');
   }
@@ -171,10 +171,10 @@ export function fromWeightedValues<T>(
  * // Generates: Mon, Tue, Wed, Thu, Fri, Mon, Tue, ...
  * ```
  */
-export function cycleValues<T>(
-  validator: Validator<T>,
+export function cycleValues<T, D extends Domain<T>>(
+  validator: Validator<T, D>,
   values: T[]
-): Validator<T> {
+): Validator<T, CustomGeneratorDomain<T, D>> {
   if (values.length === 0) {
     throw new Error('cycleValues requires at least one value');
   }
@@ -204,10 +204,10 @@ export function cycleValues<T>(
  * ]);
  * ```
  */
-export function combineGenerators<T>(
-  validator: Validator<T>,
+export function combineGenerators<T, D extends Domain<T>>(
+  validator: Validator<T, D>,
   generators: GeneratorFn<T>[]
-): Validator<T> {
+): Validator<T, CustomGeneratorDomain<T, D>> {
   if (generators.length === 0) {
     throw new Error('combineGenerators requires at least one generator');
   }
@@ -236,10 +236,10 @@ export function combineGenerators<T>(
  * // Generates: happy_tiger42, clever_wolf87, etc.
  * ```
  */
-export function templateGenerator<T extends string>(
-  validator: Validator<T>,
+export function templateGenerator<T extends string, D extends Domain<T>>(
+  validator: Validator<T, D>,
   template: (pick: <V>(values: V[]) => V, rng: RNG) => T
-): Validator<T> {
+): Validator<T, CustomGeneratorDomain<T, D>> {
   return withGenerator(validator, (rng) => {
     const pick = <V>(values: V[]): V => {
       const index = Math.floor(rng.random() * values.length);

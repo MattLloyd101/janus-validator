@@ -6,7 +6,7 @@ import { defaultRng } from './RNG';
 /**
  * A validator validates values and exposes a domain
  */
-export interface Validator<T> {
+export interface Validator<T, D extends Domain<T>> {
   /**
    * Validates a value and returns a result
    */
@@ -15,7 +15,7 @@ export interface Validator<T> {
   /**
    * The domain of valid values for this validator
    */
-  domain: Domain<T>;
+  domain: D;
 }
 
 /**
@@ -37,8 +37,8 @@ export interface Validator<T> {
  * }
  * ```
  */
-export abstract class BaseValidator<T> implements Validator<T> {
-  abstract domain: Domain<T>;
+export abstract class BaseValidator<T, D extends Domain<T> = Domain<T>> implements Validator<T, D> {
+  abstract domain: D;
   abstract validate(value: unknown): ValidationResult<T>;
 
   /**
@@ -167,7 +167,7 @@ export abstract class BaseValidator<T> implements Validator<T> {
     const errorMsg = this.flattenResults(results);
     
     // Try to derive example from child results
-    const example: any[] = [];
+    const example: unknown[] = [];
     let hasAllExamples = true;
     
     for (const result of results) {

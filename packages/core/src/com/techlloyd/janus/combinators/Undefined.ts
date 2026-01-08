@@ -1,5 +1,4 @@
-import { Validator } from '../index';
-import { Constant } from './Constant';
+import { ConstantValidator, Constant } from './Constant';
 
 /**
  * Creates a validator for undefined
@@ -13,6 +12,6 @@ import { Constant } from './Constant';
  * validator.validate(0);          // invalid
  * ```
  */
-export function Undefined(): Validator<undefined> {
+export function Undefined(): ConstantValidator<undefined> {
   return Constant(undefined, (input) => input === undefined, 'undefined');
 }
