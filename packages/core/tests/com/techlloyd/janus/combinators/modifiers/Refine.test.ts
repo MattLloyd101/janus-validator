@@ -94,70 +94,7 @@ describe('Refine', () => {
     });
   });
 
-  describe('convenience numeric refinements', () => {
-    describe('.positive()', () => {
-      it('should pass for positive numbers', () => {
-        const validator = Integer(-100, 100).positive();
-        expect(validator.validate(1).valid).toBe(true);
-        expect(validator.validate(100).valid).toBe(true);
-      });
-
-      it('should fail for zero and negative numbers', () => {
-        const validator = Integer(-100, 100).positive();
-        expect(validator.validate(0).valid).toBe(false);
-        expect(validator.validate(-1).valid).toBe(false);
-      });
-
-      it('should support custom message', () => {
-        const validator = Integer(-100, 100).positive('Need a positive value');
-        const result = validator.validate(-5);
-        expect(result.valid).toBe(false);
-        if (!result.valid) {
-          expect(result.error).toBe('Need a positive value');
-        }
-      });
-    });
-
-    describe('.negative()', () => {
-      it('should pass for negative numbers', () => {
-        const validator = Integer(-100, 100).negative();
-        expect(validator.validate(-1).valid).toBe(true);
-        expect(validator.validate(-100).valid).toBe(true);
-      });
-
-      it('should fail for zero and positive numbers', () => {
-        const validator = Integer(-100, 100).negative();
-        expect(validator.validate(0).valid).toBe(false);
-        expect(validator.validate(1).valid).toBe(false);
-      });
-    });
-
-    describe('.nonNegative()', () => {
-      it('should pass for zero and positive numbers', () => {
-        const validator = Integer(-100, 100).nonNegative();
-        expect(validator.validate(0).valid).toBe(true);
-        expect(validator.validate(1).valid).toBe(true);
-      });
-
-      it('should fail for negative numbers', () => {
-        const validator = Integer(-100, 100).nonNegative();
-        expect(validator.validate(-1).valid).toBe(false);
-      });
-    });
-
-    describe('.nonPositive()', () => {
-      it('should pass for zero and negative numbers', () => {
-        const validator = Integer(-100, 100).nonPositive();
-        expect(validator.validate(0).valid).toBe(true);
-        expect(validator.validate(-1).valid).toBe(true);
-      });
-
-      it('should fail for positive numbers', () => {
-        const validator = Integer(-100, 100).nonPositive();
-        expect(validator.validate(1).valid).toBe(false);
-      });
-    });
-
+  describe('numeric refinements', () => {
     describe('.multipleOf()', () => {
       it('should pass for multiples', () => {
         const validator = Integer(0, 100).multipleOf(5);
@@ -181,108 +118,9 @@ describe('Refine', () => {
         }
       });
     });
-
-    describe('.int()', () => {
-      it('should pass for integers', () => {
-        const validator = Float(-100, 100).int();
-        expect(validator.validate(0).valid).toBe(true);
-        expect(validator.validate(42).valid).toBe(true);
-        expect(validator.validate(-10).valid).toBe(true);
-      });
-
-      it('should fail for non-integers', () => {
-        const validator = Float(-100, 100).int();
-        expect(validator.validate(3.14).valid).toBe(false);
-        expect(validator.validate(0.5).valid).toBe(false);
-      });
-    });
-
-    describe('.finite()', () => {
-      it('should pass for finite numbers', () => {
-        const validator = Float().finite();
-        expect(validator.validate(0).valid).toBe(true);
-        expect(validator.validate(1000000).valid).toBe(true);
-      });
-    });
   });
 
-  describe('convenience string refinements', () => {
-    describe('.email()', () => {
-      it('should pass for valid email formats', () => {
-        const validator = UnicodeString(5, 100).email();
-        expect(validator.validate('test@example.com').valid).toBe(true);
-        expect(validator.validate('user.name@domain.co.uk').valid).toBe(true);
-      });
-
-      it('should fail for invalid email formats', () => {
-        const validator = UnicodeString(1, 100).email();
-        expect(validator.validate('not-an-email').valid).toBe(false);
-        expect(validator.validate('missing@domain').valid).toBe(false);
-        expect(validator.validate('@nodomain.com').valid).toBe(false);
-      });
-    });
-
-    describe('.url()', () => {
-      it('should pass for valid URLs', () => {
-        const validator = UnicodeString(10, 2000).url();
-        expect(validator.validate('https://example.com').valid).toBe(true);
-        expect(validator.validate('http://localhost:3000/path').valid).toBe(true);
-      });
-
-      it('should fail for invalid URLs', () => {
-        const validator = UnicodeString(1, 100).url();
-        expect(validator.validate('not-a-url').valid).toBe(false);
-        expect(validator.validate('example.com').valid).toBe(false);
-      });
-    });
-
-    describe('.uuid()', () => {
-      it('should pass for valid UUIDs', () => {
-        const validator = UnicodeString(36, 36).uuid();
-        expect(validator.validate('550e8400-e29b-41d4-a716-446655440000').valid).toBe(true);
-        expect(validator.validate('6ba7b810-9dad-11d1-80b4-00c04fd430c8').valid).toBe(true);
-      });
-
-      it('should fail for invalid UUIDs', () => {
-        const validator = UnicodeString(1, 100).uuid();
-        expect(validator.validate('not-a-uuid').valid).toBe(false);
-        expect(validator.validate('550e8400-e29b-41d4-a716').valid).toBe(false);
-      });
-    });
-
-    describe('.startsWith()', () => {
-      it('should pass when string starts with prefix', () => {
-        const validator = UnicodeString(1, 100).startsWith('https://');
-        expect(validator.validate('https://example.com').valid).toBe(true);
-      });
-
-      it('should fail when string does not start with prefix', () => {
-        const validator = UnicodeString(1, 100).startsWith('https://');
-        expect(validator.validate('http://example.com').valid).toBe(false);
-      });
-
-      it('should include prefix in default message', () => {
-        const validator = UnicodeString(1, 100).startsWith('PREFIX_');
-        const result = validator.validate('test');
-        expect(result.valid).toBe(false);
-        if (!result.valid) {
-          expect(result.error).toBe('Must start with "PREFIX_"');
-        }
-      });
-    });
-
-    describe('.endsWith()', () => {
-      it('should pass when string ends with suffix', () => {
-        const validator = UnicodeString(1, 100).endsWith('.json');
-        expect(validator.validate('config.json').valid).toBe(true);
-      });
-
-      it('should fail when string does not end with suffix', () => {
-        const validator = UnicodeString(1, 100).endsWith('.json');
-        expect(validator.validate('config.yaml').valid).toBe(false);
-      });
-    });
-
+  describe('string refinements', () => {
     describe('.includes()', () => {
       it('should pass when string includes substring', () => {
         const validator = UnicodeString(1, 100).includes('@');
@@ -293,40 +131,23 @@ describe('Refine', () => {
         const validator = UnicodeString(1, 100).includes('@');
         expect(validator.validate('test.example.com').valid).toBe(false);
       });
-    });
 
-    describe('.pattern()', () => {
-      it('should pass when string matches pattern', () => {
-        const validator = UnicodeString(1, 100).pattern(/^[A-Z]{3}-\d{4}$/);
-        expect(validator.validate('ABC-1234').valid).toBe(true);
-      });
-
-      it('should fail when string does not match pattern', () => {
-        const validator = UnicodeString(1, 100).pattern(/^[A-Z]{3}-\d{4}$/);
-        expect(validator.validate('abc-1234').valid).toBe(false);
-        expect(validator.validate('ABC-123').valid).toBe(false);
-      });
-    });
-
-    describe('.nonempty()', () => {
-      it('should pass for non-empty strings', () => {
-        const validator = UnicodeString(0, 100).nonempty();
-        expect(validator.validate('a').valid).toBe(true);
-        expect(validator.validate('hello').valid).toBe(true);
-      });
-
-      it('should fail for empty strings', () => {
-        const validator = UnicodeString(0, 100).nonempty();
-        expect(validator.validate('').valid).toBe(false);
+      it('should include substring in default message', () => {
+        const validator = UnicodeString(1, 100).includes('@@');
+        const result = validator.validate('test@example.com');
+        expect(result.valid).toBe(false);
+        if (!result.valid) {
+          expect(result.error).toBe('Must include "@@"');
+        }
       });
     });
   });
 
   describe('chaining refinements with transforms', () => {
     it('should apply refinement after transform', () => {
-      const validator = UnicodeString(1, 100)
+      const validator = UnicodeString(0, 100)
         .trim()
-        .nonempty('Cannot be empty or whitespace');
+        .refine(s => s.length > 0, 'Cannot be empty or whitespace');
       
       expect(validator.validate('hello').valid).toBe(true);
       expect(validator.validate('  hello  ').valid).toBe(true);
@@ -342,9 +163,44 @@ describe('Refine', () => {
       const validator = UnicodeString(1, 100)
         .trim()
         .toLowerCase()
-        .email();
+        .refine(s => s.includes('@') && s.includes('.'), 'Must be email-like');
       
       expect(validator.validate('  TEST@EXAMPLE.COM  ').valid).toBe(true);
+    });
+  });
+
+  describe('implementing common patterns with refine()', () => {
+    it('can implement positive check', () => {
+      const positive = Integer(-100, 100).refine(n => n > 0, 'Must be positive');
+      expect(positive.validate(5).valid).toBe(true);
+      expect(positive.validate(-5).valid).toBe(false);
+    });
+
+    it('can implement email check', () => {
+      const email = UnicodeString(5, 100).refine(
+        s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s),
+        'Invalid email'
+      );
+      expect(email.validate('test@example.com').valid).toBe(true);
+      expect(email.validate('invalid').valid).toBe(false);
+    });
+
+    it('can implement uuid check', () => {
+      const uuid = UnicodeString(36, 36).refine(
+        s => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s),
+        'Invalid UUID'
+      );
+      expect(uuid.validate('550e8400-e29b-41d4-a716-446655440000').valid).toBe(true);
+      expect(uuid.validate('not-a-uuid').valid).toBe(false);
+    });
+
+    it('can implement startsWith check', () => {
+      const httpsUrl = UnicodeString(10, 2000).refine(
+        s => s.startsWith('https://'),
+        'Must start with https://'
+      );
+      expect(httpsUrl.validate('https://example.com').valid).toBe(true);
+      expect(httpsUrl.validate('http://example.com').valid).toBe(false);
     });
   });
 
@@ -489,11 +345,19 @@ describe('SuperRefine', () => {
       expect(result.valid).toBe(false);
     });
 
-    it('should validate with convenience methods in struct', () => {
+    it('should validate user with refinements', () => {
+      // Using refine() instead of convenience methods
       const user = Struct({
-        email: UnicodeString(5, 100).email(),
-        age: Integer(0, 150).positive(),
-        website: UnicodeString(10, 2000).url().optional(),
+        email: UnicodeString(5, 100).refine(
+          s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s),
+          'Invalid email'
+        ),
+        age: Integer(1, 150), // Using domain constraint instead of positive()
+        website: UnicodeString(10, 2000)
+          .refine(s => {
+            try { new URL(s); return true; } catch { return false; }
+          }, 'Invalid URL')
+          .optional(),
       });
       
       expect(user.validate({
